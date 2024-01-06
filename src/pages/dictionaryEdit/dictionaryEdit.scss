@@ -1,0 +1,22 @@
+.dictionaryEdit{
+    .info{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        
+        .backButton{
+            color: white;
+            font-size: large;
+            gap: 10px;
+    
+            img{
+                width: 35px;
+                height: 35px;
+                cursor: pointer;;
+            }
+        }
+    }
+}

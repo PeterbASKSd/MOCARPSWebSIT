@@ -1,34 +1,89 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import Home from "./pages/home/Home";
+import Dictionary from "./pages/dictionary/Dictionary";
+import User from "./pages/user/User";
+import Navbar from "./components/navbar/Navbar";
+import Footer from "./components/footer/Footer";
+import Menu from "./components/menu/Menu";
+import Login from "./pages/login/Login";
+import Information from "./pages/information/Information";
+import Question from "./pages/question/Question";
+import Quiz from "./pages/quiz/Quiz";
+import Value from "./pages/value/Value";
+import DictionaryEdit from "./pages/dictionaryEdit/DictionaryEdit";
+import UserEdit from "./pages/userEdit/UserEdit";
+
+import "./styles/global.scss";
+
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const Layout = () => {
+    return (
+      <div className="main">
+        <Navbar />
+        <div className="container">
+          <div className="menuContainer">
+            <Menu />
+          </div>
+          <div className="contentContainer">
+            <Outlet />
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  };
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  );
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Layout />,
+      children: [
+        {
+          path: "/",
+          element: <Home />,
+        },
+        {
+          path: "/dictionary",
+          element: <Dictionary />,
+        },
+        {
+          path: "/dictionaryedit/:id",
+          element: <DictionaryEdit />,
+        },
+        {
+          path: "/user",
+          element: <User />,
+        },
+        {
+          path: "userEdit/:id",
+          element: <UserEdit />,
+        },
+        {
+          path: "/information",
+          element: <Information />,
+        },
+        {
+          path: "/question",
+          element: <Question />,
+        },
+        {
+          path: "/quiz",
+          element: <Quiz />,
+        },
+        {
+          path: "/value",
+          element: <Value />,
+        },
+      ],
+    },
+    {
+      path: "/login",
+      element: <Login />,
+    },
+  ]);
+
+  return <RouterProvider router={router}></RouterProvider>;
 }
 
 export default App;

@@ -1,0 +1,46 @@
+@import "./color.scss";
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.main {
+    font-family: "Inter", sans-serif;
+    height: 100vh; // Set height to 100% of viewport height
+    background-color: $main-bg;
+    color: $main-color;
+}
+
+.container {
+    display: flex;
+    height: 85%; // Set height to 100% of viewport height
+}
+
+// @media screen and (max-width: 768px) {
+//     /* Adjust height for smaller screens */
+//     .container {
+//         height: auto;
+//     }
+// }
+
+.menuContainer {
+    width: 20%;
+    padding: 5px 20px;
+    height: 100%;
+    border-right: 2px solid $soft-bg;
+    overflow-y: hidden;
+}
+
+.contentContainer {
+    width: 80%;
+    height:100%;
+    padding: 5px 20px;
+    overflow-y: auto;
+}

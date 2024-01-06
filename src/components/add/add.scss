@@ -1,0 +1,144 @@
+@import "/src/styles/color.scss";
+
+.add{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.724);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.model{
+    width: 40%;
+    height: auto;
+    max-height: 100%;
+    background-color: $main-bg;
+    position: relative;
+    border-radius: 2%;
+
+    h1{
+        font-size: 30px;
+        color: $soft-color;
+        margin-bottom: 20px;
+        padding-left: 3%;
+        padding-top: 2%;
+    }
+
+    p {
+        font-size: 20px;
+        padding-left: 35%;
+        padding-right: 20%;
+        padding-top: 5%;
+        padding-bottom: 5%;
+        align-items: center;
+    }
+
+    .error {
+        color: red;
+    }
+
+    .success {
+        color: greenyellow;
+    }
+}
+
+    .close{
+        font-size: 36px;
+        position: absolute;
+        top: 1%;
+        right: 2%;
+        cursor: pointer;
+        color: red
+    }
+
+    form{
+        display: block;
+        flex-wrap: wrap;
+        max-width: 100%;
+        max-height: 100%;
+        justify-content: space-between;
+        overflow: auto;
+
+        .item{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            margin-left: 3%;
+            margin-right: 2%;
+
+            label{
+                font-size: 18px;
+                color: $soft-color;
+
+                input[type="checkbox"] {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+
+            input{
+                font-size: large;
+                padding: 10px;
+                background-color: transparent;
+                color: white;
+                outline: none;
+                border: 2px solid $soft-color;
+                border-radius: 2%;
+            }
+
+            textarea{
+                font-size: large;
+                padding: 10px;
+                height: 100px;
+                max-height: 50%;
+                background-color: transparent;
+                color: white;
+                outline: none;
+                border: 2px solid $soft-color;
+                border-radius: 2%;
+                overflow-y: scroll;
+            }
+
+            .options{
+                color: black;
+            }
+        }
+
+        button{
+            width: 80%;
+            padding: 1%;
+            margin-top: 3%;
+            margin-left: 10%;
+            margin-right: 10%;
+            margin-bottom: 3%;
+            cursor: pointer;
+            border-radius: 20%;
+        }
+
+        .preview{
+            width: 100%;
+            height: 200px;
+            margin-top: 3%;
+            margin-left: 10%;
+            margin-right: 10%;
+            border-radius: 2%;
+            background-color: $soft-color;
+            align-items: center;
+            display: flex;
+            overflow: auto;
+
+            img{
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+    }

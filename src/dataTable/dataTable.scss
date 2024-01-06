@@ -1,0 +1,25 @@
+.dataTable{
+    .dataGrid{
+        background: white;
+        padding: 20px;
+        overflow-y: auto; /* Enable vertical scroll */
+
+        .MuiDataGrid-toolbarContainer{
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    }
+
+    .edit{
+        display: flex;
+        align-items: center;
+
+        img{
+            width: 30%;
+            height: 30%;
+            cursor: pointer;
+        }
+    }
+}
