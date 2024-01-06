@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { CustomGridColDef } from "../../data";
 import Select from "react-select";
 // import PreviewModal from "react-media-previewer";
+import PreviewModal from "react-media-previewer";
 
 type Props = {
   slug: string;
@@ -114,6 +115,11 @@ const Add = (props: Props) => {
                         onChange={handleFileChange}
                       />
                     </div>
+                    <PreviewModal
+                      visible={visible}
+                      setVisible={() => setVisible(false)}
+                      urls={[file || ""]}
+                    />
                   </div>
                 ) : column.type === "options" ? (
                   <div className="item">
