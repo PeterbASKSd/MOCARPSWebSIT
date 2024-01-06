@@ -114,48 +114,6 @@ const Add = (props: Props) => {
                         onChange={handleFileChange}
                       />
                     </div>
-                    <div>
-                      {file && visible && (
-                        <>
-                          {console.log(path.extname(file))} // Log the file
-                          extension
-                          {file.includes(".jpeg") && <img src={file} alt="" />}
-                          {file.includes(".jpg") && <img src={file} alt="" />}
-                          {file.includes(".svg") && <img src={file} alt="" />}
-                          {file.includes(".png") && <img src={file} alt="" />}
-                          {file.includes(".mp3") && (
-                            <audio controls>
-                              <source src={file} />
-                            </audio>
-                          )}
-                          {file.includes(".mov") && (
-                            <video controls>
-                              <source src={file} />
-                            </video>
-                          )}
-                          {file.includes(".mp4") && (
-                            <video controls>
-                              <source src={file} />
-                            </video>
-                          )}
-                          {file.includes(".avi") && (
-                            <video controls>
-                              <source src={file} />
-                            </video>
-                          )}
-                        </>
-                      )}
-                    </div>
-                    {/* {file != undefined ? (
-                      <div>
-                        <button onClick={() => setVisible(true)}>open</button>
-                        <PreviewModal
-                          visible={visible}
-                          setVisible={setVisible}
-                          urls={[file]}
-                        />
-                      </div>
-                    ) : null} */}
                   </div>
                 ) : column.type === "options" ? (
                   <div className="item">
@@ -176,6 +134,33 @@ const Add = (props: Props) => {
                         })) || []
                       }
                     />
+                  </div>
+                ) : column.type === "boolean" ? (
+                  <div>
+                    <input
+                      className="checkbox"
+                      type="checkbox"
+                      name={column.field}
+                    />
+                    <div className="item">
+                      <Select
+                        className="options"
+                        defaultValue={selectValue}
+                        onChange={(selectValue) =>
+                          selectValue &&
+                          handleOptionChange(
+                            selectValue.value.join(", "),
+                            column.field
+                          )
+                        }
+                        options={
+                          column.inputOptions?.map((option) => ({
+                            value: [option],
+                            label: [option],
+                          })) || []
+                        }
+                      />
+                    </div>
                   </div>
                 ) : column.type === "boolean" ? (
                   <input
