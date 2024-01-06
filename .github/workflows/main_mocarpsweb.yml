@@ -59,4 +59,4 @@ jobs:
           app-name: 'MOCARPSWeb'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_89F67E98A16247D19126F6EFBDCCB563 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7803E8A68972484E9F55B9069DEFB130 }}
