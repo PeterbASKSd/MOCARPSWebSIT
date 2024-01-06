@@ -3,7 +3,7 @@ import Edit from "../../components/edit/Edit";
 import { useNavigate } from "react-router";
 import "./dictionaryEdit.scss";
 import Back from "../../assets/back.svg";
-import IconButton from "@mui/material/IconButton";
+import { IconButton } from "@mui/material";
 
 const DictionaryEdit = () => {
   const { id } = useParams();
