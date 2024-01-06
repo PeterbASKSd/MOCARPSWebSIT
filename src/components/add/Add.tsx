@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { CustomGridColDef } from "../../data";
 import Select from "react-select";
 // import PreviewModal from "react-media-previewer";
-import path from "path";
 
 type Props = {
   slug: string;
