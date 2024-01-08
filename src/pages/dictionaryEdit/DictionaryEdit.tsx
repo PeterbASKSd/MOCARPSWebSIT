@@ -1,14 +1,16 @@
-import { useParams } from "react-router-dom";
-import Edit from "../../components/edit/Edit";
 import { useNavigate } from "react-router";
 import "./dictionaryEdit.scss";
 import Back from "../../assets/back.svg";
 import { IconButton } from "@mui/material";
+import { useParams } from "react-router-dom";
+import { dictionaryColumns } from "../../data";
+import EditForm from "../../components/edit/EditForm";
 
 const DictionaryEdit = () => {
-  const { id } = useParams();
-  const idTemp = Number(id);
   const navigate = useNavigate();
+  const { slug, id } = useParams();
+  const safeSlug = slug || "";
+  const safeId = id || "";
 
   return (
     <div className="dictionaryEdit">
@@ -17,7 +19,9 @@ const DictionaryEdit = () => {
         <IconButton className="backButton" onClick={() => navigate(-1)}>
           <img src={Back} alt="" />
         </IconButton>
-        <Edit id={idTemp} />
+      </div>
+      <div className="editContect">
+        <EditForm id={safeId} slug={safeSlug} columns={dictionaryColumns} />
       </div>
     </div>
   );

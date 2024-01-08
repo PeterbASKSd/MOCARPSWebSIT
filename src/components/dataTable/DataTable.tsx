@@ -30,30 +30,32 @@ const DataTable = (props: Props) => {
       });
   };
 
+  // Add action column
   const actionColumn: GridColDef = {
     field: "actions",
     headerName: "Actions",
-    width: 200,
+    width: 150,
     renderCell: (params) => {
       return (
         <div className="edit">
-          <Link to={`/${props.slug}Edit/${params.row.id}`}>
+          <Link to={`/${props.slug}/${params.row.id}`}>
             <img src={Edit} alt="" />
           </Link>
-          <div
+          <img
             className="delete"
+            src={Delete}
+            alt=""
             onClick={() => {
               handleDelete(params.row.id);
             }}
-          >
-            <img src={Delete} alt="" />
-          </div>
+          />
         </div>
       );
     },
   };
 
   return (
+    // Setting the dataGrid rows to the updated rows state
     <div className="dataTable">
       <DataGrid
         className="dataGrid"

@@ -3,8 +3,9 @@ import axios from "axios";
 import React, { useState } from "react";
 import { CustomGridColDef } from "../../data";
 import Select from "react-select";
-// import PreviewModal from "react-media-previewer";
 import PreviewModal from "react-media-previewer";
+import preview from "../../assets/preview.svg";
+import { IconButton } from "@mui/material";
 
 type Props = {
   slug: string;
@@ -14,11 +15,22 @@ type Props = {
 };
 
 const Add = (props: Props) => {
+  const [open, setOpen] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean | null>(null);
-  const [formData, setFormData] = useState<object>({});
-  const [file, setFile] = useState<string | undefined>(undefined);
+  const [formData, setFormData] = useState<FormData>(new FormData());
+  const [file, setFile] = useState<File | undefined>(undefined);
   const [visible, setVisible] = useState(false);
   const [selectValue, setSelectValue] = useState(null);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [urls, setUrls] = useState<string | undefined>(undefined);
+
+  const errorMessage = missingFields.join(", ");
+  const fileFormData = new FormData();
+
+  // const options = {
+  //   apiKey: "https://mocarps.azurewebsites.net/uploadFile", // Get API key: https://www.bytescale.com/get-started
+  //   maxFileCount: 1,
+  // };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,6 +43,11 @@ const Add = (props: Props) => {
       Object.keys(formData).includes(field)
     );
 
+    const missingFields = requiredFields.filter(
+      (headerName) => !Object.keys(formData).includes(headerName)
+    );
+    setMissingFields(missingFields);
+
     if (
       !isAllFieldsPresent ||
       Object.values(formData).some((value) => value === "")
@@ -39,16 +56,50 @@ const Add = (props: Props) => {
       return;
     } else {
       setIsSubmitted(true);
-      console.log(formData);
-      axios
-        .post(`https://mocarps.azurewebsites.net/${props.slug}`, formData)
-        .then(() => {
-          // console.log("Successfully added: ");
-          props.handleAfterAddRow(formData);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+
+      console.log("Please check here 33333:", file);
+
+      if (file) {
+        fileFormData.append("file", file);
+
+        axios
+          .post(`https://mocarps.azurewebsites.net/uploadFile`, fileFormData)
+          .then((response) => {
+            const blobUrl = response.data.blobUrl;
+            const updatedFormData = { ...formData };
+
+            const replaceUrlsInFormData = (oldUrl: File, newUrl: string) => {
+              Object.entries(updatedFormData).forEach(([key, value]) => {
+                if (
+                  typeof value === "string" &&
+                  (value as string).includes(oldUrl.name)
+                ) {
+                  (updatedFormData as any)[key] = newUrl;
+                  console.log("Please check here 22222:", updatedFormData);
+                  setFormData(updatedFormData);
+                }
+              });
+            };
+
+            replaceUrlsInFormData(file, blobUrl);
+
+            axios
+              .post(
+                `https://mocarps.azurewebsites.net/${props.slug}`,
+                updatedFormData
+              )
+              .then(() => {
+                console.log("Please check here 00000:", updatedFormData);
+                props.handleAfterAddRow(updatedFormData);
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
     }
   };
 
@@ -77,13 +128,18 @@ const Add = (props: Props) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      setFile(URL.createObjectURL(selectedFile)); // Convert the file to a URL
+      setFile(selectedFile); // Convert the file to a URL
+      setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
       setVisible(true); // Show the preview modal
       handleInputChange(e); // Update the formData
     } else {
       setVisible(false); // Hide the preview modal
       setFile(undefined); // Convert the file to a URL
     }
+  };
+
+  const handleButtonClick = () => {
+    setOpen(true);
   };
 
   return (
@@ -106,23 +162,46 @@ const Add = (props: Props) => {
                     onChange={handleLongInputChange}
                   />
                 ) : column.type === "file" ? (
-                  <div>
-                    <div className="item">
-                      <input
-                        type="file"
-                        name={column.field}
-                        accept=".jpg, .jpeg, .svg, .png, .mp3, .mp4 .mov .avi"
-                        onChange={handleFileChange}
-                      />
-                    </div>
-                    <PreviewModal
-                      visible={visible}
-                      setVisible={() => setVisible(false)}
-                      urls={[file || ""]}
+                  <div className="special-file">
+                    {/* <UploadButton
+                      options={options}
+                      onComplete={(files) =>
+                        alert(files.map((x) => x.fileUrl).join("\n"))
+                      }
+                    >
+                      {({ onClick }) => (
+                        <button onClick={onClick}>Upload a file...</button>
+                      )}
+                    </UploadButton> */}
+                    <input
+                      type="file"
+                      name={column.field}
+                      accept=".jpg, .jpeg, .svg, .png, .mp3, .mp4 .mov .avi"
+                      onChange={handleFileChange}
                     />
+                    <IconButton
+                      className="preview"
+                      onClick={() => {
+                        handleButtonClick();
+                        setVisible(true);
+                      }}
+                    >
+                      <img src={preview} alt="" />
+                      <span>Preview</span>
+                    </IconButton>
+                    {open && (
+                      <PreviewModal
+                        visible={visible}
+                        setVisible={() => {
+                          setVisible(false);
+                          setOpen(false);
+                        }}
+                        urls={[urls || ""]}
+                      />
+                    )}
                   </div>
                 ) : column.type === "options" ? (
-                  <div className="item">
+                  <div className="special-option">
                     <Select
                       className="options"
                       defaultValue={selectValue}
@@ -168,13 +247,6 @@ const Add = (props: Props) => {
                       />
                     </div>
                   </div>
-                ) : column.type === "boolean" ? (
-                  <input
-                    className="checkbox"
-                    type="checkbox"
-                    name={column.field}
-                    onChange={handleInputChange}
-                  />
                 ) : (
                   <input
                     type={column.type}
@@ -185,15 +257,19 @@ const Add = (props: Props) => {
                 )}
               </div>
             ))}
-          <button type="submit">Submit</button>
+          <div className="item">
+            <button className="submit button1">
+              <span>Submit</span>
+            </button>
 
-          {isSubmitted === false && (
-            <p className="error">Please input the keyword</p>
-          )}
+            {isSubmitted === false && (
+              <div className="error">Please input {errorMessage}</div>
+            )}
 
-          {isSubmitted === true && (
-            <p className="success">Successfully added</p>
-          )}
+            {isSubmitted === true && (
+              <div className="success">Successfully added</div>
+            )}
+          </div>
         </form>
       </div>
     </div>

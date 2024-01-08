@@ -15,11 +15,17 @@
     .edit{
         display: flex;
         align-items: center;
+        cursor: pointer;
+        object-fit: cover;
 
         img{
             width: 30%;
             height: 30%;
-            cursor: pointer;
+        }
+
+        .delete{
+            width: 25%;
+            height: 25%;
         }
     }
 }

@@ -48,7 +48,7 @@ function App() {
           element: <Dictionary />,
         },
         {
-          path: "/dictionaryedit/:id",
+          path: "/:slug/:id",
           element: <DictionaryEdit />,
         },
         {
@@ -56,7 +56,7 @@ function App() {
           element: <User />,
         },
         {
-          path: "userEdit/:id",
+          path: "/:slug/:id",
           element: <UserEdit />,
         },
         {

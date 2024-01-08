@@ -1,0 +1,30 @@
+.editForm{
+    overflow-y: auto;
+    
+    .editContect{
+        font-size: large;
+
+        .item{
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 30px;
+
+            .itemField{
+                font-weight: 600;
+                margin-right: 10px;
+                text-transform: capitalize;
+            }
+
+            .itemValueText{
+                
+            }
+
+            .itemValueLongText{
+                width: 100%;
+                height: 100px;
+                max-height: 50%;
+                overflow-y: auto;
+            }
+        }
+    }
+}

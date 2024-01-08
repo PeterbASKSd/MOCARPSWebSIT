@@ -120,9 +120,86 @@ export const fetchRowFromAPI = async (url: string): Promise<any | null> => {
   }
 };
 
+/* 
+CustomGridColDef{
+  field: string
+  headerName: string
+  type: string || longText || number || file || options
+  width: number
+  required: boolean
+  input: boolean
+  inputHint: string
+  inputOptions: string[]
+}
+*/
+
 export type CustomGridColDef = GridColDef & {
   required?: boolean;
   input?: boolean;
   inputHint?: string;
   inputOptions?: string[];
 };
+
+export const dictionaryColumns: CustomGridColDef[] = [
+  {
+    field: "id",
+    headerName: "ID",
+    width: 80,
+    input: false,
+  },
+  {
+    field: "keyword",
+    headerName: "Keyword",
+    type: "string",
+    width: 150,
+    editable: true,
+    required: true,
+    input: true,
+    inputHint: "Enter a keyword",
+  },
+  {
+    field: "description",
+    headerName: "Description",
+    type: "longText",
+    width: 150,
+    editable: true,
+    required: true,
+    input: true,
+    inputHint: "Please enter a defined description",
+  },
+  {
+    field: "example",
+    headerName: "Example",
+    type: "longText",
+    width: 200,
+    editable: true,
+    required: true,
+    input: true,
+    inputHint: "Please enter an example",
+  },
+  {
+    field: "count",
+    headerName: "Count",
+    type: "number",
+    width: 100,
+    editable: true,
+    input: false,
+  },
+  {
+    field: "resourceUri",
+    headerName: "Media Url",
+    type: "file",
+    width: 200,
+    editable: true,
+    input: true,
+  },
+  {
+    field: "resourceType",
+    headerName: "Media Type",
+    type: "options",
+    width: 150,
+    editable: true,
+    input: true,
+    inputOptions: ["Image", "Audio"],
+  },
+];
