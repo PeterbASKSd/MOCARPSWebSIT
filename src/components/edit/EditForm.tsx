@@ -19,7 +19,7 @@ const EditForm = ({
   const [data, setData] = useState<object>({});
   const [change, setChange] = useState(null || Boolean);
   const [open, setOpen] = useState<boolean>(false);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -154,9 +154,7 @@ const EditForm = ({
                     {open && (
                       <PreviewModal
                         visible={visible}
-                        setVisible={() => {
-                          setOpen(false);
-                        }}
+                        setVisible={() => setVisible(false)}
                         urls={[value || ""]}
                       />
                     )}

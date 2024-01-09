@@ -45,10 +45,6 @@ const DataTable = (props: Props) => {
           console.error("Error deleting row:", error);
         });
     };
-
-    const handleCancel = () => {
-      null;
-    };
   };
 
   // Add action column
