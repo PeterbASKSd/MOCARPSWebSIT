@@ -154,7 +154,13 @@ const Add = (props: Props) => {
             .filter((item) => item.input === true)
             .map((column) => (
               <div className="item" key={column.field}>
-                <label>{column.headerName}</label>
+                {column.required ? (
+                  <label>
+                    {column.headerName} <label className="redStar">*</label>
+                  </label>
+                ) : (
+                  <label>{column.headerName}</label>
+                )}
                 {column.type === "longText" ? (
                   <textarea
                     name={column.field}
@@ -258,6 +264,10 @@ const Add = (props: Props) => {
               </div>
             ))}
           <div className="item">
+            <label className="postScript">
+              Please enter all <label className="redStar">*</label> field
+            </label>
+
             <button className="submit button1">
               <span>Submit</span>
             </button>

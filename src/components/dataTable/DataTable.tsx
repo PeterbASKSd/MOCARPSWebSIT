@@ -38,17 +38,21 @@ const DataTable = (props: Props) => {
     renderCell: (params) => {
       return (
         <div className="edit">
-          <Link to={`/${props.slug}/${params.row.id}`}>
-            <img src={Edit} alt="" />
-          </Link>
-          <img
-            className="delete"
-            src={Delete}
-            alt=""
-            onClick={() => {
-              handleDelete(params.row.id);
-            }}
-          />
+          <div>
+            <Link to={`/${props.slug}/${params.row.id}`}>
+              <img src={Edit} alt="" />
+            </Link>
+          </div>
+          <div>
+            <img
+              className="delete"
+              src={Delete}
+              alt=""
+              onClick={() => {
+                handleDelete(params.row.id);
+              }}
+            />
+          </div>
         </div>
       );
     },

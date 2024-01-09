@@ -1,8 +1,11 @@
 .editForm{
+    height: 100%;
+    width: 100%;
     overflow-y: auto;
-    
+
     .editContect{
         font-size: large;
+        width: 60%;
 
         .item{
             display: flex;
@@ -13,6 +16,10 @@
                 font-weight: 600;
                 margin-right: 10px;
                 text-transform: capitalize;
+
+                .redStar{
+                    color: red;
+                }
             }
 
             .itemValueText{
@@ -25,6 +32,23 @@
                 max-height: 50%;
                 overflow-y: auto;
             }
+
+            .itemCheckbox{
+
+            }
+
+            .itemOptions{
+                color: #000;
+            }
+
+        }
+
+        .saveButton{
+            margin-left: 10px;
+        }
+
+        .cancelButton{
+            margin-left: 10px;
         }
     }
 }

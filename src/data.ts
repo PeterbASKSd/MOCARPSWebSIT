@@ -7,6 +7,7 @@ import QuestionIcon from "./assets/question.svg";
 import QuizIcon from "./assets/quiz.svg";
 import ValueIcon from "./assets/value.svg";
 import { GridColDef } from "@mui/x-data-grid";
+import { renderCellUrl } from "./dataGridPlugin";
 
 export const menu = [
   {
@@ -152,7 +153,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     headerName: "Keyword",
     type: "string",
     width: 150,
-    editable: true,
+    editable: false,
     required: true,
     input: true,
     inputHint: "Enter a keyword",
@@ -162,7 +163,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     headerName: "Description",
     type: "longText",
     width: 150,
-    editable: true,
+    editable: false,
     required: true,
     input: true,
     inputHint: "Please enter a defined description",
@@ -172,34 +173,36 @@ export const dictionaryColumns: CustomGridColDef[] = [
     headerName: "Example",
     type: "longText",
     width: 200,
-    editable: true,
+    editable: false,
     required: true,
     input: true,
     inputHint: "Please enter an example",
+    // renderCell: renderCellExpand,
   },
   {
     field: "count",
     headerName: "Count",
     type: "number",
     width: 100,
-    editable: true,
+    editable: false,
     input: false,
   },
   {
     field: "resourceUri",
-    headerName: "Media Url",
+    headerName: "Media",
     type: "file",
     width: 200,
-    editable: true,
+    editable: false,
     input: true,
+    renderCell: renderCellUrl,
   },
   {
     field: "resourceType",
     headerName: "Media Type",
     type: "options",
     width: 150,
-    editable: true,
+    editable: false,
     input: true,
-    inputOptions: ["Image", "Audio"],
+    inputOptions: ["image", "audio", "video"],
   },
 ];

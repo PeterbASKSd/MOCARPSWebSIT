@@ -93,6 +93,15 @@
                 }
             }
 
+            .redStar{
+                color: red;
+            }
+
+            .postScript{
+                font-size: 16px;
+                color: $soft-color;
+            }
+
             input{
                 font-size: large;
                 padding: 10px;
