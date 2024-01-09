@@ -5,6 +5,7 @@ import { CustomGridColDef } from "../../data";
 import PreviewModal from "react-media-previewer";
 import preview from "../../assets/preview.svg";
 import { IconButton } from "@mui/material";
+import Swal from "sweetalert2";
 
 const EditForm = ({
   slug,
@@ -17,6 +18,7 @@ const EditForm = ({
 }) => {
   const url = `https://mocarps.azurewebsites.net/${slug}/${id}`;
   const [data, setData] = useState<object>({});
+  const [tempData, setTempData] = useState<object>({});
   const [change, setChange] = useState(null || Boolean);
   const [open, setOpen] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
@@ -26,6 +28,7 @@ const EditForm = ({
       try {
         const response = await axios.get(url);
         setData(response.data);
+        setTempData(response.data);
       } catch (error) {
         console.error("Error fetching edit data:", error);
       }
@@ -37,22 +40,6 @@ const EditForm = ({
   useEffect(() => {
     console.log("Please check here :", change);
   });
-
-  const updateData = () => {
-    fetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        console.log(response.json());
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
 
   const isFieldRequired = (field: string, columns: CustomGridColDef[]) => {
     return columns.find((column) => column.field === field)?.required;
@@ -74,17 +61,62 @@ const EditForm = ({
     return columns.find((column) => column.field === field)?.inputOptions;
   };
 
+  const handleEditedData = () => {
+    Swal.fire({
+      title: "Are you sure you want to edit this form?",
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Comfirm",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Comfirm!");
+        handleConfirm();
+      }
+    });
+
+    const handleConfirm = () => {
+      fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => {
+          console.log(response.json());
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    };
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Please check here 11111:", data);
     axios
       .put(`https://mocarps.azurewebsites.net/${slug}/${id}`, data)
-      .then(() => {
-        console.log("Please check here 33333:", data);
-      })
+      .then(() => {})
       .catch((error) => {
         console.error(error);
       });
+  };
+
+  const handleReset = () => {
+    Swal.fire({
+      title: "Are you sure you want to edit this form?",
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Comfirm",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Comfirm!");
+        handleConfirm();
+      }
+    });
+
+    const handleConfirm = () => {
+      setData(tempData);
+    };
   };
 
   const handleLongInputChange = (
@@ -141,15 +173,27 @@ const EditForm = ({
               )
             ) : isFieldInputType(field, columns) === "file" ? (
               <div className="itemUploadFile">
+                <div className="itemUploadedFile">
+                  <label className="uploadFileLabel">Uploaded file:</label>
+                  <a href={value} className="uploadedFileLink">
+                    {value}
+                  </a>
+                </div>
                 <div className="itemPreviewUploadedFile">
-                  <div className="previewText">{value}</div>
-                  <div>
+                  <label className="uploadNewFileLabel">Upload New file:</label>
+                  <input
+                    className="uploadFileInput"
+                    type="file"
+                    name={value}
+                    disabled={!isFieldInputRequired(field, columns)}
+                  />
+                  <div className="previewIcon">
                     <IconButton
                       onClick={() => {
                         setOpen(true);
                       }}
                     >
-                      <img src={preview} alt="" className="previewIcon" />
+                      <img src={preview} alt="" className="previewIconButton" />
                     </IconButton>
                     {open && (
                       <PreviewModal
@@ -160,12 +204,6 @@ const EditForm = ({
                     )}
                   </div>
                 </div>
-                <input
-                  className="itemUploadFileIcon"
-                  type="file"
-                  name={value}
-                  disabled={!isFieldInputRequired(field, columns)}
-                />
               </div>
             ) : isFieldInputType(field, columns) === "boolean" ? (
               <div>
@@ -191,20 +229,22 @@ const EditForm = ({
         ))}
         {change ? (
           <>
-            <button
-              className="saveButton"
-              type="submit"
-              onClick={() => updateData()}
-            >
-              Save
-            </button>
-            <button
-              className="cancelButton"
-              type="submit"
-              onClick={() => updateData()}
-            >
-              Cancel
-            </button>
+            <div className="buttonSet">
+              <button
+                className="saveButton"
+                type="submit"
+                onClick={() => handleEditedData()}
+              >
+                Save
+              </button>
+              <button
+                className="resetButton"
+                type="reset"
+                onClick={() => handleReset()}
+              >
+                Reset
+              </button>
+            </div>
           </>
         ) : null}
       </form>

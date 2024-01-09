@@ -63,10 +63,15 @@ const Add = (props: Props) => {
         fileFormData.append("file", file);
 
         axios
-          .post(`https://mocarps.azurewebsites.net/uploadFile`, fileFormData)
+          .post(`https://mocarps.azurewebsites.net/uploadFile`, fileFormData, {
+            headers: {
+              "Content-Type": "application/octet-stream",
+            },
+          })
           .then((response) => {
             const blobUrl = response.data.blobUrl;
             const updatedFormData = { ...formData };
+            // const contentType = file.type;
 
             const replaceUrlsInFormData = (oldUrl: File, newUrl: string) => {
               Object.entries(updatedFormData).forEach(([key, value]) => {
@@ -88,6 +93,7 @@ const Add = (props: Props) => {
                 updatedFormData
               )
               .then(() => {
+                console.log("Please check here Update file:", updatedFormData);
                 props.handleAfterAddRow(updatedFormData);
               })
               .catch((error) => {

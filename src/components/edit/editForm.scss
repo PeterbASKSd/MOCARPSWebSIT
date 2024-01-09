@@ -1,3 +1,5 @@
+@import "../../styles/color.scss";
+
 .editForm{
     height: 100%;
     width: 100%;
@@ -44,33 +46,111 @@
             .itemUploadFile{      
                 height: 20%;
                 width: 100%;
-                overflow-x: hidden;
-                margin: auto;
+                overflow-x: auto;
 
-                    .itemPreviewUploadedFile{
+                .itemUploadedFile {
+                    /* Styles for the uploaded file section */
                     display: flex;
-                        
-                    .previewText{
-                        height: 100%;
-                        width: 100%;
-                        text-align: left;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    margin-bottom: 10px;
+                  
+                    .uploadFileLabel {
+                      font-size: 16px;
+                      font-weight: bold;
+                      margin-right: 5px;
                     }
+                  
+                    .uploadedFileLink {
+                      color: rgb(0, 170, 192);
+                      text-decoration: underline;
+                      margin-top: 5px;
+                    }
+                  }
+                  
+                  .itemPreviewUploadedFile {
+                    display: flex;
+                    align-items: center;
+                  
+                    .uploadNewFileLabel {
+                      font-size: 16px;
+                      font-weight: bold;
+                      margin-right: 5px;
+                    }
+                  
+                    .uploadFileInput {
+                      margin-right: 10px;
+                    }
+                  
+                    .previewIcon {
+                      display: flex;
+                      align-items: center;
+                  
+                      .previewIconButton {
+                        width: 30px;
+                        height: 30px;
+                      }
+                    }
+                  }
 
-                    .previewIcon{
-                        height: 20%;
-                        width: 20%;
-                    }
-                }
             }
-
         }
+    }
 
-        .saveButton{
+    .buttonSet{
+        display: flex;
+        justify-content: flex-end; /* Aligns items to the right */
+        margin: 20px 0px 20px 20px;
+        gap: 30px;
+
+        .saveButton {
+            padding: 5px 20px;
             margin-left: 10px;
-        }
+            font-size: 20px;
+            background-color: #3f7e44; /* Set the background color to a green tone */
+            color: $main-color; /* Set the text color to the main color */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+          }
+          
+          .saveButton:hover {
+            background-color: #2f6c39; /* Darker shade of green on hover */
+            color: $soft-color; /* Change the text color to the soft color on hover */
+          }
+          
+          .saveButton:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3f7e44; /* Add a border on focus using the green tone */
+          }
+          
+          .saveButton:active {
+            background-color: #1f4c29; /* Darker shade of green when button is clicked */
+            color: $dark-color; /* Change the text color to the dark color when button is clicked */
+          }
 
-        .cancelButton{
+          .resetButton {
+            padding: 5px 20px;
             margin-left: 10px;
-        }
+            font-size: 20px;
+            background-color: #007bff; /* Blue color */
+            color: #fff; /* Text color */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+          }
+          
+          .resetButton:hover {
+            background-color: #0056b3; /* Darker shade of blue on hover */
+          }
+          
+          .resetButton:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #007bff; /* Add a blue border on focus */
+          }
+          
+          .resetButton:active {
+            background-color: #004080; /* Darker shade of blue when button is clicked */
+          }
     }
 }
