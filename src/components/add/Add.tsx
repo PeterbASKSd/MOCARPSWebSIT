@@ -57,7 +57,7 @@ const Add = (props: Props) => {
     } else {
       setIsSubmitted(true);
 
-      console.log("Please check here 33333:", file);
+      console.log("Please check here 33333:", formData);
 
       if (file) {
         fileFormData.append("file", file);
@@ -75,7 +75,6 @@ const Add = (props: Props) => {
                   (value as string).includes(oldUrl.name)
                 ) {
                   (updatedFormData as any)[key] = newUrl;
-                  console.log("Please check here 22222:", updatedFormData);
                   setFormData(updatedFormData);
                 }
               });
@@ -89,12 +88,20 @@ const Add = (props: Props) => {
                 updatedFormData
               )
               .then(() => {
-                console.log("Please check here 00000:", updatedFormData);
                 props.handleAfterAddRow(updatedFormData);
               })
               .catch((error) => {
                 console.error(error);
               });
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      } else {
+        axios
+          .post(`https://mocarps.azurewebsites.net/${props.slug}`, formData)
+          .then(() => {
+            props.handleAfterAddRow(formData);
           })
           .catch((error) => {
             console.error(error);
@@ -169,42 +176,41 @@ const Add = (props: Props) => {
                   />
                 ) : column.type === "file" ? (
                   <div className="special-file">
-                    {/* <UploadButton
-                      options={options}
-                      onComplete={(files) =>
-                        alert(files.map((x) => x.fileUrl).join("\n"))
-                      }
-                    >
-                      {({ onClick }) => (
-                        <button onClick={onClick}>Upload a file...</button>
-                      )}
-                    </UploadButton> */}
-                    <input
-                      type="file"
-                      name={column.field}
-                      accept=".jpg, .jpeg, .svg, .png, .mp3, .mp4 .mov .avi"
-                      onChange={handleFileChange}
-                    />
-                    <IconButton
-                      className="preview"
-                      onClick={() => {
-                        handleButtonClick();
-                        setVisible(true);
-                      }}
-                    >
-                      <img src={preview} alt="" />
-                      <span>Preview</span>
-                    </IconButton>
-                    {open && (
-                      <PreviewModal
-                        visible={visible}
-                        setVisible={() => {
-                          setVisible(false);
-                          setOpen(false);
-                        }}
-                        urls={[urls || ""]}
+                    <div className="uploadBox">
+                      <input
+                        className="uploadButton"
+                        type="file"
+                        name={column.field}
+                        accept=".jpg, .jpeg, .svg, .png, .mp3, .mp4 .mov .avi"
+                        onChange={handleFileChange}
                       />
-                    )}
+                    </div>
+                    <div className="previewBox">
+                      <IconButton
+                        className="previewButton"
+                        onClick={() => {
+                          handleButtonClick();
+                          setVisible(true);
+                        }}
+                      >
+                        <img
+                          src={preview}
+                          alt=""
+                          className="previewButtonIcon"
+                        />
+                        <label className="previewButtonText">Preview</label>
+                      </IconButton>
+                      {open && (
+                        <PreviewModal
+                          visible={visible}
+                          setVisible={() => {
+                            setVisible(false);
+                            setOpen(false);
+                          }}
+                          urls={[urls || ""]}
+                        />
+                      )}
+                    </div>
                   </div>
                 ) : column.type === "options" ? (
                   <div className="special-option">

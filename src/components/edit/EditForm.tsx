@@ -2,7 +2,9 @@ import "./editForm.scss";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { CustomGridColDef } from "../../data";
-import Select from "react-select";
+import PreviewModal from "react-media-previewer";
+import preview from "../../assets/preview.svg";
+import { IconButton } from "@mui/material";
 
 const EditForm = ({
   slug,
@@ -16,6 +18,8 @@ const EditForm = ({
   const url = `https://mocarps.azurewebsites.net/${slug}/${id}`;
   const [data, setData] = useState<object>({});
   const [change, setChange] = useState(null || Boolean);
+  const [open, setOpen] = useState<boolean>(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -124,23 +128,42 @@ const EditForm = ({
               />
             ) : isFieldInputType(field, columns) === "options" ? (
               isFieldInputRequired(field, columns) ? (
-                <Select
-                  className="itemOptions"
-                  defaultValue={value}
-                  options={
-                    getOptions(field, columns)?.map((value) => ({
-                      value: [value],
-                      label: [value],
-                    })) || []
-                  }
-                />
+                <select>
+                  {getOptions(field, columns) ??
+                    [].map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                </select>
               ) : (
                 <input className="itemOptions" type="value" name={value} />
               )
             ) : isFieldInputType(field, columns) === "file" ? (
-              <div>
+              <div className="itemUploadFile">
+                <div className="itemPreviewUploadedFile">
+                  <div className="previewText">{value}</div>
+                  <div>
+                    <IconButton
+                      onClick={() => {
+                        setOpen(true);
+                      }}
+                    >
+                      <img src={preview} alt="" className="previewIcon" />
+                    </IconButton>
+                    {open && (
+                      <PreviewModal
+                        visible={visible}
+                        setVisible={() => {
+                          setOpen(false);
+                        }}
+                        urls={[value || ""]}
+                      />
+                    )}
+                  </div>
+                </div>
                 <input
-                  className="itemUploadFile"
+                  className="itemUploadFileIcon"
                   type="file"
                   name={value}
                   disabled={!isFieldInputRequired(field, columns)}
