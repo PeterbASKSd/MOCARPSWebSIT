@@ -138,11 +138,55 @@ const Add = (props: Props) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
+
     if (selectedFile) {
-      setFile(selectedFile); // Convert the file to a URL
-      setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
-      setVisible(true); // Show the preview modal
-      handleInputChange(e); // Update the formData
+      if (conditionValue === "video") {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+
+        video.onloadedmetadata = () => {
+          window.URL.revokeObjectURL(video.src);
+
+          const videoWidth = video.videoWidth;
+          const videoHeight = video.videoHeight;
+
+          if (videoWidth > 720 || videoHeight > 480) {
+            // Display an error message for incorrect video resolution
+            alert(
+              "Video resolution should be limited to 480p (720x480) or below."
+            );
+            e.target.value = ""; // Reset the file input value
+          } else {
+            console.log("Please check here 11111:", selectedFile);
+            setFile(selectedFile); // Convert the file to a URL
+            setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
+            setVisible(true); // Show the preview modal
+            handleInputChange(e); // Update the formData
+          }
+        };
+
+        video.src = URL.createObjectURL(selectedFile);
+      } else if (
+        conditionValue === "image" &&
+        selectedFile.size > 1024 * 1024 * 2
+      ) {
+        // Display an error message for image file size limitation
+        alert("Image file size should be limited to 2MB.");
+        e.target.value = ""; // Reset the file input value
+      } else if (
+        conditionValue === "audio" &&
+        selectedFile.size > 1024 * 1024 * 5
+      ) {
+        // Display an error message for audio file size limitation
+        alert("Audio file size should be limited to 5MB.");
+        e.target.value = ""; // Reset the file input value
+      } else {
+        console.log("Please check here 11111:", selectedFile);
+        setFile(selectedFile); // Convert the file to a URL
+        setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
+        setVisible(true); // Show the preview modal
+        handleInputChange(e); // Update the formData
+      }
     } else {
       setVisible(false); // Hide the preview modal
       setFile(undefined); // Convert the file to a URL
@@ -191,45 +235,7 @@ const Add = (props: Props) => {
                     onChange={handleLongInputChange}
                   />
                 ) : column.type === "file" ? (
-                  !column.preCondition ? (
-                    <div className="special-file">
-                      <div className="uploadBox">
-                        <input
-                          className="uploadButton"
-                          type="file"
-                          name={column.field}
-                          accept=".jpg, .jpeg, .svg, .png, .mp3, .mp4 .mov .avi"
-                          onChange={handleFileChange}
-                        />
-                      </div>
-                      <div className="previewBox">
-                        <IconButton
-                          className="previewButton"
-                          onClick={() => {
-                            handleButtonClick();
-                            setVisible(true);
-                          }}
-                        >
-                          <img
-                            src={preview}
-                            alt=""
-                            className="previewButtonIcon"
-                          />
-                          <label className="previewButtonText">Preview</label>
-                        </IconButton>
-                        {open && (
-                          <PreviewModal
-                            visible={visible}
-                            setVisible={() => {
-                              setVisible(false);
-                              setOpen(false);
-                            }}
-                            urls={[urls || ""]}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  ) : conditionValue !== undefined ? (
+                  !column.preCondition ? null : conditionValue !== undefined ? (
                     <div className="special-file">
                       <div className="uploadBox">
                         <input
