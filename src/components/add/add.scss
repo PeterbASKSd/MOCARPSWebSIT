@@ -106,7 +106,7 @@
                     .previewButton {
                         display: flex;
                         align-items: center; // Center the content horizontally
-                        justify-content: center; // Center the content vertically
+                        justify-content: flex-end; // Align the content to the right
 
                         .previewButtonIcon {
                             width: 25%;

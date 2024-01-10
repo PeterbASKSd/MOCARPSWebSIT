@@ -27,7 +27,6 @@ const EditForm = ({
   const [newUrl, setNewUrl] = useState<string>();
   const [visible, setVisible] = useState<boolean>(false);
   const [blobUrl, setBlobUrl] = useState<string>();
-  const [options, setOptions] = useState<string[]>([]); // Initialize with an empty array
   const fileFormData = new FormData();
 
   useEffect(() => {
