@@ -1,27 +1,42 @@
-.dataTable{
-    .dataGrid{
-        background: white;
-        padding: 20px;
-        overflow-y: auto; /* Enable vertical scroll */
-
-        .MuiDataGrid-toolbarContainer{
-            flex-direction: row-reverse;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-    }
-
-    .edit{
+.dataTable {
+    .dataGrid {
+      background: white;
+      padding: 20px;
+      overflow-y: auto; /* Enable vertical scroll */
+  
+      .MuiDataGrid-toolbarContainer {
+        flex-direction: row-reverse;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+  
+      .MuiDataGrid-cell--actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding-right: 16px; /* Add some spacing to the right of the cell */
+      }
+  
+      .actionSet {
         display: flex;
         align-items: center;
         cursor: pointer;
         object-fit: cover;
-
-        img{
-            width: 35%;
-            height: 35%;
+  
+        .delete {
+          color: #ff0000;
         }
-
+  
+        .edit {
+          color: green;
+        }
+  
+        img {
+          width: 30%;
+          height: 30%;
+          margin-right: 5px; /* Add some spacing between the icons */
+        }
+      }
     }
-}
+  }

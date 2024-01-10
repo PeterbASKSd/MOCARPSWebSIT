@@ -19,6 +19,7 @@
     "react-admin": "^4.16.5",
     "react-dom": "^18.2.0",
     "react-media-previewer": "^1.3.10",
+    "react-quill": "^2.0.0",
     "react-router-dom": "^6.21.1",
     "react-select": "^5.8.0",
     "sweetalert2": "^11.10.2"

@@ -139,6 +139,8 @@ export type CustomGridColDef = GridColDef & {
   input?: boolean;
   inputHint?: string;
   inputOptions?: string[];
+  preCondition?: boolean;
+  isCondition?: boolean;
 };
 
 export const dictionaryColumns: CustomGridColDef[] = [
@@ -188,21 +190,23 @@ export const dictionaryColumns: CustomGridColDef[] = [
     input: false,
   },
   {
-    field: "resourceUri",
-    headerName: "Media",
-    type: "file",
-    width: 150,
-    editable: false,
-    input: true,
-    renderCell: renderCellUrl,
-  },
-  {
     field: "resourceType",
     headerName: "Media Type",
     type: "options",
-    width: 150,
+    width: 120,
     editable: false,
     input: true,
     inputOptions: ["image", "audio", "video"],
+    isCondition: true,
+  },
+  {
+    field: "resourceUri",
+    headerName: "Media",
+    type: "file",
+    width: 180,
+    editable: false,
+    input: true,
+    preCondition: true,
+    renderCell: renderCellUrl,
   },
 ];

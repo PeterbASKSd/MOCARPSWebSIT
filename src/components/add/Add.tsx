@@ -23,14 +23,12 @@ const Add = (props: Props) => {
   const [selectValue, setSelectValue] = useState(null);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [urls, setUrls] = useState<string | undefined>(undefined);
+  const [conditionValue, setConditionValue] = useState<string | undefined>(
+    undefined
+  );
 
   const errorMessage = missingFields.join(", ");
   const fileFormData = new FormData();
-
-  // const options = {
-  //   apiKey: "https://mocarps.azurewebsites.net/uploadFile", // Get API key: https://www.bytescale.com/get-started
-  //   maxFileCount: 1,
-  // };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -151,6 +149,18 @@ const Add = (props: Props) => {
     }
   };
 
+  const handleFileAcceptance = (conditionValue: string) => {
+    if (conditionValue === "image") {
+      return ".jpg, .jpeg, .png";
+    } else if (conditionValue === "audio") {
+      return ".mp3, .m4a, .aac";
+    } else if (conditionValue === "video") {
+      return ".mp4";
+    } else {
+      return "";
+    }
+  };
+
   const handleButtonClick = () => {
     setOpen(true);
   };
@@ -181,63 +191,126 @@ const Add = (props: Props) => {
                     onChange={handleLongInputChange}
                   />
                 ) : column.type === "file" ? (
-                  <div className="special-file">
-                    <div className="uploadBox">
-                      <input
-                        className="uploadButton"
-                        type="file"
-                        name={column.field}
-                        accept=".jpg, .jpeg, .svg, .png, .mp3, .mp4 .mov .avi"
-                        onChange={handleFileChange}
+                  !column.preCondition ? (
+                    <div className="special-file">
+                      <div className="uploadBox">
+                        <input
+                          className="uploadButton"
+                          type="file"
+                          name={column.field}
+                          accept=".jpg, .jpeg, .svg, .png, .mp3, .mp4 .mov .avi"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                      <div className="previewBox">
+                        <IconButton
+                          className="previewButton"
+                          onClick={() => {
+                            handleButtonClick();
+                            setVisible(true);
+                          }}
+                        >
+                          <img
+                            src={preview}
+                            alt=""
+                            className="previewButtonIcon"
+                          />
+                          <label className="previewButtonText">Preview</label>
+                        </IconButton>
+                        {open && (
+                          <PreviewModal
+                            visible={visible}
+                            setVisible={() => {
+                              setVisible(false);
+                              setOpen(false);
+                            }}
+                            urls={[urls || ""]}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ) : conditionValue !== undefined ? (
+                    <div className="special-file">
+                      <div className="uploadBox">
+                        <input
+                          className="uploadButton"
+                          type="file"
+                          name={column.field}
+                          accept={handleFileAcceptance(conditionValue)}
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                      <div className="previewBox">
+                        <IconButton
+                          className="previewButton"
+                          onClick={() => {
+                            handleButtonClick();
+                            setVisible(true);
+                          }}
+                        >
+                          <img
+                            src={preview}
+                            alt=""
+                            className="previewButtonIcon"
+                          />
+                          <label className="previewButtonText">Preview</label>
+                        </IconButton>
+                        {open && (
+                          <PreviewModal
+                            visible={visible}
+                            setVisible={() => {
+                              setVisible(false);
+                              setOpen(false);
+                            }}
+                            urls={[urls || ""]}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ) : null
+                ) : column.type === "options" ? (
+                  column.isCondition ? (
+                    <div className="special-option">
+                      <Select
+                        className="options"
+                        defaultValue={selectValue}
+                        onChange={(selectValue) => {
+                          selectValue &&
+                            handleOptionChange(
+                              selectValue.value?.join(", "),
+                              column.field
+                            );
+                          setConditionValue(selectValue?.value?.join(", "));
+                        }}
+                        options={
+                          column.inputOptions?.map((option) => ({
+                            value: [option],
+                            label: [option],
+                          })) || []
+                        }
                       />
                     </div>
-                    <div className="previewBox">
-                      <IconButton
-                        className="previewButton"
-                        onClick={() => {
-                          handleButtonClick();
-                          setVisible(true);
-                        }}
-                      >
-                        <img
-                          src={preview}
-                          alt=""
-                          className="previewButtonIcon"
-                        />
-                        <label className="previewButtonText">Preview</label>
-                      </IconButton>
-                      {open && (
-                        <PreviewModal
-                          visible={visible}
-                          setVisible={() => {
-                            setVisible(false);
-                            setOpen(false);
-                          }}
-                          urls={[urls || ""]}
-                        />
-                      )}
+                  ) : (
+                    <div className="special-option">
+                      <Select
+                        className="options"
+                        defaultValue={selectValue}
+                        onChange={(selectValue) =>
+                          selectValue &&
+                          handleOptionChange(
+                            selectValue.value?.join(", "),
+                            column.field
+                          )
+                        }
+                        options={
+                          column.inputOptions?.map((option) => ({
+                            value: [option],
+                            label: [option],
+                          })) || []
+                        }
+                      />
                     </div>
-                  </div>
-                ) : column.type === "options" ? (
-                  <div className="special-option">
-                    <Select
-                      className="options"
-                      defaultValue={selectValue}
-                      onChange={(selectValue) =>
-                        selectValue &&
-                        handleOptionChange(
-                          selectValue.value.join(", "),
-                          column.field
-                        )
-                      }
-                      options={
-                        column.inputOptions?.map((option) => ({
-                          value: [option],
-                          label: [option],
-                        })) || []
-                      }
-                    />
-                  </div>
+                  )
                 ) : column.type === "boolean" ? (
                   <div>
                     <input

@@ -10,7 +10,6 @@ import Question from "./pages/question/Question";
 import Quiz from "./pages/quiz/Quiz";
 import Value from "./pages/value/Value";
 import DictionaryEdit from "./pages/dictionaryEdit/DictionaryEdit";
-import UserEdit from "./pages/userEdit/UserEdit";
 
 import "./styles/global.scss";
 
@@ -54,10 +53,6 @@ function App() {
         {
           path: "/user",
           element: <User />,
-        },
-        {
-          path: "/:slug/:id",
-          element: <UserEdit />,
         },
         {
           path: "/information",

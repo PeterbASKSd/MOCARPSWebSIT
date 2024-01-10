@@ -1,11 +1,11 @@
 import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import "./dataTable.scss";
-import { Link } from "react-router-dom";
-import Edit from "/src/assets/edit.svg";
+import EditIcon from "/src/assets/edit.svg";
 import Delete from "/src/assets/delete.svg";
 import axios from "axios";
 import React from "react";
 import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
 
 type Props = {
   columns: GridColDef[];
@@ -54,10 +54,10 @@ const DataTable = (props: Props) => {
     width: 150,
     renderCell: (params) => {
       return (
-        <div className="edit">
-          <div>
+        <div className="actionSet">
+          <div className="edit">
             <Link to={`/${props.slug}/${params.row.id}`}>
-              <img src={Edit} alt="" />
+              <img src={EditIcon} alt="" />
             </Link>
           </div>
           <div>
@@ -65,7 +65,6 @@ const DataTable = (props: Props) => {
               className="delete"
               src={Delete}
               alt=""
-              // Update the onClick event handler
               onClick={() => {
                 handleDelete(params.row.id);
               }}

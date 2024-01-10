@@ -4,7 +4,7 @@ import Back from "../../assets/back.svg";
 import { IconButton } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { dictionaryColumns } from "../../data";
-import EditForm from "../../components/edit/EditForm";
+import EditForm from "../../components/editForm/EditForm";
 
 const DictionaryEdit = () => {
   const navigate = useNavigate();
