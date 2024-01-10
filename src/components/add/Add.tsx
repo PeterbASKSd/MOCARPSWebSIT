@@ -138,11 +138,47 @@ const Add = (props: Props) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
+
     if (selectedFile) {
-      setFile(selectedFile); // Convert the file to a URL
-      setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
-      setVisible(true); // Show the preview modal
-      handleInputChange(e); // Update the formData
+      const video = document.createElement("video");
+      video.preload = "metadata";
+
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+
+        const videoWidth = video.videoWidth;
+        const videoHeight = video.videoHeight;
+
+        if (
+          conditionValue === "video" &&
+          (videoWidth !== 720 || videoHeight !== 480)
+        ) {
+          // Display an error message for incorrect video resolution
+          alert("Video resolution should be limited to 480p (720x480).");
+          e.target.value = ""; // Reset the file input value
+        } else if (
+          conditionValue === "image" &&
+          selectedFile.size > 1024 * 1024 * 2
+        ) {
+          // Display an error message for image file size limitation
+          alert("Image file size should be limited to 2MB.");
+          e.target.value = ""; // Reset the file input value
+        } else if (
+          conditionValue === "audio" &&
+          selectedFile.size > 1024 * 1024 * 5
+        ) {
+          // Display an error message for audio file size limitation
+          alert("Audio file size should be limited to 5MB.");
+          e.target.value = ""; // Reset the file input value
+        } else {
+          setFile(selectedFile); // Convert the file to a URL
+          setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
+          setVisible(true); // Show the preview modal
+          handleInputChange(e); // Update the formData
+        }
+      };
+
+      video.src = URL.createObjectURL(selectedFile);
     } else {
       setVisible(false); // Hide the preview modal
       setFile(undefined); // Convert the file to a URL
@@ -171,7 +207,7 @@ const Add = (props: Props) => {
         <span className="close" onClick={() => props.setOpen(false)}>
           x
         </span>
-        <h1>Add new {props.slug}</h1>
+        <h1>Add New Entry</h1>
         <form onSubmit={handleSubmit}>
           {props.columns
             .filter((item) => item.input === true)
