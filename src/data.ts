@@ -134,6 +134,50 @@ CustomGridColDef{
 }
 */
 
+// const myColors = [
+//   "purple",
+//   "#785412",
+//   "#452632",
+//   "#856325",
+//   "#963254",
+//   "#254563",
+//   "white",
+// ];
+
+export const EditorModules = {
+  toolbar: [
+    [{ font: [] }],
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike", "blockquote"],
+    [{ color: [] }, { background: [] }],
+    [{ align: ["right", "center", "justify"] }],
+    [
+      { list: "ordered" },
+      { list: "bullet" },
+      { indent: "-1" },
+      { indent: "+1" },
+    ],
+    ["formula"],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
+
+export const EditorFormats = [
+  "font",
+  "size",
+  "bold",
+  "italic",
+  "indent",
+  "underline",
+  "strike",
+  "blockquote",
+  "list",
+  "bullet",
+  "indent",
+  "formula",
+  "script",
+];
+
 export type CustomGridColDef = GridColDef & {
   required?: boolean;
   input?: boolean;

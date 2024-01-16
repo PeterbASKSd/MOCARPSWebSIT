@@ -1,0 +1,23 @@
+// custom-quill.scss
+
+/* custom-quill.css */
+
+.custom-quill {
+    height: fit-content;
+    width: 100%;
+    color: #000;
+  }
+  
+  .custom-quill .ql-toolbar {
+    background-color: #ffffff; /* Set the desired background color for the toolbar */
+  }
+  
+  .custom-quill .ql-container {
+    background-color: #ffffff; /* Set the desired background color for the content area */
+    color: #2a3447; /* Set the desired text color for the content area */
+    text-align: left;
+  }
+  
+  .custom-quill .ql-math .ql-editor .ql-formula {
+    color: #000000; /* Set the desired color for the formula text */
+  }

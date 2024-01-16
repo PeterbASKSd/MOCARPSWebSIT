@@ -8,6 +8,8 @@ import preview from "../../assets/preview.svg";
 import { IconButton } from "@mui/material";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import "../../styles/custom-quill.scss";
+import { EditorFormats, EditorModules } from "../../data";
 
 type Props = {
   slug: string;
@@ -232,12 +234,14 @@ const Add = (props: Props) => {
                 )}
                 {column.type === "longText" ? (
                   <ReactQuill
-                    theme="snow"
                     key={column.field}
                     placeholder={column.inputHint}
                     onChange={(value) =>
                       handleLongInputChange(column.field, value)
                     }
+                    modules={EditorModules}
+                    formats={EditorFormats}
+                    className="custom-quill" // Add a custom class name if needed
                   />
                 ) : column.type === "file" ? (
                   !column.preCondition ? null : conditionValue !== undefined ? (

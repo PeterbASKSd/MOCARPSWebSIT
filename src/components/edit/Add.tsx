@@ -7,6 +7,10 @@ import PreviewModal from "react-media-previewer";
 import preview from "../../assets/preview.svg";
 import { IconButton } from "@mui/material";
 import Swal from "sweetalert2";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import "../../styles/custom-quill.scss";
+import { EditorFormats, EditorModules } from "../../data";
 
 type Props = {
   slug: string;
@@ -196,11 +200,11 @@ const Add = (props: Props) => {
     });
   };
 
-  const handleLongInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleLongInputChange = (fieldName: any, value: any) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [fieldName]: value,
+    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -301,14 +305,15 @@ const Add = (props: Props) => {
                 <label>{column.headerName}</label>
               )}
               {column.type === "longText" ? (
-                <textarea
-                  name={column.field}
+                <ReactQuill
+                  key={column.field}
                   placeholder={column.inputHint}
-                  onChange={handleLongInputChange}
-                  defaultValue={defaultValueByRowAndColumn(
-                    props.rows,
-                    column.field
-                  )}
+                  onChange={(value) =>
+                    handleLongInputChange(column.field, value)
+                  }
+                  modules={EditorModules}
+                  formats={EditorFormats}
+                  className="custom-quill" // Add a custom class name if needed
                 />
               ) : column.type === "file" ? (
                 !column.preCondition ? null : conditionValue !== undefined ? (
