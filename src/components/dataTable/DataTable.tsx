@@ -5,17 +5,19 @@ import Delete from "/src/assets/delete.svg";
 import axios from "axios";
 import React from "react";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
 
 type Props = {
   columns: GridColDef[];
   rows: object[];
   slug: string;
   handleAfterAddRow: (newRow: any) => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setId: React.Dispatch<React.SetStateAction<number>>;
 };
 
 const DataTable = (props: Props) => {
   const [rows, setRows] = React.useState<object[]>(props.rows);
+  // const [open, setOpen] = React.useState(false);
   // Remove the declaration of the unused 'showWarning' variable
   // const [showWarning, setShowWarning] = React.useState(false);
 
@@ -56,9 +58,30 @@ const DataTable = (props: Props) => {
       return (
         <div className="actionSet">
           <div className="edit">
-            <Link to={`/${props.slug}/${params.row.id}`}>
+            {/* <Link to={`/${props.slug}/${params.row.id}`}> */}
+            {/* <IconButton
+              onClick={() => props.setOpen(true)}
+              className="editButton"
+            >
               <img src={EditIcon} alt="" />
-            </Link>
+            </IconButton> */}
+            <img
+              src={EditIcon}
+              alt=""
+              onClick={() => {
+                props.setOpen(true);
+                props.setId(params.row.id);
+              }}
+            />
+            {/* {open && (
+              <Edit
+                slug="dictionary"
+                columns={props.columns}
+                handleAfterAddRow={props.handleAfterAddRow}
+                setOpenEdit={props.setOpen}
+              />
+            )} */}
+            {/* </Link> */}
           </div>
           <div>
             <img

@@ -1,6 +1,6 @@
 import "./add.scss";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CustomGridColDef } from "../../data";
 import Select from "react-select";
 import PreviewModal from "react-media-previewer";
@@ -12,6 +12,8 @@ type Props = {
   columns: CustomGridColDef[];
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleAfterAddRow: (newRow: any) => void;
+  rows: object[];
+  targetId: number;
 };
 
 const Add = (props: Props) => {
@@ -26,7 +28,6 @@ const Add = (props: Props) => {
   const [conditionValue, setConditionValue] = useState<string | undefined>(
     undefined
   );
-
   const errorMessage = missingFields.join(", ");
   const fileFormData = new FormData();
 
@@ -103,7 +104,7 @@ const Add = (props: Props) => {
           });
       } else {
         axios
-          .post(`https://mocarps.azurewebsites.net/${props.slug}`, formData)
+          .put(`https://mocarps.azurewebsites.net/${props.slug}`, formData)
           .then(() => {
             props.handleAfterAddRow(formData);
           })
@@ -209,151 +210,180 @@ const Add = (props: Props) => {
     setOpen(true);
   };
 
+  const defaultValueByRowAndColumn = (
+    rows: any, // Add index signature to allow indexing with a string
+    columnName: string
+  ) => {
+    return rows?.[columnName];
+  };
+
+  const existFormData = () => {
+    props.columns.forEach((column) => {
+      formData.append(
+        column.field,
+        defaultValueByRowAndColumn(props.rows, column.field)
+      );
+    });
+
+    return setFormData(formData);
+  };
+
+  useEffect(() => {
+    existFormData();
+    console.log("Please check here formData:", formData);
+  });
+
   return (
     <div className="add">
       <div className="model">
         <span className="close" onClick={() => props.setOpen(false)}>
           x
         </span>
-        <h1>Add New Entry</h1>
+        <h1>Edit Exist Entry</h1>
         <form onSubmit={handleSubmit}>
-          {props.columns
-            .filter((item) => item.input === true)
-            .map((column) => (
-              <div className="item" key={column.field}>
-                {column.required ? (
-                  <label>
-                    {column.headerName} <label className="redStar">*</label>
-                  </label>
-                ) : (
-                  <label>{column.headerName}</label>
-                )}
-                {column.type === "longText" ? (
-                  <textarea
-                    name={column.field}
-                    placeholder={column.inputHint}
-                    onChange={handleLongInputChange}
-                  />
-                ) : column.type === "file" ? (
-                  !column.preCondition ? null : conditionValue !== undefined ? (
-                    <div className="special-file">
-                      <div className="uploadBox">
-                        <input
-                          className="uploadButton"
-                          type="file"
-                          name={column.field}
-                          accept={handleFileAcceptance(conditionValue)}
-                          onChange={handleFileChange}
-                        />
-                      </div>
-                      <div className="previewBox">
-                        <IconButton
-                          className="previewButton"
-                          onClick={() => {
-                            handleButtonClick();
-                            setVisible(true);
-                          }}
-                        >
-                          <img
-                            src={preview}
-                            alt=""
-                            className="previewButtonIcon"
-                          />
-                          <label className="previewButtonText">Preview</label>
-                        </IconButton>
-                        {open && (
-                          <PreviewModal
-                            visible={visible}
-                            setVisible={() => {
-                              setVisible(false);
-                              setOpen(false);
-                            }}
-                            urls={[urls || ""]}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  ) : null
-                ) : column.type === "options" ? (
-                  column.isCondition ? (
-                    <div className="special-option">
-                      <Select
-                        className="options"
-                        defaultValue={selectValue}
-                        onChange={(selectValue) => {
-                          selectValue &&
-                            handleOptionChange(
-                              selectValue.value?.join(", "),
-                              column.field
-                            );
-                          setConditionValue(selectValue?.value?.join(", "));
-                        }}
-                        options={
-                          column.inputOptions?.map((option) => ({
-                            value: [option],
-                            label: [option],
-                          })) || []
-                        }
+          {props.columns.map((column) => (
+            <div className="item" key={column.field}>
+              {column.required ? (
+                <label>
+                  {column.headerName} <label className="redStar">*</label>
+                </label>
+              ) : (
+                <label>{column.headerName}</label>
+              )}
+              {column.type === "longText" ? (
+                <textarea
+                  name={column.field}
+                  placeholder={column.inputHint}
+                  onChange={handleLongInputChange}
+                  defaultValue={defaultValueByRowAndColumn(
+                    props.rows,
+                    column.field
+                  )}
+                />
+              ) : column.type === "file" ? (
+                !column.preCondition ? null : conditionValue !== undefined ? (
+                  <div className="special-file">
+                    <div className="uploadBox">
+                      <input
+                        className="uploadButton"
+                        type="file"
+                        name={column.field}
+                        accept={handleFileAcceptance(conditionValue)}
+                        onChange={handleFileChange}
                       />
                     </div>
-                  ) : (
-                    <div className="special-option">
-                      <Select
-                        className="options"
-                        defaultValue={selectValue}
-                        onChange={(selectValue) =>
-                          selectValue &&
+                    <div className="previewBox">
+                      <IconButton
+                        className="previewButton"
+                        onClick={() => {
+                          handleButtonClick();
+                          setVisible(true);
+                        }}
+                      >
+                        <img
+                          src={preview}
+                          alt=""
+                          className="previewButtonIcon"
+                        />
+                        <label className="previewButtonText">Preview</label>
+                      </IconButton>
+                      {open && (
+                        <PreviewModal
+                          visible={visible}
+                          setVisible={() => {
+                            setVisible(false);
+                            setOpen(false);
+                          }}
+                          urls={[urls || ""]}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ) : null
+              ) : column.type === "options" ? (
+                column.isCondition ? (
+                  <div className="special-option">
+                    <Select
+                      className="options"
+                      defaultValue={selectValue}
+                      onChange={(selectValue) => {
+                        selectValue &&
                           handleOptionChange(
                             selectValue.value?.join(", "),
                             column.field
-                          )
-                        }
-                        options={
-                          column.inputOptions?.map((option) => ({
-                            value: [option],
-                            label: [option],
-                          })) || []
-                        }
-                      />
-                    </div>
-                  )
-                ) : column.type === "boolean" ? (
-                  <div>
-                    <input
-                      className="checkbox"
-                      type="checkbox"
-                      name={column.field}
+                          );
+                        setConditionValue(selectValue?.value?.join(", "));
+                      }}
+                      options={
+                        column.inputOptions?.map((option) => ({
+                          value: [option],
+                          label: [option],
+                        })) || []
+                      }
                     />
-                    <div className="item">
-                      <Select
-                        className="options"
-                        defaultValue={selectValue}
-                        onChange={(selectValue) =>
-                          selectValue &&
-                          handleOptionChange(
-                            selectValue.value.join(", "),
-                            column.field
-                          )
-                        }
-                        options={
-                          column.inputOptions?.map((option) => ({
-                            value: [option],
-                            label: [option],
-                          })) || []
-                        }
-                      />
-                    </div>
                   </div>
                 ) : (
+                  <div className="special-option">
+                    <Select
+                      className="options"
+                      defaultValue={selectValue}
+                      onChange={(selectValue) =>
+                        selectValue &&
+                        handleOptionChange(
+                          selectValue.value?.join(", "),
+                          column.field
+                        )
+                      }
+                      options={
+                        column.inputOptions?.map((option) => ({
+                          value: [option],
+                          label: [option],
+                        })) || []
+                      }
+                    />
+                  </div>
+                )
+              ) : column.type === "boolean" ? (
+                <div>
                   <input
-                    type={column.type}
+                    className="checkbox"
+                    type="checkbox"
                     name={column.field}
-                    placeholder={column.inputHint}
-                    onChange={handleInputChange}
                   />
-                )}
-              </div>
-            ))}
+                  <div className="item">
+                    <Select
+                      className="options"
+                      defaultValue={selectValue}
+                      onChange={(selectValue) =>
+                        selectValue &&
+                        handleOptionChange(
+                          selectValue.value.join(", "),
+                          column.field
+                        )
+                      }
+                      options={
+                        column.inputOptions?.map((option) => ({
+                          value: [option],
+                          label: [option],
+                        })) || []
+                      }
+                    />
+                  </div>
+                </div>
+              ) : (
+                <input
+                  type={column.type}
+                  name={column.field}
+                  placeholder={column.inputHint}
+                  onChange={handleInputChange}
+                  defaultValue={
+                    defaultValueByRowAndColumn(props.rows, column.field) || ""
+                  }
+                  disabled={column.editable === false}
+                />
+              )}
+            </div>
+          ))}
           <div className="item">
             <label className="postScript">
               Please enter all <label className="redStar">*</label> field

@@ -9,7 +9,7 @@ import Information from "./pages/information/Information";
 import Question from "./pages/question/Question";
 import Quiz from "./pages/quiz/Quiz";
 import Value from "./pages/value/Value";
-import DictionaryEdit from "./pages/dictionaryEdit/DictionaryEdit";
+// import DictionaryEdit from "./pages/.dictionaryEdit/DictionaryEdit";
 
 import "./styles/global.scss";
 
@@ -45,10 +45,6 @@ function App() {
         {
           path: "/dictionary",
           element: <Dictionary />,
-        },
-        {
-          path: "/:slug/:id",
-          element: <DictionaryEdit />,
         },
         {
           path: "/user",

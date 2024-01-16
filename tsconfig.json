@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "src/components/.editForm", "src/pages/.dictionaryEdit"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
