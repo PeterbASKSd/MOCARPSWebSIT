@@ -236,16 +236,18 @@ const Add = (props: Props) => {
                   <label>{column.headerName}</label>
                 )}
                 {column.type === "longText" ? (
-                  <ReactQuill
-                    key={column.field}
-                    placeholder={column.inputHint}
-                    onChange={(value) =>
-                      handleLongInputChange(column.field, value)
-                    }
-                    modules={EditorModules}
-                    formats={EditorFormats}
-                    className="custom-quill" // Add a custom class name if needed
-                  />
+                  <div>
+                    <ReactQuill
+                      key={column.field}
+                      placeholder={column.inputHint}
+                      onChange={(value) =>
+                        handleLongInputChange(column.field, value)
+                      }
+                      modules={EditorModules}
+                      formats={EditorFormats}
+                      className="custom-quill" // Add a custom class name if needed
+                    />
+                  </div>
                 ) : column.type === "file" ? (
                   !column.preCondition ? null : conditionValue !== undefined ? (
                     <div className="special-file">
