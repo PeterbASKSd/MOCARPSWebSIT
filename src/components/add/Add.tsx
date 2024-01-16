@@ -10,6 +10,9 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "../../styles/custom-quill.scss";
 import { EditorFormats, EditorModules } from "../../data";
+import katex from "katex";
+import "katex/dist/katex.min.css";
+window.katex = katex;
 
 type Props = {
   slug: string;

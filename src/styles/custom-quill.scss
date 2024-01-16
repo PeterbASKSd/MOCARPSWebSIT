@@ -14,10 +14,15 @@
   
   .custom-quill .ql-container {
     background-color: #ffffff; /* Set the desired background color for the content area */
-    color: #2a3447; /* Set the desired text color for the content area */
     text-align: left;
   }
   
-  .custom-quill .ql-math .ql-editor .ql-formula {
-    color: #000000; /* Set the desired color for the formula text */
+  .custom-quill .ql-math .ql-editor {
+    color: #ffffff; /* Set the desired color for the formula text */
+  }
+
+  .ql-editor {
+    .ql-formula {
+      color: #ffffff;
+    }
   }
