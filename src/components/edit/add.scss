@@ -119,6 +119,30 @@
                         }
                     }
                 }
+
+                .uploadArea {
+                    width: 100%;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    padding-top: 10px;
+                    padding-bottom: 10px;
+                    
+                    .oldFileWrapper {
+                      display: flex;
+                      flex-direction: column;
+                      align-items: flex-start;
+                      
+                      span {
+                        margin-right: 5px;
+                      }
+                      
+                      .oldFilePath {
+                        color: #999;
+                        font-style: italic;
+                      }
+                    }
+                  }
             }
 
             .special-option {
@@ -173,32 +197,73 @@
             }
         }
 
-        .submit {
-            width: 50%;
-            margin-top: 3%;
-            margin-left: auto;
-            margin-right: auto;
-            background-color: #04AA6D; /* Green */
+
+        .buttonArea {
+            display: flex;
+            justify-content: center; /* Center the buttons horizontally */
+            align-items: center; /* Center the buttons vertically */
+          }
+          
+          .submit,
+          .button1,
+          .button2 {
+            padding: 5px 20px;
+            font-size: 20px;
             border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition-duration: 0.4s;
+            
+            align-self: stretch; /* Make both buttons stretch vertically */
+          }
+          
+          .submit {
+            margin-top: 3%;
+            margin-bottom: 3%; /* Add margin-bottom to create spacing between buttons and other elements */
+            background-color: #04AA6D;
             color: white;
-            padding: 6px 12px;
             text-align: center;
             text-decoration: none;
-            font-size: 16px;
-            transition-duration: 0.4s;
-            cursor: pointer;
-            display: inline-block;
-        }
-
-        .button1 {
-            background-color: white; 
-            color: black; 
-            border: 2px solid #04AA6D;
-
+          }
+          
+          .button1 {
+            margin-left: 10px;
+            background-color: #04AA6D;
+            color: #fff;
+            flex: 70%; /* Set Button 1 to take up 70% of the width */
+            
             &:hover {
-                background-color: #04AA6D;
-                color: white;
+              background-color: darken(#04AA6D, 10%);
             }
-        }
+            
+            &:focus {
+              outline: none;
+              box-shadow: 0 0 0 2px #04AA6D;
+            }
+            
+            &:active {
+              background-color: darken(#04AA6D, 20%);
+            }
+          }
+          
+          .button2 {
+            margin-left: 10px;
+            background-color: #007bff;
+            color: #fff;
+            flex: 30%; /* Set Button 2 to take up 30% of the width */
+            
+            &:hover {
+              background-color: #0056b3;
+            }
+            
+            &:focus {
+              outline: none;
+              box-shadow: 0 0 0 2px #007bff;
+            }
+            
+            &:active {
+              background-color: #004080;
+            }
+          }
     }
 }

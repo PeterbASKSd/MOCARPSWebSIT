@@ -1,4 +1,4 @@
-import "./add.scss";
+import "../add/Add.scss";
 import axios from "axios";
 import React, { useState } from "react";
 import { CustomGridColDef } from "../../data";
@@ -358,10 +358,11 @@ const Add = (props: Props) => {
             <label className="postScript">
               Please enter all <label className="redStar">*</label> field
             </label>
-
-            <button className="submit button1">
-              <span>Submit</span>
-            </button>
+            <div className="buttonArea">
+              <button className="submit button1">
+                <span>Submit</span>
+              </button>
+            </div>
 
             {isSubmitted === false && (
               <div className="error">Please input {errorMessage}</div>

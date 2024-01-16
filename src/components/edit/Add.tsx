@@ -1,11 +1,12 @@
-import "./add.scss";
+import "../edit/add.scss";
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { CustomGridColDef } from "../../data";
 import Select from "react-select";
 import PreviewModal from "react-media-previewer";
 import preview from "../../assets/preview.svg";
 import { IconButton } from "@mui/material";
+import Swal from "sweetalert2";
 
 type Props = {
   slug: string;
@@ -18,7 +19,6 @@ type Props = {
 
 const Add = (props: Props) => {
   const [open, setOpen] = useState<boolean>(false);
-  const [isSubmitted, setIsSubmitted] = useState<boolean | null>(null);
   const [formData, setFormData] = useState<FormData>(new FormData());
   const [file, setFile] = useState<File | undefined>(undefined);
   const [visible, setVisible] = useState(false);
@@ -30,6 +30,49 @@ const Add = (props: Props) => {
   );
   const errorMessage = missingFields.join(", ");
   const fileFormData = new FormData();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const existFormData = () => {
+    props.columns.forEach((column) => {
+      const value = defaultValueByRowAndColumn(props.rows, column.field);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [column.field]: value,
+      }));
+    });
+  };
+
+  useEffect(() => {
+    existFormData();
+  }, []);
+
+  useEffect(() => {
+    console.log("Please check here 33333:", formData);
+  }, [formData]);
+
+  const handleReset = () => {
+    Swal.fire({
+      title: "It has been reset",
+      showDenyButton: false,
+      showCancelButton: false,
+      confirmButtonText: "Confirm",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Confirmed!");
+        resetFormData();
+      }
+    });
+  };
+
+  const resetFormData = () => {
+    props.columns.forEach((column) => {
+      const value = defaultValueByRowAndColumn(props.rows, column.field);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [column.field]: value,
+      }));
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,67 +94,90 @@ const Add = (props: Props) => {
       !isAllFieldsPresent ||
       Object.values(formData).some((value) => value === "")
     ) {
-      setIsSubmitted(false);
-      return;
+      Swal.fire({
+        title: "Please input" + { errorMessage },
+      });
     } else {
-      setIsSubmitted(true);
+      Swal.fire({
+        title: "Are you sure you want to edit this row?",
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Submit",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire("Submitted!");
 
-      console.log("Please check here 33333:", formData);
+          console.log("Please check here 44444:", formData);
 
-      if (file) {
-        fileFormData.append("file", file);
-
-        axios
-          .post(`https://mocarps.azurewebsites.net/uploadFile`, fileFormData, {
-            headers: {
-              "Content-Type": "application/octet-stream",
-            },
-          })
-          .then((response) => {
-            const blobUrl = response.data.blobUrl;
-            const updatedFormData = { ...formData };
-            // const contentType = file.type;
-
-            const replaceUrlsInFormData = (oldUrl: File, newUrl: string) => {
-              Object.entries(updatedFormData).forEach(([key, value]) => {
-                if (
-                  typeof value === "string" &&
-                  (value as string).includes(oldUrl.name)
-                ) {
-                  (updatedFormData as any)[key] = newUrl;
-                  setFormData(updatedFormData);
-                }
-              });
-            };
-
-            replaceUrlsInFormData(file, blobUrl);
+          if (file) {
+            fileFormData.append("file", file);
 
             axios
               .post(
-                `https://mocarps.azurewebsites.net/${props.slug}`,
-                updatedFormData
+                `https://mocarps.azurewebsites.net/uploadFile`,
+                fileFormData,
+                {
+                  headers: {
+                    "Content-Type": "application/octet-stream",
+                  },
+                }
               )
-              .then(() => {
-                console.log("Please check here Update file:", updatedFormData);
-                props.handleAfterAddRow(updatedFormData);
+              .then((response) => {
+                const blobUrl = response.data.blobUrl;
+                const updatedFormData = { ...formData };
+                // const contentType = file.type;
+
+                const replaceUrlsInFormData = (
+                  oldUrl: File,
+                  newUrl: string
+                ) => {
+                  Object.entries(updatedFormData).forEach(([key, value]) => {
+                    if (
+                      typeof value === "string" &&
+                      (value as string).includes(oldUrl.name)
+                    ) {
+                      (updatedFormData as any)[key] = newUrl;
+                      setFormData(updatedFormData);
+                    }
+                  });
+                };
+
+                replaceUrlsInFormData(file, blobUrl);
+
+                axios
+                  .put(
+                    `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
+                    updatedFormData
+                  )
+                  .then(() => {
+                    console.log(
+                      "Please check here Update file:",
+                      updatedFormData
+                    );
+                    props.handleAfterAddRow(updatedFormData);
+                  })
+                  .catch((error) => {
+                    console.error(error);
+                  });
               })
               .catch((error) => {
                 console.error(error);
               });
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      } else {
-        axios
-          .put(`https://mocarps.azurewebsites.net/${props.slug}`, formData)
-          .then(() => {
-            props.handleAfterAddRow(formData);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }
+          } else {
+            axios
+              .put(
+                `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
+                formData
+              )
+              .then(() => {
+                props.handleAfterAddRow(formData);
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          }
+        }
+      });
     }
   };
 
@@ -217,22 +283,6 @@ const Add = (props: Props) => {
     return rows?.[columnName];
   };
 
-  const existFormData = () => {
-    props.columns.forEach((column) => {
-      formData.append(
-        column.field,
-        defaultValueByRowAndColumn(props.rows, column.field)
-      );
-    });
-
-    return setFormData(formData);
-  };
-
-  useEffect(() => {
-    existFormData();
-    console.log("Please check here formData:", formData);
-  });
-
   return (
     <div className="add">
       <div className="model">
@@ -265,12 +315,24 @@ const Add = (props: Props) => {
                   <div className="special-file">
                     <div className="uploadBox">
                       <input
+                        ref={fileInputRef}
                         className="uploadButton"
                         type="file"
                         name={column.field}
                         accept={handleFileAcceptance(conditionValue)}
                         onChange={handleFileChange}
                       />
+                      <div className="uploadArea">
+                        <div className="oldFileWrapper">
+                          <span>Old File:</span>
+                          <span className="oldFilePath">
+                            {defaultValueByRowAndColumn(
+                              props.rows,
+                              column.field
+                            )}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                     <div className="previewBox">
                       <IconButton
@@ -305,7 +367,16 @@ const Add = (props: Props) => {
                   <div className="special-option">
                     <Select
                       className="options"
-                      defaultValue={selectValue}
+                      defaultValue={{
+                        value: defaultValueByRowAndColumn(
+                          props.rows,
+                          column.field
+                        ),
+                        label: defaultValueByRowAndColumn(
+                          props.rows,
+                          column.field
+                        ),
+                      }}
                       onChange={(selectValue) => {
                         selectValue &&
                           handleOptionChange(
@@ -326,7 +397,16 @@ const Add = (props: Props) => {
                   <div className="special-option">
                     <Select
                       className="options"
-                      defaultValue={selectValue}
+                      defaultValue={{
+                        value: defaultValueByRowAndColumn(
+                          props.rows,
+                          column.field
+                        ),
+                        label: defaultValueByRowAndColumn(
+                          props.rows,
+                          column.field
+                        ),
+                      }}
                       onChange={(selectValue) =>
                         selectValue &&
                         handleOptionChange(
@@ -388,18 +468,18 @@ const Add = (props: Props) => {
             <label className="postScript">
               Please enter all <label className="redStar">*</label> field
             </label>
-
-            <button className="submit button1">
-              <span>Submit</span>
-            </button>
-
-            {isSubmitted === false && (
-              <div className="error">Please input {errorMessage}</div>
-            )}
-
-            {isSubmitted === true && (
-              <div className="success">Successfully added</div>
-            )}
+            <div className="buttonArea">
+              <button className="submit button1">
+                <span>Submit</span>
+              </button>
+              <button
+                className="submit button2"
+                type="reset"
+                onClick={handleReset}
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </form>
       </div>
