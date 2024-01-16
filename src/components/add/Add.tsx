@@ -1,4 +1,4 @@
-import "../add/Add.scss";
+import "../add/add.scss";
 import axios from "axios";
 import React, { useState } from "react";
 import { CustomGridColDef } from "../../data";
@@ -6,6 +6,8 @@ import Select from "react-select";
 import PreviewModal from "react-media-previewer";
 import preview from "../../assets/preview.svg";
 import { IconButton } from "@mui/material";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 type Props = {
   slug: string;
@@ -129,11 +131,11 @@ const Add = (props: Props) => {
     });
   };
 
-  const handleLongInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleLongInputChange = (fieldName: any, value: any) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [fieldName]: value,
+    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,10 +231,13 @@ const Add = (props: Props) => {
                   <label>{column.headerName}</label>
                 )}
                 {column.type === "longText" ? (
-                  <textarea
-                    name={column.field}
+                  <ReactQuill
+                    theme="snow"
+                    key={column.field}
                     placeholder={column.inputHint}
-                    onChange={handleLongInputChange}
+                    onChange={(value) =>
+                      handleLongInputChange(column.field, value)
+                    }
                   />
                 ) : column.type === "file" ? (
                   !column.preCondition ? null : conditionValue !== undefined ? (

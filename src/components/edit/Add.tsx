@@ -58,7 +58,7 @@ const Add = (props: Props) => {
       confirmButtonText: "Confirm",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire("Confirmed!");
+        Swal.fire("You can edit again!");
         resetFormData();
       }
     });
