@@ -1,6 +1,6 @@
 import "../edit/add.scss";
 import axios from "axios";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { CustomGridColDef } from "../../data";
 import Select from "react-select";
 import PreviewModal from "react-media-previewer";
@@ -73,7 +73,13 @@ const Add = (props: Props) => {
 
   const resetFormData = () => {
     props.columns.forEach((column) => {
-      const value = defaultValueByRowAndColumn(props.rows, column.field);
+      let value: any;
+      if (column.type === "longtext") {
+        value = defaultValueByRowAndColumnForLong(props.rows, column.field);
+      } else {
+        value = defaultValueByRowAndColumn(props.rows, column.field);
+      }
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         [column.field]: value,
@@ -203,13 +209,6 @@ const Add = (props: Props) => {
     });
   };
 
-  const handleLongInputChange = (fieldName: any, value: any) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [fieldName]: value,
-    }));
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
 
@@ -290,6 +289,36 @@ const Add = (props: Props) => {
     return rows?.[columnName];
   };
 
+  const defaultValueByRowAndColumnForLong = (
+    rows: Record<string, any> | undefined,
+    columnName: string
+  ): string | undefined => {
+    const wrapInPTags = (text: string | undefined): string | undefined => {
+      if (text && !text.startsWith("<p>") && !text.endsWith("</p>")) {
+        return `<p>${text}</p>`;
+      }
+      return text;
+    };
+
+    const wrappedValue = wrapInPTags(rows?.[columnName]);
+
+    return wrappedValue;
+  };
+
+  // const handleLongInputChange = (fieldName: string, value: string) => {
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     [fieldName]: value,
+  //   }));
+  // };
+
+  const handleLongInputChangeForLong = (fieldName: string, value: string) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [fieldName]: value,
+    }));
+  };
+
   return (
     <div className="add">
       <div className="model">
@@ -312,11 +341,15 @@ const Add = (props: Props) => {
                   key={column.field}
                   placeholder={column.inputHint}
                   onChange={(value) =>
-                    handleLongInputChange(column.field, value)
+                    handleLongInputChangeForLong(column.field, value)
                   }
                   modules={EditorModules}
                   formats={EditorFormats}
-                  className="custom-quill" // Add a custom class name if needed
+                  className="custom-quill"
+                  defaultValue={defaultValueByRowAndColumnForLong(
+                    props.rows,
+                    column.field
+                  )}
                 />
               ) : column.type === "file" ? (
                 !column.preCondition ? null : conditionValue !== undefined ? (
