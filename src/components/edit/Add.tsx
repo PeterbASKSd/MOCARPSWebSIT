@@ -57,6 +57,26 @@ const Add = (props: Props) => {
     console.log("Please check here 33333:", formData);
   }, [formData]);
 
+  const resetFormData = () => {
+    const updatedFormData: { [key: string]: any } = {}; // Add type assertion
+
+    props.columns.forEach((column) => {
+      let value;
+      if (column.type === "longtext") {
+        value = defaultValueByRowAndColumnForLong(props.rows, column.field);
+      } else {
+        value = defaultValueByRowAndColumn(props.rows, column.field);
+      }
+
+      updatedFormData[column.field] = value;
+    });
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      ...updatedFormData,
+    }));
+  };
+
   const handleReset = () => {
     Swal.fire({
       title: "It has been reset",
@@ -68,22 +88,6 @@ const Add = (props: Props) => {
         Swal.fire("You can edit again!");
         resetFormData();
       }
-    });
-  };
-
-  const resetFormData = () => {
-    props.columns.forEach((column) => {
-      let value: any;
-      if (column.type === "longtext") {
-        value = defaultValueByRowAndColumnForLong(props.rows, column.field);
-      } else {
-        value = defaultValueByRowAndColumn(props.rows, column.field);
-      }
-
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        [column.field]: value,
-      }));
     });
   };
 
@@ -500,7 +504,7 @@ const Add = (props: Props) => {
                   defaultValue={
                     defaultValueByRowAndColumn(props.rows, column.field) || ""
                   }
-                  disabled={column.editable === false}
+                  disabled={column.input === false}
                 />
               )}
             </div>
