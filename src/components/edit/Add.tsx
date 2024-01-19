@@ -33,7 +33,6 @@ const Add = (props: Props) => {
   const [formData, setFormData] = useState<MyFormData>({});
   const [file, setFile] = useState<File | undefined>(undefined);
   const [visible, setVisible] = useState(false);
-  const [selectValue, setSelectValue] = useState(null);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [urls, setUrls] = useState<string | undefined>(undefined);
   const [conditionValue, setConditionValue] = useState<string | undefined>(
@@ -207,7 +206,6 @@ const Add = (props: Props) => {
   };
 
   const handleOptionChange = (selectValue: string, fieldName: string) => {
-    setSelectValue(null);
     setFormData({
       ...formData,
       [fieldName]: selectValue,

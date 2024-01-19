@@ -1,7 +1,5 @@
 import DataTable from "../../components/dataTable/DataTable";
 import "./user.scss";
-import IconButton from "@mui/material/IconButton";
-import AddButton from "/src/assets/add.svg";
 import { useState, useEffect } from "react";
 import Add from "../../components/add/Add";
 import { userColumns } from "../../data";
