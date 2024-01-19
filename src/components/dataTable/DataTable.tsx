@@ -13,6 +13,7 @@ type Props = {
   handleAfterAddRow: (newRow: any) => void;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setId: React.Dispatch<React.SetStateAction<number>>;
+  passwordField?: boolean;
 };
 
 const DataTable = (props: Props) => {
@@ -73,16 +74,20 @@ const DataTable = (props: Props) => {
                 props.setId(params.row.id);
               }}
             />
-            {/* {open && (
-              <Edit
-                slug="dictionary"
-                columns={props.columns}
-                handleAfterAddRow={props.handleAfterAddRow}
-                setOpenEdit={props.setOpen}
-              />
-            )} */}
-            {/* </Link> */}
           </div>
+          {props.passwordField ? (
+            <div className="password">
+              {" "}
+              {/* <img
+                src={keyIcon}
+                alt=""
+                onClick={() => {
+                  props.setOpen(true);
+                  props.setId(params.row.id);
+                }}
+              /> */}
+            </div>
+          ) : null}
           <div>
             <img
               className="delete"

@@ -170,6 +170,7 @@ export const EditorFormats = [
   "indent",
   "underline",
   "strike",
+  "align",
   "color",
   "background",
   "blockquote",
@@ -189,6 +190,7 @@ export type CustomGridColDef = GridColDef & {
   isCondition?: boolean;
 };
 
+//dictionary
 export const dictionaryColumns: CustomGridColDef[] = [
   {
     field: "id",
@@ -258,6 +260,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
   },
 ];
 
+//value
 // "id": 3,
 // "keyword": "Albumin",
 // "description": "Albumin",
@@ -354,5 +357,64 @@ export const valueColumns: CustomGridColDef[] = [
     required: true,
     input: true,
     inputHint: "Please enter a defined description",
+  },
+];
+
+//user
+// "id": 2,
+// "email": "Fangxuanmiao@me.com",
+// "name": "StephenTest",
+// "cardNumber": "22222222G",
+// "verified": true,
+// "disabled": false,
+// "priority": 2
+
+export const userColumns: CustomGridColDef[] = [
+  {
+    field: "email",
+    headerName: "Email",
+    type: "email",
+    width: 250,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Enter a email",
+  },
+  {
+    field: "name",
+    headerName: "Name",
+    type: "string",
+    width: 150,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter your name",
+  },
+  {
+    field: "cardNumber",
+    headerName: "Card Number",
+    type: "string",
+    width: 120,
+    editable: false,
+    required: true,
+    input: true,
+  },
+  {
+    field: "verified",
+    headerName: "Verified",
+    type: "boolean",
+    width: 80,
+    editable: false,
+    required: true,
+    input: true,
+  },
+  {
+    field: "disabled",
+    headerName: "Disabled",
+    type: "boolean",
+    width: 80,
+    editable: false,
+    required: true,
+    input: true,
   },
 ];

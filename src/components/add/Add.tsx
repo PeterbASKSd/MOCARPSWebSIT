@@ -216,6 +216,13 @@ const Add = (props: Props) => {
     setOpen(true);
   };
 
+  const handleBooleanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.checked,
+    });
+  };
+
   return (
     <div className="add">
       <div className="model">
@@ -335,26 +342,8 @@ const Add = (props: Props) => {
                       className="checkbox"
                       type="checkbox"
                       name={column.field}
+                      onChange={handleBooleanChange}
                     />
-                    <div className="item">
-                      <Select
-                        className="options"
-                        defaultValue={selectValue}
-                        onChange={(selectValue) =>
-                          selectValue &&
-                          handleOptionChange(
-                            selectValue.value.join(", "),
-                            column.field
-                          )
-                        }
-                        options={
-                          column.inputOptions?.map((option) => ({
-                            value: [option],
-                            label: [option],
-                          })) || []
-                        }
-                      />
-                    </div>
                   </div>
                 ) : (
                   <input

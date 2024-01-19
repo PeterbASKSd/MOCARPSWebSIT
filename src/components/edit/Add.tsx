@@ -15,6 +15,10 @@ import katex from "katex";
 import "katex/dist/katex.min.css";
 window.katex = katex;
 
+interface MyFormData {
+  [key: string]: string | undefined;
+}
+
 type Props = {
   slug: string;
   columns: CustomGridColDef[];
@@ -26,7 +30,7 @@ type Props = {
 
 const Add = (props: Props) => {
   const [open, setOpen] = useState<boolean>(false);
-  const [formData, setFormData] = useState<FormData>(new FormData());
+  const [formData, setFormData] = useState<MyFormData>({});
   const [file, setFile] = useState<File | undefined>(undefined);
   const [visible, setVisible] = useState(false);
   const [selectValue, setSelectValue] = useState(null);
@@ -57,7 +61,11 @@ const Add = (props: Props) => {
     console.log("Please check here 33333:", formData);
   }, [formData]);
 
-  const resetFormData = () => {
+  const resetFormData = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+
     const updatedFormData: { [key: string]: any } = {}; // Add type assertion
 
     props.columns.forEach((column) => {
@@ -77,16 +85,16 @@ const Add = (props: Props) => {
     }));
   };
 
-  const handleReset = () => {
+  const handleReset = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     Swal.fire({
       title: "It has been reset",
       showDenyButton: false,
-      showCancelButton: false,
+      showCancelButton: true,
       confirmButtonText: "Confirm",
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire("You can edit again!");
-        resetFormData();
+        resetFormData(e);
       }
     });
   };
@@ -350,10 +358,11 @@ const Add = (props: Props) => {
                   modules={EditorModules}
                   formats={EditorFormats}
                   className="custom-quill"
+                  value={formData[column.field]} // Use value to reflect the current form data
                   defaultValue={defaultValueByRowAndColumnForLong(
                     props.rows,
                     column.field
-                  )}
+                  )} // Use defaultValue for the initial form data
                 />
               ) : column.type === "file" ? (
                 !column.preCondition ? null : conditionValue !== undefined ? (
@@ -478,11 +487,20 @@ const Add = (props: Props) => {
                   <div className="item">
                     <Select
                       className="options"
-                      defaultValue={selectValue}
+                      defaultValue={{
+                        value: defaultValueByRowAndColumn(
+                          props.rows,
+                          column.field
+                        ),
+                        label: defaultValueByRowAndColumn(
+                          props.rows,
+                          column.field
+                        ),
+                      }}
                       onChange={(selectValue) =>
                         selectValue &&
                         handleOptionChange(
-                          selectValue.value.join(", "),
+                          selectValue.value?.join(", "),
                           column.field
                         )
                       }
@@ -501,6 +519,7 @@ const Add = (props: Props) => {
                   name={column.field}
                   placeholder={column.inputHint}
                   onChange={handleInputChange}
+                  value={formData[column.field]}
                   defaultValue={
                     defaultValueByRowAndColumn(props.rows, column.field) || ""
                   }
