@@ -17,13 +17,20 @@
         display: flex;
         align-items: center;
         padding-left: 20px;
+        justify-content: center; /* Center the content horizontally */
 
-        .userLogo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .userLogo,
+        .logoutLogo {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex: 1;
         }
-    }
+        
+        .logoutLogo {
+          justify-content: flex-end; /* Align the logout logo to the right */
+        }
+      }
 
     img {
         width: 25px;

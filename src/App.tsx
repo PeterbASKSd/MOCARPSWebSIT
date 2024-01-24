@@ -9,17 +9,26 @@ import Information from "./pages/information/Information";
 import Question from "./pages/question/Question";
 import Quiz from "./pages/quiz/Quiz";
 import Value from "./pages/value/Value";
-// import DictionaryEdit from "./pages/.dictionaryEdit/DictionaryEdit";
+import { useState } from "react";
+import { Navigate } from "react-router-dom";
 
 import "./styles/global.scss";
 
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUsername("");
+  };
+
   const Layout = () => {
     return (
       <div className="main">
-        <Navbar />
+        <Navbar handleLogout={handleLogout} username={username} />
         <div className="container">
           <div className="menuContainer">
             <Menu />
@@ -33,10 +42,10 @@ function App() {
     );
   };
 
-  const router = createBrowserRouter([
+  const routes = [
     {
       path: "/",
-      element: <Layout />,
+      element: isLoggedIn ? <Layout /> : <Navigate to="/login" />,
       children: [
         {
           path: "/",
@@ -70,11 +79,13 @@ function App() {
     },
     {
       path: "/login",
-      element: <Login />,
+      element: (
+        <Login setIsLoggedIn={setIsLoggedIn} setUsername={setUsername} />
+      ),
     },
-  ]);
+  ];
 
-  return <RouterProvider router={router}></RouterProvider>;
+  return <RouterProvider router={createBrowserRouter(routes)} />;
 }
 
 export default App;

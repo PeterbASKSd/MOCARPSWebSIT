@@ -216,13 +216,6 @@ const Add = (props: Props) => {
     setOpen(true);
   };
 
-  const handleBooleanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.checked,
-    });
-  };
-
   return (
     <div className="add">
       <div className="model">
@@ -342,7 +335,12 @@ const Add = (props: Props) => {
                       className="checkbox"
                       type="checkbox"
                       name={column.field}
-                      onChange={handleBooleanChange}
+                      onChange={(event) =>
+                        handleOptionChange(
+                          event.target.checked.toString(),
+                          column.field
+                        )
+                      }
                     />
                   </div>
                 ) : (

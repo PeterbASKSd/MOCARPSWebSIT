@@ -1,15 +1,16 @@
 import DataTable from "../../components/dataTable/DataTable";
 import "./user.scss";
 import { useState, useEffect } from "react";
-import Add from "../../components/add/Add";
 import { userColumns } from "../../data";
+import { passwordColumns } from "../../data";
 import Edit from "../../components/edit/Add";
+import KeyChange from "../../components/password/Add";
 
 const url = "https://mocarps.azurewebsites.net/user/";
 
 const User = () => {
   const [openEdit, setOpenEdit] = useState(false);
-  const [openAdd, setOpenAdd] = useState(false);
+  const [openKeyChange, setKeyChange] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [targetId, setTargetId] = useState<number>(0);
@@ -40,14 +41,9 @@ const User = () => {
   };
 
   useEffect(() => {
-    console.log("Id: ", targetId);
     console.log("Rows: ", rows);
-    console.log(
-      "Rows with id: ",
-      rows.find((row) => row.id === targetId)
-    );
     console.log("openEdit: ", openEdit);
-    console.log("openAdd: ", openAdd);
+    console.log("openAdd: ", openKeyChange);
   });
 
   useEffect(() => {
@@ -78,21 +74,24 @@ const User = () => {
           rows={rows}
           handleAfterAddRow={handleAfterAddRow}
           setOpen={setOpenEdit}
+          setKeyChange={setKeyChange}
           setId={setTargetId}
           passwordField={true}
         />
       )}
-      {openAdd ? (
-        <Add
+      {openKeyChange ? (
+        <KeyChange
           slug="user"
-          columns={userColumns}
-          setOpen={setOpenAdd}
+          columns={passwordColumns}
+          setKeyChange={setKeyChange}
           handleAfterAddRow={handleAfterAddRow}
+          rows={rows.find((row) => row.id === targetId)}
+          targetId={targetId}
         />
       ) : null}
       {openEdit ? (
         <Edit
-          slug="dictionary"
+          slug="user"
           columns={userColumns}
           setOpen={setOpenEdit}
           handleAfterAddRow={handleAfterAddRow}

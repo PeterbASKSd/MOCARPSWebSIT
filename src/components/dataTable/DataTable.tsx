@@ -5,6 +5,7 @@ import Delete from "/src/assets/delete.svg";
 import axios from "axios";
 import React from "react";
 import Swal from "sweetalert2";
+import keyIcon from "/src/assets/key.svg";
 
 type Props = {
   columns: GridColDef[];
@@ -12,8 +13,10 @@ type Props = {
   slug: string;
   handleAfterAddRow: (newRow: any) => void;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setKeyChange?: React.Dispatch<React.SetStateAction<boolean>>;
   setId: React.Dispatch<React.SetStateAction<number>>;
   passwordField?: boolean;
+  setEmail?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const DataTable = (props: Props) => {
@@ -77,15 +80,16 @@ const DataTable = (props: Props) => {
           </div>
           {props.passwordField ? (
             <div className="password">
-              {" "}
-              {/* <img
+              <img
                 src={keyIcon}
                 alt=""
                 onClick={() => {
-                  props.setOpen(true);
+                  if (props.setKeyChange) {
+                    props.setKeyChange(true);
+                  }
                   props.setId(params.row.id);
                 }}
-              /> */}
+              />
             </div>
           ) : null}
           <div>

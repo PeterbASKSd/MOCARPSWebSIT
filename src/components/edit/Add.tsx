@@ -343,7 +343,7 @@ const Add = (props: Props) => {
                 <label>
                   {column.headerName} <label className="redStar">*</label>
                 </label>
-              ) : (
+              ) : column.showInForm === false ? null : (
                 <label>{column.headerName}</label>
               )}
               {column.type === "longText" ? (
@@ -476,42 +476,29 @@ const Add = (props: Props) => {
                   </div>
                 )
               ) : column.type === "boolean" ? (
-                <div>
+                <div className="checkbox-container">
                   <input
-                    className="checkbox"
+                    className="checkbox-input"
                     type="checkbox"
+                    id={column.field}
                     name={column.field}
+                    onChange={(event) =>
+                      handleOptionChange(
+                        event.target.checked.toString(),
+                        column.field
+                      )
+                    }
+                    defaultChecked={defaultValueByRowAndColumn(
+                      props.rows,
+                      column.field
+                    )}
+                    disabled={column.input === false}
                   />
-                  <div className="item">
-                    <Select
-                      className="options"
-                      defaultValue={{
-                        value: defaultValueByRowAndColumn(
-                          props.rows,
-                          column.field
-                        ),
-                        label: defaultValueByRowAndColumn(
-                          props.rows,
-                          column.field
-                        ),
-                      }}
-                      onChange={(selectValue) =>
-                        selectValue &&
-                        handleOptionChange(
-                          selectValue.value?.join(", "),
-                          column.field
-                        )
-                      }
-                      options={
-                        column.inputOptions?.map((option) => ({
-                          value: [option],
-                          label: [option],
-                        })) || []
-                      }
-                    />
-                  </div>
+                  <label className="checkbox-label" htmlFor={column.field}>
+                    <span className="inner-ball"></span>
+                  </label>
                 </div>
-              ) : (
+              ) : column.showInForm === false ? null : (
                 <input
                   type={column.type}
                   name={column.field}
@@ -532,7 +519,7 @@ const Add = (props: Props) => {
             </label>
             <div className="buttonArea">
               <button className="submit button1">
-                <span>Submit</span>
+                <span>Save</span>
               </button>
               <button
                 className="submit button2"

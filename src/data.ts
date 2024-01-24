@@ -144,6 +144,16 @@ CustomGridColDef{
 //   "white",
 // ];
 
+export type UserType = {
+  id: number;
+  email: string;
+  name: string;
+  cardNumber: string;
+  verified: boolean;
+  disabled: boolean;
+  priority: number;
+};
+
 export const EditorModules = {
   toolbar: [
     [{ font: [] }],
@@ -188,7 +198,11 @@ export type CustomGridColDef = GridColDef & {
   inputOptions?: string[];
   preCondition?: boolean;
   isCondition?: boolean;
+  showInForm?: boolean;
 };
+
+//edittable = can it edit in the table
+//input = can it input in the form
 
 //dictionary
 export const dictionaryColumns: CustomGridColDef[] = [
@@ -258,6 +272,22 @@ export const dictionaryColumns: CustomGridColDef[] = [
     preCondition: true,
     renderCell: renderCellUrl,
   },
+  {
+    field: "createdAt",
+    headerName: "Create Time",
+    width: 130,
+    input: false,
+    editable: false,
+    showInForm: false,
+  },
+  {
+    field: "updatedAt",
+    headerName: "Updated Time",
+    width: 130,
+    input: false,
+    editable: false,
+    showInForm: false,
+  },
 ];
 
 //value
@@ -311,6 +341,26 @@ export const valueColumns: CustomGridColDef[] = [
     // renderCell: renderCellExpand,
   },
   {
+    field: "normalDesc",
+    headerName: "Normal Description",
+    type: "string",
+    width: 250,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter a defined description",
+  },
+  {
+    field: "higherDesc",
+    headerName: "Description of Higher than Max Value",
+    type: "string",
+    width: 250,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter a defined description",
+  },
+  {
     field: "maxValue",
     headerName: "Max Value",
     type: "number",
@@ -318,6 +368,16 @@ export const valueColumns: CustomGridColDef[] = [
     editable: false,
     required: true,
     input: true,
+  },
+  {
+    field: "lowerDesc",
+    headerName: "Description of Lower than Min Value",
+    type: "string",
+    width: 250,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter a defined description",
   },
   {
     field: "minValue",
@@ -329,34 +389,20 @@ export const valueColumns: CustomGridColDef[] = [
     input: true,
   },
   {
-    field: "higherDesc",
-    headerName: "Description of Higher than Max Value",
-    type: "longText",
-    width: 250,
+    field: "createdAt",
+    headerName: "Create Time",
+    width: 130,
+    input: false,
     editable: false,
-    required: true,
-    input: true,
-    inputHint: "Please enter a defined description",
+    showInForm: false,
   },
   {
-    field: "lowerDesc",
-    headerName: "Description of Lower than Min Value",
-    type: "longText",
-    width: 250,
+    field: "updatedAt",
+    headerName: "Updated Time",
+    width: 130,
+    input: false,
     editable: false,
-    required: true,
-    input: true,
-    inputHint: "Please enter a defined description",
-  },
-  {
-    field: "normalDesc",
-    headerName: "Normal Description",
-    type: "longText",
-    width: 250,
-    editable: false,
-    required: true,
-    input: true,
-    inputHint: "Please enter a defined description",
+    showInForm: false,
   },
 ];
 
@@ -404,9 +450,8 @@ export const userColumns: CustomGridColDef[] = [
     headerName: "Verified",
     type: "boolean",
     width: 80,
+    input: false,
     editable: false,
-    required: true,
-    input: true,
   },
   {
     field: "disabled",
@@ -416,5 +461,47 @@ export const userColumns: CustomGridColDef[] = [
     editable: false,
     required: true,
     input: true,
+  },
+  {
+    field: "priority",
+    headerName: "Priority",
+    type: "string",
+    width: 80,
+    input: false,
+    editable: false,
+    showInForm: false,
+  },
+];
+
+export const passwordColumns: CustomGridColDef[] = [
+  {
+    field: "email",
+    headerName: "Email",
+    type: "email",
+    width: 250,
+    editable: false,
+    required: true,
+    input: false,
+    inputHint: "Enter a email",
+  },
+  {
+    field: "password",
+    headerName: "Password",
+    type: "password",
+    width: 250,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Enter a new password",
+  },
+  {
+    field: "passwordConfirm",
+    headerName: "Confirm Password",
+    type: "password",
+    width: 250,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Enter again the password",
   },
 ];
