@@ -251,6 +251,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     width: 80,
     editable: false,
     input: true,
+    required: true,
   },
   {
     field: "resourceType",

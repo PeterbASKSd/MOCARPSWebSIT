@@ -11,18 +11,39 @@ import Quiz from "./pages/quiz/Quiz";
 import Value from "./pages/value/Value";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 import "./styles/global.scss";
 
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(undefined || Boolean);
   const [username, setUsername] = useState("");
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername("");
+  const handleLogout = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    event.preventDefault();
+
+    Swal.fire({
+      title: "Logout",
+      text: "Are you sure you want to logout?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Logout",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setIsLoggedIn(false);
+        setUsername("");
+        Swal.fire(
+          "Logged Out",
+          "You have been successfully logged out",
+          "success"
+        );
+      }
+    });
   };
 
   const Layout = () => {

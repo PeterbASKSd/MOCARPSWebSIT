@@ -363,7 +363,49 @@ const Add = (props: Props) => {
                   )} // Use defaultValue for the initial form data
                 />
               ) : column.type === "file" ? (
-                !column.preCondition ? null : conditionValue !== undefined ? (
+                (defaultValueByRowAndColumn(props.rows, column.field) ===
+                "" ? null : (
+                  <div className="uploadArea">
+                    <div className="oldFileWrapper">
+                      <span>Old File:</span>
+                      <div className="mediaArea">
+                        {column.type === "image" && (
+                          <img
+                            src={defaultValueByRowAndColumn(
+                              props.rows,
+                              column.field
+                            )}
+                            alt=""
+                            className="mediaImage"
+                          />
+                        )}
+                        {column.type === "video" && (
+                          <video controls className="mediaVideo">
+                            <source
+                              src={defaultValueByRowAndColumn(
+                                props.rows,
+                                column.field
+                              )}
+                              type="video/mp4"
+                            />
+                          </video>
+                        )}
+                        {column.type === "audio" && (
+                          <audio controls className="mediaAudio">
+                            <source
+                              src={defaultValueByRowAndColumn(
+                                props.rows,
+                                column.field
+                              )}
+                              type="audio/mpeg, audio/mp4, audio/aac"
+                            />
+                          </audio>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )) &&
+                (!column.preCondition ? null : conditionValue !== undefined ? (
                   <div className="special-file">
                     <div className="uploadBox">
                       <input
@@ -374,17 +416,6 @@ const Add = (props: Props) => {
                         accept={handleFileAcceptance(conditionValue)}
                         onChange={handleFileChange}
                       />
-                      <div className="uploadArea">
-                        <div className="oldFileWrapper">
-                          <span>Old File:</span>
-                          <span className="oldFilePath">
-                            {defaultValueByRowAndColumn(
-                              props.rows,
-                              column.field
-                            )}
-                          </span>
-                        </div>
-                      </div>
                     </div>
                     <div className="previewBox">
                       <IconButton
@@ -413,7 +444,7 @@ const Add = (props: Props) => {
                       )}
                     </div>
                   </div>
-                ) : null
+                ) : null)
               ) : column.type === "options" ? (
                 column.isCondition ? (
                   <div className="special-option">
@@ -509,6 +540,7 @@ const Add = (props: Props) => {
                     defaultValueByRowAndColumn(props.rows, column.field) || ""
                   }
                   disabled={column.input === false}
+                  className={column.input === false ? "disabled" : undefined}
                 />
               )}
             </div>

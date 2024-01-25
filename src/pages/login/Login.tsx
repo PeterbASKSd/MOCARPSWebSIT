@@ -6,6 +6,8 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons"; // Import
 import EmailIcon from "../../assets/email.svg";
 import PasswordIcon from "../../assets/password.svg";
 import { UserType } from "../../data";
+import Swal from "sweetalert2";
+import Logo from "../../assets/logo.svg";
 
 interface LoginProps {
   setIsLoggedIn: (isLoggedIn: boolean) => void;
@@ -16,6 +18,7 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn, setUsername }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  let findUsername: boolean = false;
   const navigate = useNavigate();
 
   const handleTogglePassword = () => {
@@ -29,43 +32,52 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn, setUsername }) => {
       );
       if (response.ok) {
         const users: UserType[] = await response.json();
-        console.log("Users:", users); // Check the users array in the console
 
         const user = users.find(
           (user: UserType) => user.email.toLowerCase() === email.toLowerCase()
         );
         if (user) {
-          console.log("User found:", user.name);
+          findUsername = true;
           setUsername(user.name);
+          handleLoginLogic();
         } else {
-          console.log("User not found");
+          Swal.fire(
+            "Failed to login",
+            "Please check your email and password",
+            "error"
+          );
         }
       } else {
-        // Handle error response
         console.error("Failed to fetch username");
       }
     } catch (error) {
-      // Handle network or fetch error
       console.error("Error fetching username:", error);
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLoginLogic = () => {
+    if (findUsername === true) {
+      setIsLoggedIn(true);
+      Swal.fire("Successful to login", "Welcome back", "success");
+    } else {
+      setIsLoggedIn(false);
+    }
+    navigate("/");
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Perform login validation here
-    // Example: Check if email and password are valid
-
-    // If login is successful, set isLoggedIn to true and redirect to Home
-    setIsLoggedIn(true);
-    getUsername();
-    navigate("/");
+    await getUsername();
   };
 
   return (
     <div className="login">
       <div className="login-main">
-        <label className="title">Welcome Back</label>
+        <label className="title">
+          <img src={Logo} alt="" className="webLogo" />
+          MOCARPS CMS
+        </label>
         <form onSubmit={handleLogin}>
           <div className="form-group">
             <label className="form-group-title">

@@ -41,7 +41,7 @@ const Add = (props: Props) => {
     e.preventDefault();
 
     const requiredFields = props.columns
-      .filter((column) => column.required)
+      .filter((column) => column.required && column.type !== "number")
       .map((column) => column.field);
 
     const isAllFieldsPresent = requiredFields.every((field) =>
@@ -57,6 +57,7 @@ const Add = (props: Props) => {
       !isAllFieldsPresent ||
       Object.values(formData).some((value) => value === "")
     ) {
+      console.log("Please check here 22222:", formData);
       setIsSubmitted(false);
       return;
     } else {
@@ -348,6 +349,7 @@ const Add = (props: Props) => {
                     type={column.type}
                     name={column.field}
                     placeholder={column.inputHint}
+                    defaultValue={column.type === "number" ? 0 : undefined}
                     onChange={handleInputChange}
                   />
                 )}
