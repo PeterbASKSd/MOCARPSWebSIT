@@ -7,13 +7,13 @@ import PreviewModal from "react-media-previewer";
 import preview from "../../assets/preview.svg";
 import { IconButton } from "@mui/material";
 import Swal from "sweetalert2";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "../../styles/custom-quill.scss";
-import { EditorFormats, EditorModules } from "../../data";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 window.katex = katex;
+import { Editor } from "@tinymce/tinymce-react";
+import "@peterbasksd/tinymce-mathjax";
 
 interface MyFormData {
   [key: string]: string | undefined;
@@ -347,20 +347,38 @@ const Add = (props: Props) => {
                 <label>{column.headerName}</label>
               )}
               {column.type === "longText" ? (
-                <ReactQuill
+                <Editor
+                  apiKey="4hnohmgequ45f7ynkl86g9gyoaf02laiff21n26zuj660uzt"
                   key={column.field}
-                  placeholder={column.inputHint}
-                  onChange={(value) =>
-                    handleLongInputChangeForLong(column.field, value)
-                  }
-                  modules={EditorModules}
-                  formats={EditorFormats}
-                  className="custom-quill"
-                  value={formData[column.field]} // Use value to reflect the current form data
-                  defaultValue={defaultValueByRowAndColumnForLong(
+                  initialValue={defaultValueByRowAndColumnForLong(
                     props.rows,
                     column.field
-                  )} // Use defaultValue for the initial form data
+                  )}
+                  init={{
+                    height: 400,
+                    plugins: "mathjax",
+                    toolbar1:
+                      "undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | indent outdent | lineheight | mathjax",
+                    toolbar2:
+                      "subscript superscript|  bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap",
+                    external_plugins: {
+                      mathjax:
+                        "../node_modules/@peterbasksd/tinymce-mathjax/plugin.min.js",
+                    },
+                    mathjax: {
+                      lib: "../node_modules/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
+                      symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
+                      className: "math-tex", //optional: mathjax element class
+                      configUrl:
+                        "../node_modules/@peterbasksd/tinymce-mathjax/config.js", //optional: mathjax config js
+                    },
+                    htmlAllowedTags: [".*"],
+                    htmlAllowedAttrs: [".*"],
+                  }}
+                  onEditorChange={(value) =>
+                    handleLongInputChangeForLong(column.field, value)
+                  }
+                  value={formData[column.field]}
                 />
               ) : column.type === "file" ? (
                 (defaultValueByRowAndColumn(props.rows, column.field) ===
@@ -475,6 +493,23 @@ const Add = (props: Props) => {
                         })) || []
                       }
                     />
+                    {conditionValue ===
+                    undefined ? null : conditionValue.includes("image") ? (
+                      <div className="fileReminder">
+                        {" "}
+                        Notice! Only image under 2MB will be accepted{" "}
+                      </div>
+                    ) : conditionValue.includes("audio") ? (
+                      <div className="fileReminder">
+                        {" "}
+                        Notice! Only audio under 5MB will be accepted{" "}
+                      </div>
+                    ) : conditionValue.includes("video") ? (
+                      <div className="fileReminder">
+                        {" "}
+                        Notice! Only video under or equal 480P will be accepted{" "}
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="special-option">
@@ -535,9 +570,14 @@ const Add = (props: Props) => {
                   name={column.field}
                   placeholder={column.inputHint}
                   onChange={handleInputChange}
-                  value={formData[column.field]}
                   defaultValue={
-                    defaultValueByRowAndColumn(props.rows, column.field) || ""
+                    column.type === "number"
+                      ? defaultValueByRowAndColumn(props.rows, column.field) ||
+                        formData[column.field] ||
+                        0
+                      : defaultValueByRowAndColumn(props.rows, column.field) ||
+                        formData[column.field] ||
+                        ""
                   }
                   disabled={column.input === false}
                   className={column.input === false ? "disabled" : undefined}

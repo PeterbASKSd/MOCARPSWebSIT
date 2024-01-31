@@ -226,12 +226,22 @@ export const dictionaryColumns: CustomGridColDef[] = [
   {
     field: "description",
     headerName: "Description",
-    type: "longText",
+    type: "string",
     width: 250,
     editable: false,
     required: true,
     input: true,
     inputHint: "Please enter a defined description",
+  },
+  {
+    field: "htmlDescription",
+    headerName: "Html Description",
+    type: "longText",
+    width: 250,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter a defined description in html format",
   },
   {
     field: "example",

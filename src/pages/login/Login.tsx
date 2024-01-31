@@ -36,7 +36,7 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn, setUsername }) => {
         const user = users.find(
           (user: UserType) => user.email.toLowerCase() === email.toLowerCase()
         );
-        if (user) {
+        if (user && user.priority <= 1) {
           findUsername = true;
           setUsername(user.name);
           handleLoginLogic();

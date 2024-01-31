@@ -90,7 +90,7 @@ const Add = (props: Props) => {
 
             axios
               .post(
-                `https://mocarps.azurewebsites.net/${props.slug}/reset-password`,
+                `https://mocarps.azurewebsites.net/${props.slug}/portal/reset-password`,
                 formData
               )
               .then(() => {

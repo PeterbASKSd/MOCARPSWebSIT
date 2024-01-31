@@ -6,13 +6,13 @@ import Select from "react-select";
 import PreviewModal from "react-media-previewer";
 import preview from "../../assets/preview.svg";
 import { IconButton } from "@mui/material";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "../../styles/custom-quill.scss";
-import { EditorFormats, EditorModules } from "../../data";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 window.katex = katex;
+import { Editor } from "@tinymce/tinymce-react";
+import "@peterbasksd/tinymce-mathjax";
 
 type Props = {
   slug: string;
@@ -44,24 +44,43 @@ const Add = (props: Props) => {
       .filter((column) => column.required && column.type !== "number")
       .map((column) => column.field);
 
+    const numberFields = props.columns
+      .filter((column) => column.required && column.type === "number")
+      .map((column) => column.field);
+
     const isAllFieldsPresent = requiredFields.every((field) =>
       Object.keys(formData).includes(field)
     );
 
-    const missingFields = requiredFields.filter(
-      (headerName) => !Object.keys(formData).includes(headerName)
-    );
-    setMissingFields(missingFields);
+    await Promise.all([
+      Promise.all(
+        numberFields.map(async (field) => {
+          if (!Object.keys(formData).includes(field)) {
+            console.log("Please check here 11111:", formData);
+            await setFormData((prevData) => ({
+              ...prevData,
+              [field]: 0,
+            }));
+          }
+        })
+      ),
+      setMissingFields(
+        requiredFields.filter(
+          (headerName) => !Object.keys(formData).includes(headerName)
+        )
+      ),
+    ]);
 
     if (
       !isAllFieldsPresent ||
       Object.values(formData).some((value) => value === "")
     ) {
-      console.log("Please check here 22222:", formData);
       setIsSubmitted(false);
       return;
     } else {
       setIsSubmitted(true);
+
+      console.log("Please check here:", formData);
 
       console.log("Please check here 33333:", formData);
 
@@ -165,7 +184,6 @@ const Add = (props: Props) => {
             );
             e.target.value = ""; // Reset the file input value
           } else {
-            console.log("Please check here 11111:", selectedFile);
             setFile(selectedFile); // Convert the file to a URL
             setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
             setVisible(true); // Show the preview modal
@@ -189,7 +207,6 @@ const Add = (props: Props) => {
         alert("Audio file size should be limited to 5MB.");
         e.target.value = ""; // Reset the file input value
       } else {
-        console.log("Please check here 11111:", selectedFile);
         setFile(selectedFile); // Convert the file to a URL
         setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
         setVisible(true); // Show the preview modal
@@ -237,15 +254,32 @@ const Add = (props: Props) => {
                   <label>{column.headerName}</label>
                 )}
                 {column.type === "longText" ? (
-                  <ReactQuill
-                    key={column.field}
-                    placeholder={column.inputHint}
-                    onChange={(value) =>
+                  <Editor
+                    apiKey="4hnohmgequ45f7ynkl86g9gyoaf02laiff21n26zuj660uzt" // Replace with your TinyMCE API key
+                    init={{
+                      height: 400,
+                      plugins: "mathjax",
+                      toolbar1:
+                        "undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | indent outdent | lineheight | mathjax",
+                      toolbar2:
+                        "subscript superscript|  bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap",
+                      external_plugins: {
+                        mathjax:
+                          "/node_modules/@peterbasksd/tinymce-mathjax/plugin.min.js",
+                      },
+                      mathjax: {
+                        lib: "/node_modules/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
+                        symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
+                        className: "math-tex", //optional: mathjax element class
+                        configUrl:
+                          "/node_modules/@peterbasksd/tinymce-mathjax/config.js", //optional: mathjax config js
+                      },
+                      htmlAllowedTags: [".*"],
+                      htmlAllowedAttrs: [".*"],
+                    }}
+                    onEditorChange={(value) =>
                       handleLongInputChange(column.field, value)
                     }
-                    modules={EditorModules}
-                    formats={EditorFormats}
-                    className="custom-quill" // Add a custom class name if needed
                   />
                 ) : column.type === "file" ? (
                   !column.preCondition ? null : conditionValue !== undefined ? (
@@ -308,6 +342,24 @@ const Add = (props: Props) => {
                           })) || []
                         }
                       />
+                      {conditionValue ===
+                      undefined ? null : conditionValue.includes("image") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only image under 2MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("audio") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only audio under 5MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("video") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only video under or equal 480P will be
+                          accepted{" "}
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <div className="special-option">

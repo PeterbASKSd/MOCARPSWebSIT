@@ -16,7 +16,7 @@
 }
 
 .model{
-    width: 40%;
+    width: 60%;
     height: auto;
     max-height: 95%;
     background-color: $main-bg;
@@ -202,6 +202,9 @@
 
             .special-option {
                 color: black;
+                .fileReminder{
+                  color: red;
+                }
             }
 
             label{
