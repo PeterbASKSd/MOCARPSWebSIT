@@ -1,25 +1,25 @@
 .dataTable {
     .dataGrid {
       background: white;
-      padding: 20px;
+      padding: 2%;
       overflow-y: auto; /* Enable vertical scroll */
-      font-size: 1.1rem;
+      font-size: 1.25rem;
   
 
     .css-1knaqv7-MuiButtonBase-root-MuiButton-root{
-      font-size: 1rem;
+      font-size: 1.25rem;
     }
 
     
     .css-ptiqhd-MuiSvgIcon-root{
-      font-size: 1.5rem;
+      font-size: 2rem;
     }
 
       .MuiDataGrid-toolbarContainer {
         flex-direction: row-reverse;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 1%;
       }
   
       .MuiDataGrid-cell--actions {

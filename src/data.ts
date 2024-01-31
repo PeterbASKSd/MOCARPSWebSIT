@@ -7,7 +7,11 @@ import QuestionIcon from "./assets/question.svg";
 import QuizIcon from "./assets/quiz.svg";
 import ValueIcon from "./assets/value.svg";
 import { GridColDef } from "@mui/x-data-grid";
-import { renderCellUrl } from "./dataGridPlugin";
+import {
+  renderCellUrl,
+  renderCellWithMathJax,
+  renderCellWithDateTime,
+} from "./dataGridPlugin";
 
 export const menu = [
   {
@@ -232,6 +236,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     required: true,
     input: true,
     inputHint: "Please enter a defined description",
+    renderCell: renderCellWithMathJax,
   },
   {
     field: "htmlDescription",
@@ -242,6 +247,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     required: true,
     input: true,
     inputHint: "Please enter a defined description in html format",
+    renderCell: renderCellWithMathJax,
   },
   {
     field: "example",
@@ -252,7 +258,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     required: true,
     input: true,
     inputHint: "Please enter an example",
-    // renderCell: renderCellExpand,
+    renderCell: renderCellWithMathJax,
   },
   {
     field: "count",
@@ -286,18 +292,20 @@ export const dictionaryColumns: CustomGridColDef[] = [
   {
     field: "createdAt",
     headerName: "Create Time",
-    width: 130,
+    width: 200,
     input: false,
     editable: false,
     showInForm: false,
+    renderCell: renderCellWithDateTime,
   },
   {
     field: "updatedAt",
     headerName: "Updated Time",
-    width: 130,
+    width: 200,
     input: false,
     editable: false,
     showInForm: false,
+    renderCell: renderCellWithDateTime,
   },
 ];
 
@@ -339,6 +347,7 @@ export const valueColumns: CustomGridColDef[] = [
     required: true,
     input: true,
     inputHint: "Please enter a defined description",
+    renderCell: renderCellWithMathJax,
   },
   {
     field: "unit",
@@ -346,7 +355,7 @@ export const valueColumns: CustomGridColDef[] = [
     type: "string",
     width: 120,
     editable: false,
-    required: true,
+    required: false,
     input: true,
     inputHint: "Enter a keyword",
     // renderCell: renderCellExpand,

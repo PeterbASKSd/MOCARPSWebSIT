@@ -9,8 +9,8 @@
         margin-bottom: 20px;
 
         .title{
-            font-size: 12px;
-            font-weight: 200;
+            font-size: 85%;
+            font-weight: 500;
             color: $soft-color;
         }
 
@@ -19,6 +19,7 @@
             align-items: center;
             gap: 10px;
             padding: 10px;
+            font-size: 125%;
 
             &:hover{
                 background-color: $soft-bg;
@@ -28,8 +29,8 @@
     }
 
     img{
-        width: 10%;
-        height: 10%;
+        width: 15%;
+        height: 15%;
         object-fit: cover;
     }
 }
