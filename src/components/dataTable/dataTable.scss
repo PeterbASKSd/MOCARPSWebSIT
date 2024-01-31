@@ -3,7 +3,18 @@
       background: white;
       padding: 20px;
       overflow-y: auto; /* Enable vertical scroll */
+      font-size: 1.1rem;
   
+
+    .css-1knaqv7-MuiButtonBase-root-MuiButton-root{
+      font-size: 1rem;
+    }
+
+    
+    .css-ptiqhd-MuiSvgIcon-root{
+      font-size: 1.5rem;
+    }
+
       .MuiDataGrid-toolbarContainer {
         flex-direction: row-reverse;
         justify-content: space-between;
@@ -15,7 +26,6 @@
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        padding-right: 16px; /* Add some spacing to the right of the cell */
       }
   
       .actionSet {
@@ -35,7 +45,6 @@
         img {
           width: 30%;
           height: 30%;
-          margin-right: 5px; /* Add some spacing between the icons */
         }
       }
     }

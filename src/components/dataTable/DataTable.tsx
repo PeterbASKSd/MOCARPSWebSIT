@@ -57,18 +57,11 @@ const DataTable = (props: Props) => {
   const actionColumn: GridColDef = {
     field: "actions",
     headerName: "Actions",
-    width: 150,
+    width: 250,
     renderCell: (params) => {
       return (
         <div className="actionSet">
           <div className="edit">
-            {/* <Link to={`/${props.slug}/${params.row.id}`}> */}
-            {/* <IconButton
-              onClick={() => props.setOpen(true)}
-              className="editButton"
-            >
-              <img src={EditIcon} alt="" />
-            </IconButton> */}
             <img
               src={EditIcon}
               alt=""
