@@ -77,3 +77,36 @@ export const renderCellWithDateTime = (
 
   return formattedDateTime;
 };
+
+export const renderCellWithPriority = (
+  params: GridRenderCellParams<any, number>
+) => {
+  const priority = params.value;
+
+  let priorityText = "";
+
+  switch (priority) {
+    case 0:
+      priorityText = "Admin";
+      break;
+    case 1:
+      priorityText = "Teaching Assistant";
+      break;
+    case 2:
+      priorityText = "Student";
+      break;
+    default:
+      priorityText = "";
+      break;
+  }
+
+  return priorityText;
+};
+
+export const renderCellWithDisabled = (
+  params: GridRenderCellParams<any, boolean>
+) => {
+  const disabled = params.value;
+
+  return disabled ? "No" : "Yes";
+};
