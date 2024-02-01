@@ -70,8 +70,7 @@ const DataTable = (props: Props) => {
             />
           </div>
           {props.passwordField &&
-          props.priority &&
-          props.priority <= params.row.priority ? (
+          (props.priority ?? 1) <= params.row.priority ? (
             <div className="password">
               <img
                 src={keyIcon}
