@@ -17,7 +17,7 @@ type Props = {
   setId: React.Dispatch<React.SetStateAction<number>>;
   passwordField?: boolean;
   setEmail?: React.Dispatch<React.SetStateAction<string>>;
-  priority: Number;
+  priority?: Number;
 };
 
 const DataTable = (props: Props) => {
@@ -69,7 +69,9 @@ const DataTable = (props: Props) => {
               }}
             />
           </div>
-          {props.passwordField && props.priority <= params.row.priority ? (
+          {props.passwordField &&
+          props.priority &&
+          props.priority <= params.row.priority ? (
             <div className="password">
               <img
                 src={keyIcon}
