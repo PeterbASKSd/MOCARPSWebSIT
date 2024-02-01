@@ -15,6 +15,15 @@
       font-size: 2rem;
     }
 
+    .MuiDataGrid-row:not(.MuiDataGrid-row--dynamicHeight)>.MuiDataGrid-cell {
+      overflow-y: scroll;
+    }
+
+    .MuiDataGrid-withBorderColor{
+      min-height: 100px;
+      max-height: 100px;
+    }
+
       .MuiDataGrid-toolbarContainer {
         flex-direction: row-reverse;
         justify-content: space-between;

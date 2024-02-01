@@ -13,6 +13,7 @@ import "katex/dist/katex.min.css";
 window.katex = katex;
 import { Editor } from "@tinymce/tinymce-react";
 import "@peterbasksd/tinymce-mathjax";
+import "tinymce/tinymce";
 
 type Props = {
   slug: string;
