@@ -20,6 +20,7 @@ import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(undefined || Boolean);
   const [username, setUsername] = useState("");
+  const [userPriority, setUserPriority] = useState(undefined || Number);
 
   const handleLogout = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
@@ -78,7 +79,7 @@ function App() {
         },
         {
           path: "/user",
-          element: <User />,
+          element: <User priority={userPriority} />,
         },
         {
           path: "/information",
@@ -101,7 +102,11 @@ function App() {
     {
       path: "/login",
       element: (
-        <Login setIsLoggedIn={setIsLoggedIn} setUsername={setUsername} />
+        <Login
+          setIsLoggedIn={setIsLoggedIn}
+          setUsername={setUsername}
+          setUserPriority={setUserPriority}
+        />
       ),
     },
   ];

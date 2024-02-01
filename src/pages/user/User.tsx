@@ -8,7 +8,11 @@ import KeyChange from "../../components/password/Add";
 
 const url = "https://mocarps.azurewebsites.net/user/";
 
-const User = () => {
+interface UserProps {
+  priority: Number;
+}
+
+const User: React.FC<UserProps> = ({ priority }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [openKeyChange, setKeyChange] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
@@ -77,6 +81,7 @@ const User = () => {
           setKeyChange={setKeyChange}
           setId={setTargetId}
           passwordField={true}
+          priority={priority}
         />
       )}
       {openKeyChange ? (

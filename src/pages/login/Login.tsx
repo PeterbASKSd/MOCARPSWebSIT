@@ -12,6 +12,7 @@ import Logo from "../../assets/logo.svg";
 interface LoginProps {
   setIsLoggedIn: (isLoggedIn: boolean) => void;
   setUsername: (username: string) => void;
+  setUserPriority: (priority: number) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ setIsLoggedIn, setUsername }) => {

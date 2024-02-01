@@ -17,13 +17,11 @@ type Props = {
   setId: React.Dispatch<React.SetStateAction<number>>;
   passwordField?: boolean;
   setEmail?: React.Dispatch<React.SetStateAction<string>>;
+  priority: Number;
 };
 
 const DataTable = (props: Props) => {
   const [rows, setRows] = React.useState<object[]>(props.rows);
-  // const [open, setOpen] = React.useState(false);
-  // Remove the declaration of the unused 'showWarning' variable
-  // const [showWarning, setShowWarning] = React.useState(false);
 
   // Delete id message
   const handleDelete = (id: number) => {
@@ -71,7 +69,7 @@ const DataTable = (props: Props) => {
               }}
             />
           </div>
-          {props.passwordField ? (
+          {props.passwordField && props.priority <= params.row.priority ? (
             <div className="password">
               <img
                 src={keyIcon}
