@@ -108,5 +108,5 @@ export const renderCellWithDisabled = (
 ) => {
   const disabled = params.value;
 
-  return disabled ? "No" : "Yes";
+  return disabled ? "Yes" : "No";
 };

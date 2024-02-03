@@ -477,12 +477,12 @@ export const userColumns: CustomGridColDef[] = [
   },
   {
     field: "disabled",
-    headerName: "Active",
+    headerName: "Disable Account",
     type: "boolean",
-    width: 100,
+    width: 180,
     editable: false,
-    required: true,
-    input: true,
+    required: false,
+    input: false,
     renderCell: renderCellWithDisabled,
   },
   {
