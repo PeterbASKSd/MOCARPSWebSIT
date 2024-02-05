@@ -160,6 +160,18 @@ export type UserType = {
   priority: number;
 };
 
+export interface TreeNode {
+  id: string;
+  title: string;
+  description: string;
+  imageUri: string;
+  sections: TreeNode[];
+  resource: {
+    media: string;
+    uri: string;
+  };
+}
+
 export const EditorModules = {
   toolbar: [
     [{ font: [] }],
