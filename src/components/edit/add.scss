@@ -145,6 +145,13 @@
                   }
             }
 
+            .previewExistFileBox{
+              display: flex;
+              width: 100%;
+              overflow-x: hidden;
+              height: auto;
+            }
+
             .checkbox-container {
               display: inline-block;
               position: relative;

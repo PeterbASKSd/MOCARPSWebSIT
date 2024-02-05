@@ -381,7 +381,9 @@ const Add = (props: Props) => {
                   value={formData[column.field]}
                 />
               ) : column.type === "file" ? (
-                !column.preCondition ? null : conditionValue !== undefined ? (
+                !column.preCondition ? (
+                  "123"
+                ) : conditionValue !== undefined ? (
                   <div className="special-file">
                     <div className="uploadBox">
                       <input
@@ -420,55 +422,159 @@ const Add = (props: Props) => {
                       )}
                     </div>
                   </div>
-                ) : null
-              ) : column.type === "options" ? (
-                column.isCondition ? (
-                  <div className="special-option">
-                    <Select
-                      className="options"
-                      defaultValue={{
-                        value: defaultValueByRowAndColumn(
+                ) : (
+                  <div className="previewExistFileBox">
+                    {defaultValueByRowAndColumnForLong(
+                      props.rows,
+                      column.field
+                    )?.includes(".jpg") ||
+                    defaultValueByRowAndColumnForLong(
+                      props.rows,
+                      column.field
+                    )?.includes(".jpeg") ||
+                    defaultValueByRowAndColumnForLong(
+                      props.rows,
+                      column.field
+                    )?.includes(".png") ? (
+                      <img
+                        src={defaultValueByRowAndColumn(
                           props.rows,
                           column.field
-                        ),
-                        label: defaultValueByRowAndColumn(
+                        )}
+                        alt=""
+                      />
+                    ) : defaultValueByRowAndColumnForLong(
+                        props.rows,
+                        column.field
+                      )?.includes(".mp3") ||
+                      defaultValueByRowAndColumnForLong(
+                        props.rows,
+                        column.field
+                      )?.includes(".m4a") ||
+                      defaultValueByRowAndColumnForLong(
+                        props.rows,
+                        column.field
+                      )?.includes(".aac") ? (
+                      <video
+                        src={defaultValueByRowAndColumn(
                           props.rows,
                           column.field
-                        ),
-                      }}
-                      onChange={(selectValue) => {
-                        selectValue &&
-                          handleOptionChange(
-                            selectValue.value?.join(", "),
-                            column.field
-                          );
-                        setConditionValue(selectValue?.value?.join(", "));
-                      }}
-                      options={
-                        column.inputOptions?.map((option) => ({
-                          value: [option],
-                          label: [option],
-                        })) || []
-                      }
-                    />
-                    {conditionValue ===
-                    undefined ? null : conditionValue.includes("image") ? (
-                      <div className="fileReminder">
-                        {" "}
-                        Notice! Only image under 2MB will be accepted{" "}
-                      </div>
-                    ) : conditionValue.includes("audio") ? (
-                      <div className="fileReminder">
-                        {" "}
-                        Notice! Only audio under 5MB will be accepted{" "}
-                      </div>
-                    ) : conditionValue.includes("video") ? (
-                      <div className="fileReminder">
-                        {" "}
-                        Notice! Only video under or equal 480P will be accepted{" "}
-                      </div>
+                        )}
+                        controls
+                      />
+                    ) : defaultValueByRowAndColumnForLong(
+                        props.rows,
+                        column.field
+                      )?.includes(".mp4") ? (
+                      <audio
+                        src={defaultValueByRowAndColumn(
+                          props.rows,
+                          column.field
+                        )}
+                        controls
+                      />
                     ) : null}
                   </div>
+                )
+              ) : column.type === "options" ? (
+                column.isCondition ? (
+                  defaultValueByRowAndColumn(props.rows, column.field) ? (
+                    <div className="special-option">
+                      <Select
+                        className="options"
+                        defaultValue={{
+                          value: defaultValueByRowAndColumn(
+                            props.rows,
+                            column.field
+                          ),
+                          label: defaultValueByRowAndColumn(
+                            props.rows,
+                            column.field
+                          ),
+                        }}
+                        onChange={(selectValue) => {
+                          selectValue &&
+                            handleOptionChange(
+                              selectValue.value?.join(", "),
+                              column.field
+                            );
+                          setConditionValue(selectValue?.value?.join(", "));
+                        }}
+                        options={
+                          column.inputOptions?.map((option) => ({
+                            value: [option],
+                            label: [option],
+                          })) || []
+                        }
+                      />
+                      {conditionValue ===
+                      undefined ? null : conditionValue.includes("image") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only image under 2MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("audio") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only audio under 5MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("video") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only video under or equal 480P will be
+                          accepted{" "}
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className="special-option">
+                      <Select
+                        className="options"
+                        defaultValue={{
+                          value: defaultValueByRowAndColumn(
+                            props.rows,
+                            column.field
+                          ),
+                          label: defaultValueByRowAndColumn(
+                            props.rows,
+                            column.field
+                          ),
+                        }}
+                        onChange={(selectValue) => {
+                          selectValue &&
+                            handleOptionChange(
+                              selectValue.value?.join(", "),
+                              column.field
+                            );
+                          setConditionValue(selectValue?.value?.join(", "));
+                        }}
+                        options={
+                          column.inputOptions?.map((option) => ({
+                            value: [option],
+                            label: [option],
+                          })) || []
+                        }
+                      />
+                      {conditionValue ===
+                      undefined ? null : conditionValue.includes("image") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only image under 2MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("audio") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only audio under 5MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("video") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only video under or equal 480P will be
+                          accepted{" "}
+                        </div>
+                      ) : null}
+                    </div>
+                  )
                 ) : (
                   <div className="special-option">
                     <Select
