@@ -265,14 +265,14 @@ const Add = (props: Props) => {
                         "subscript superscript|  bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap",
                       external_plugins: {
                         mathjax:
-                          "/node_modules/@peterbasksd/tinymce-mathjax/plugin.min.js",
+                          "../../../node_modules/@peterbasksd/tinymce-mathjax/plugin.min.js",
                       },
                       mathjax: {
-                        lib: "/node_modules/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
+                        lib: "../../../node_modules/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
                         symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
                         className: "math-tex", //optional: mathjax element class
                         configUrl:
-                          "/node_modules/@peterbasksd/tinymce-mathjax/config.js", //optional: mathjax config js
+                          "../../../node_modules/@peterbasksd/tinymce-mathjax/config.js", //optional: mathjax config js
                       },
                       htmlAllowedTags: [".*"],
                       htmlAllowedAttrs: [".*"],
