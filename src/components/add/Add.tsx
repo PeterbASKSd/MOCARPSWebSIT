@@ -265,14 +265,14 @@ const Add = (props: Props) => {
                         "subscript superscript|  bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap",
                       external_plugins: {
                         mathjax:
-                          "/node_modules/@peterbasksd/tinymce-mathjax/plugin.min.js",
+                          "../node_modules/@peterbasksd/tinymce-mathjax/plugin.min.js",
                       },
                       mathjax: {
-                        lib: "/node_modules/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
+                        lib: "../node_modules/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
                         symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
                         className: "math-tex", //optional: mathjax element class
                         configUrl:
-                          "/node_modules/@peterbasksd/tinymce-mathjax/config.js", //optional: mathjax config js
+                          "../node_modules/@peterbasksd/tinymce-mathjax/config.js", //optional: mathjax config js
                       },
                       htmlAllowedTags: [".*"],
                       htmlAllowedAttrs: [".*"],
@@ -343,23 +343,23 @@ const Add = (props: Props) => {
                         }
                       />
                       {conditionValue ===
-                      undefined ? null : conditionValue.includes("image") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only image under 2MB will be accepted{" "}
-                        </div>
-                      ) : conditionValue.includes("audio") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only audio under 5MB will be accepted{" "}
-                        </div>
-                      ) : conditionValue.includes("video") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only video under or equal 480P will be
-                          accepted{" "}
-                        </div>
-                      ) : null}
+                        undefined ? null : conditionValue.includes("image") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only image under 2MB will be accepted{" "}
+                          </div>
+                        ) : conditionValue.includes("audio") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only audio under 5MB will be accepted{" "}
+                          </div>
+                        ) : conditionValue.includes("video") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only video under or equal 480P will be
+                            accepted{" "}
+                          </div>
+                        ) : null}
                     </div>
                   ) : (
                     <div className="special-option">
