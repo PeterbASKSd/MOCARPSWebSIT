@@ -13,7 +13,6 @@ import katex from "katex";
 import "katex/dist/katex.min.css";
 window.katex = katex;
 import { Editor } from "@tinymce/tinymce-react";
-import "@peterbasksd/tinymce-mathjax";
 
 interface MyFormData {
   [key: string]: string | undefined;
@@ -348,7 +347,7 @@ const Add = (props: Props) => {
               )}
               {column.type === "longText" ? (
                 <Editor
-                  apiKey="4hnohmgequ45f7ynkl86g9gyoaf02laiff21n26zuj660uzt"
+                  tinymceScriptSrc="../src/dependencies/tinymce/tinymce.min.js"
                   key={column.field}
                   initialValue={defaultValueByRowAndColumnForLong(
                     props.rows,
@@ -362,15 +361,15 @@ const Add = (props: Props) => {
                     toolbar2:
                       "subscript superscript|  bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap",
                     external_plugins: {
-                      mathjax:
-                        "../node_modules/@peterbasksd/tinymce-mathjax/plugin.min.js",
+                      'mathjax':
+                        '../@dimakorotkov/tinymce-mathjax/plugin.min.js',
                     },
                     mathjax: {
-                      lib: "../node_modules/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
+                      lib: "../src/dependencies/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
                       symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
                       className: "math-tex", //optional: mathjax element class
                       configUrl:
-                        "../node_modules/@peterbasksd/tinymce-mathjax/config.js", //optional: mathjax config js
+                        "../src/dependencies/@dimakorotkov/tinymce-mathjax/config.js", //optional: mathjax config js
                     },
                     htmlAllowedTags: [".*"],
                     htmlAllowedAttrs: [".*"],
@@ -428,14 +427,14 @@ const Add = (props: Props) => {
                       props.rows,
                       column.field
                     )?.includes(".jpg") ||
-                    defaultValueByRowAndColumnForLong(
-                      props.rows,
-                      column.field
-                    )?.includes(".jpeg") ||
-                    defaultValueByRowAndColumnForLong(
-                      props.rows,
-                      column.field
-                    )?.includes(".png") ? (
+                      defaultValueByRowAndColumnForLong(
+                        props.rows,
+                        column.field
+                      )?.includes(".jpeg") ||
+                      defaultValueByRowAndColumnForLong(
+                        props.rows,
+                        column.field
+                      )?.includes(".png") ? (
                       <img
                         src={defaultValueByRowAndColumn(
                           props.rows,
@@ -444,9 +443,9 @@ const Add = (props: Props) => {
                         alt=""
                       />
                     ) : defaultValueByRowAndColumnForLong(
-                        props.rows,
-                        column.field
-                      )?.includes(".mp3") ||
+                      props.rows,
+                      column.field
+                    )?.includes(".mp3") ||
                       defaultValueByRowAndColumnForLong(
                         props.rows,
                         column.field
@@ -463,9 +462,9 @@ const Add = (props: Props) => {
                         controls
                       />
                     ) : defaultValueByRowAndColumnForLong(
-                        props.rows,
-                        column.field
-                      )?.includes(".mp4") ? (
+                      props.rows,
+                      column.field
+                    )?.includes(".mp4") ? (
                       <audio
                         src={defaultValueByRowAndColumn(
                           props.rows,
@@ -508,23 +507,23 @@ const Add = (props: Props) => {
                         }
                       />
                       {conditionValue ===
-                      undefined ? null : conditionValue.includes("image") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only image under 2MB will be accepted{" "}
-                        </div>
-                      ) : conditionValue.includes("audio") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only audio under 5MB will be accepted{" "}
-                        </div>
-                      ) : conditionValue.includes("video") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only video under or equal 480P will be
-                          accepted{" "}
-                        </div>
-                      ) : null}
+                        undefined ? null : conditionValue.includes("image") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only image under 2MB will be accepted{" "}
+                          </div>
+                        ) : conditionValue.includes("audio") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only audio under 5MB will be accepted{" "}
+                          </div>
+                        ) : conditionValue.includes("video") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only video under or equal 480P will be
+                            accepted{" "}
+                          </div>
+                        ) : null}
                     </div>
                   ) : (
                     <div className="special-option">
@@ -556,23 +555,23 @@ const Add = (props: Props) => {
                         }
                       />
                       {conditionValue ===
-                      undefined ? null : conditionValue.includes("image") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only image under 2MB will be accepted{" "}
-                        </div>
-                      ) : conditionValue.includes("audio") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only audio under 5MB will be accepted{" "}
-                        </div>
-                      ) : conditionValue.includes("video") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only video under or equal 480P will be
-                          accepted{" "}
-                        </div>
-                      ) : null}
+                        undefined ? null : conditionValue.includes("image") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only image under 2MB will be accepted{" "}
+                          </div>
+                        ) : conditionValue.includes("audio") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only audio under 5MB will be accepted{" "}
+                          </div>
+                        ) : conditionValue.includes("video") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only video under or equal 480P will be
+                            accepted{" "}
+                          </div>
+                        ) : null}
                     </div>
                   )
                 ) : (
@@ -637,11 +636,11 @@ const Add = (props: Props) => {
                   defaultValue={
                     column.type === "number"
                       ? defaultValueByRowAndColumn(props.rows, column.field) ||
-                        formData[column.field] ||
-                        0
+                      formData[column.field] ||
+                      0
                       : defaultValueByRowAndColumn(props.rows, column.field) ||
-                        formData[column.field] ||
-                        ""
+                      formData[column.field] ||
+                      ""
                   }
                   disabled={column.input === false}
                   className={column.input === false ? "disabled" : undefined}

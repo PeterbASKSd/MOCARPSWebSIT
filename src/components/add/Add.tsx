@@ -12,7 +12,6 @@ import katex from "katex";
 import "katex/dist/katex.min.css";
 window.katex = katex;
 import { Editor } from "@tinymce/tinymce-react";
-import "@peterbasksd/tinymce-mathjax";
 
 type Props = {
   slug: string;
@@ -255,7 +254,7 @@ const Add = (props: Props) => {
                 )}
                 {column.type === "longText" ? (
                   <Editor
-                    apiKey="4hnohmgequ45f7ynkl86g9gyoaf02laiff21n26zuj660uzt" // Replace with your TinyMCE API key
+                    tinymceScriptSrc="../src/dependencies/tinymce/tinymce.min.js"
                     init={{
                       height: 400,
                       plugins: "mathjax",
@@ -264,15 +263,15 @@ const Add = (props: Props) => {
                       toolbar2:
                         "subscript superscript|  bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap",
                       external_plugins: {
-                        mathjax:
-                          "../node_modules/@peterbasksd/tinymce-mathjax/plugin.min.js",
+                        'mathjax':
+                          '../@dimakorotkov/tinymce-mathjax/plugin.min.js',
                       },
                       mathjax: {
-                        lib: "../node_modules/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
+                        lib: "../src/dependencies/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
                         symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
                         className: "math-tex", //optional: mathjax element class
                         configUrl:
-                          "../node_modules/@peterbasksd/tinymce-mathjax/config.js", //optional: mathjax config js
+                          "../src/dependencies/@dimakorotkov/tinymce-mathjax/config.js", //optional: mathjax config js
                       },
                       htmlAllowedTags: [".*"],
                       htmlAllowedAttrs: [".*"],
