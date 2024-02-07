@@ -254,7 +254,7 @@ const Add = (props: Props) => {
                 )}
                 {column.type === "longText" ? (
                   <Editor
-                    tinymceScriptSrc="/public/dependencies/tinymce/tinymce.min.js"
+                    tinymceScriptSrc="/dependencies/tinymce/tinymce.min.js"
                     init={{
                       height: 400,
                       plugins: "mathjax",
@@ -267,11 +267,11 @@ const Add = (props: Props) => {
                           '../@dimakorotkov/tinymce-mathjax/plugin.min.js',
                       },
                       mathjax: {
-                        lib: "/public/dependencies/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
+                        lib: "/dependencies/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
                         symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
                         className: "math-tex", //optional: mathjax element class
                         configUrl:
-                          "/public/dependencies/@dimakorotkov/tinymce-mathjax/config.js", //optional: mathjax config js
+                          "/dependencies/@dimakorotkov/tinymce-mathjax/config.js", //optional: mathjax config js
                       },
                       htmlAllowedTags: [".*"],
                       htmlAllowedAttrs: [".*"],
