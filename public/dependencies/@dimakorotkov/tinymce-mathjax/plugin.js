@@ -157,7 +157,7 @@ tinymce.PluginManager.add('mathjax', function(editor, url) {
             label: 'LaTex'
           }, {
             type: 'htmlpanel',
-            html: '<div style="text-align:right"><a href="https://wikibooks.org/wiki/LaTeX/Mathematics" target="_blank" style="font-size:small">LaTex</a></div>'
+            html: '<div style="text-align:right"><a href="https://editor.codecogs.com/" target="_blank" style="font-size:small"> Please copy the LaTex from here (Equation Editor) </a></div>'
           }, {
             type: 'htmlpanel',
             html: '<iframe id="' + mathjaxId + '" style="width: 100%; min-height: 50px;"></iframe>'

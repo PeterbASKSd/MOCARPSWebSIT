@@ -361,8 +361,7 @@ const Add = (props: Props) => {
                     toolbar2:
                       "subscript superscript|  bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap",
                     external_plugins: {
-                      'mathjax':
-                        '../@dimakorotkov/tinymce-mathjax/plugin.min.js',
+                      mathjax: "../@dimakorotkov/tinymce-mathjax/plugin.min.js",
                     },
                     mathjax: {
                       lib: "/dependencies/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
@@ -427,14 +426,14 @@ const Add = (props: Props) => {
                       props.rows,
                       column.field
                     )?.includes(".jpg") ||
-                      defaultValueByRowAndColumnForLong(
-                        props.rows,
-                        column.field
-                      )?.includes(".jpeg") ||
-                      defaultValueByRowAndColumnForLong(
-                        props.rows,
-                        column.field
-                      )?.includes(".png") ? (
+                    defaultValueByRowAndColumnForLong(
+                      props.rows,
+                      column.field
+                    )?.includes(".jpeg") ||
+                    defaultValueByRowAndColumnForLong(
+                      props.rows,
+                      column.field
+                    )?.includes(".png") ? (
                       <img
                         src={defaultValueByRowAndColumn(
                           props.rows,
@@ -443,9 +442,9 @@ const Add = (props: Props) => {
                         alt=""
                       />
                     ) : defaultValueByRowAndColumnForLong(
-                      props.rows,
-                      column.field
-                    )?.includes(".mp3") ||
+                        props.rows,
+                        column.field
+                      )?.includes(".mp3") ||
                       defaultValueByRowAndColumnForLong(
                         props.rows,
                         column.field
@@ -462,9 +461,9 @@ const Add = (props: Props) => {
                         controls
                       />
                     ) : defaultValueByRowAndColumnForLong(
-                      props.rows,
-                      column.field
-                    )?.includes(".mp4") ? (
+                        props.rows,
+                        column.field
+                      )?.includes(".mp4") ? (
                       <audio
                         src={defaultValueByRowAndColumn(
                           props.rows,
@@ -507,23 +506,23 @@ const Add = (props: Props) => {
                         }
                       />
                       {conditionValue ===
-                        undefined ? null : conditionValue.includes("image") ? (
-                          <div className="fileReminder">
-                            {" "}
-                            Notice! Only image under 2MB will be accepted{" "}
-                          </div>
-                        ) : conditionValue.includes("audio") ? (
-                          <div className="fileReminder">
-                            {" "}
-                            Notice! Only audio under 5MB will be accepted{" "}
-                          </div>
-                        ) : conditionValue.includes("video") ? (
-                          <div className="fileReminder">
-                            {" "}
-                            Notice! Only video under or equal 480P will be
-                            accepted{" "}
-                          </div>
-                        ) : null}
+                      undefined ? null : conditionValue.includes("image") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only image under 2MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("audio") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only audio under 5MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("video") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only video under or equal 480P will be
+                          accepted{" "}
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <div className="special-option">
@@ -555,23 +554,23 @@ const Add = (props: Props) => {
                         }
                       />
                       {conditionValue ===
-                        undefined ? null : conditionValue.includes("image") ? (
-                          <div className="fileReminder">
-                            {" "}
-                            Notice! Only image under 2MB will be accepted{" "}
-                          </div>
-                        ) : conditionValue.includes("audio") ? (
-                          <div className="fileReminder">
-                            {" "}
-                            Notice! Only audio under 5MB will be accepted{" "}
-                          </div>
-                        ) : conditionValue.includes("video") ? (
-                          <div className="fileReminder">
-                            {" "}
-                            Notice! Only video under or equal 480P will be
-                            accepted{" "}
-                          </div>
-                        ) : null}
+                      undefined ? null : conditionValue.includes("image") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only image under 2MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("audio") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only audio under 5MB will be accepted{" "}
+                        </div>
+                      ) : conditionValue.includes("video") ? (
+                        <div className="fileReminder">
+                          {" "}
+                          Notice! Only video under or equal 480P will be
+                          accepted{" "}
+                        </div>
+                      ) : null}
                     </div>
                   )
                 ) : (
@@ -636,11 +635,11 @@ const Add = (props: Props) => {
                   defaultValue={
                     column.type === "number"
                       ? defaultValueByRowAndColumn(props.rows, column.field) ||
-                      formData[column.field] ||
-                      0
+                        formData[column.field] ||
+                        0
                       : defaultValueByRowAndColumn(props.rows, column.field) ||
-                      formData[column.field] ||
-                      ""
+                        formData[column.field] ||
+                        ""
                   }
                   disabled={column.input === false}
                   className={column.input === false ? "disabled" : undefined}
