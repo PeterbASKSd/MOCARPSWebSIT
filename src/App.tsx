@@ -9,7 +9,7 @@ import Information from "./pages/information/Information";
 import Question from "./pages/question/Question";
 import Quiz from "./pages/quiz/Quiz";
 import Value from "./pages/value/Value";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
