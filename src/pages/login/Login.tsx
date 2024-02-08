@@ -1,11 +1,10 @@
 import "./login.scss";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // Import FontAwesomeIcon
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons"; // Import faEye and faEyeSlash icons
 import EmailIcon from "../../assets/email.svg";
 import PasswordIcon from "../../assets/password.svg";
-import { UserType } from "../../data";
 import Swal from "sweetalert2";
 import Logo from "../../assets/logo.svg";
 
@@ -15,61 +14,75 @@ interface LoginProps {
   setUserPriority: (priority: number) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ setIsLoggedIn, setUsername }) => {
+const Login: React.FC<LoginProps> = ({
+  setIsLoggedIn,
+  setUsername,
+  setUserPriority,
+}) => {
+  const [loginForm, setLoginForm] = useState({
+    email: undefined || "",
+    password: undefined || "",
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  let findUsername: boolean = false;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (email && password) {
+      setLoginForm({ email, password });
+    }
+  }, [email, password]);
 
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const getUsername = async () => {
-    try {
-      const response = await fetch(
-        `https://mocarps.azurewebsites.net/user/?email=${email}`
-      );
-      if (response.ok) {
-        const users: UserType[] = await response.json();
-
-        const user = users.find(
-          (user: UserType) => user.email.toLowerCase() === email.toLowerCase()
-        );
-        if (user && user.priority <= 1) {
-          findUsername = true;
-          setUsername(user.name);
-          handleLoginLogic();
-        } else {
-          Swal.fire(
-            "Failed to login",
-            "Please check your email and password",
-            "error"
-          );
-        }
-      } else {
-        console.error("Failed to fetch username");
-      }
-    } catch (error) {
-      console.error("Error fetching username:", error);
-    }
-  };
-
-  const handleLoginLogic = () => {
-    if (findUsername === true) {
-      setIsLoggedIn(true);
-      Swal.fire("Successful to login", "Welcome back", "success");
-    } else {
-      setIsLoggedIn(false);
-    }
-    navigate("/");
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await getUsername();
+    console.log("loginForm:(1)", loginForm);
+
+    try {
+      const response = await fetch(
+        "https://mocarps.azurewebsites.net/user/portal/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(loginForm),
+        }
+      );
+
+      if (response.ok) {
+        const responseData = await response.json(); // Parse the response data
+        setUsername(responseData.name); // Access the name property from the response data
+        setUserPriority(responseData.priority); // Access the priority property from the response data
+        console.log(
+          "response:(2) ok",
+          responseData.name,
+          " ",
+          responseData.priority
+        );
+        setIsLoggedIn(true);
+        Swal.fire("Successful to login", "Welcome back", "success");
+        navigate("/");
+      } else if (response.status === 401) {
+        setIsLoggedIn(false);
+        Swal.fire(
+          "Unauthorized",
+          "Please check your email and password",
+          "error"
+        );
+      } else {
+        setIsLoggedIn(false);
+        console.error("Error logging in:", Error);
+      }
+    } catch (error) {
+      setIsLoggedIn(false);
+      console.error("Error logging in:", error);
+    }
   };
 
   return (

@@ -70,7 +70,10 @@ const DataTable = (props: Props) => {
             />
           </div>
           {props.passwordField &&
-          (props.priority ?? 1) <= params.row.priority ? (
+          props.priority === 0 &&
+          (params.row.priority === 0 ||
+            params.row.priority === 1 ||
+            params.row.priority === 2) ? (
             <div className="password">
               <img
                 src={keyIcon}
@@ -79,7 +82,20 @@ const DataTable = (props: Props) => {
                   if (props.setKeyChange) {
                     props.setKeyChange(true);
                   }
-                  props.setId(params.row.id);
+                }}
+              />
+            </div>
+          ) : props.passwordField &&
+            props.priority === 1 &&
+            params.row.priority === 2 ? (
+            <div className="password">
+              <img
+                src={keyIcon}
+                alt=""
+                onClick={() => {
+                  if (props.setKeyChange) {
+                    props.setKeyChange(true);
+                  }
                 }}
               />
             </div>

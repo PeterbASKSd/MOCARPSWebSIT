@@ -42,6 +42,7 @@
         align-items: center;
         cursor: pointer;
         object-fit: cover;
+        gap: 30px;
   
         .delete {
           color: #ff0000;
@@ -52,8 +53,8 @@
         }
   
         img {
-          width: 30%;
-          height: 30%;
+          max-width: 25px;
+          max-height: 25px;
         }
       }
     }

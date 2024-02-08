@@ -48,6 +48,7 @@ const User: React.FC<UserProps> = ({ priority }) => {
     console.log("Rows: ", rows);
     console.log("openEdit: ", openEdit);
     console.log("openAdd: ", openKeyChange);
+    console.log("openAdd: ", priority);
   });
 
   useEffect(() => {

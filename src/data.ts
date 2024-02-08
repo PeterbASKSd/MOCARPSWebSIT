@@ -418,6 +418,7 @@ export const valueColumns: CustomGridColDef[] = [
     input: false,
     editable: false,
     showInForm: false,
+    renderCell: renderCellWithDateTime,
   },
   {
     field: "updatedAt",
@@ -426,6 +427,7 @@ export const valueColumns: CustomGridColDef[] = [
     input: false,
     editable: false,
     showInForm: false,
+    renderCell: renderCellWithDateTime,
   },
 ];
 
@@ -478,7 +480,7 @@ export const userColumns: CustomGridColDef[] = [
   },
   {
     field: "disabled",
-    headerName: "Disable Account",
+    headerName: "Active",
     type: "boolean",
     width: 180,
     editable: false,
@@ -488,7 +490,7 @@ export const userColumns: CustomGridColDef[] = [
   },
   {
     field: "priority",
-    headerName: "Priority",
+    headerName: "Role",
     type: "string",
     width: 180,
     input: false,

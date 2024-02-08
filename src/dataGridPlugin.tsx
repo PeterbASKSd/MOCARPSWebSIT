@@ -90,7 +90,7 @@ export const renderCellWithPriority = (
       priorityText = "Admin";
       break;
     case 1:
-      priorityText = "Teaching Assistant";
+      priorityText = "TA";
       break;
     case 2:
       priorityText = "Student";
