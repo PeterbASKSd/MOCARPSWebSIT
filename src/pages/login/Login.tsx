@@ -57,17 +57,25 @@ const Login: React.FC<LoginProps> = ({
 
       if (response.ok) {
         const responseData = await response.json(); // Parse the response data
-        setUsername(responseData.name); // Access the name property from the response data
-        setUserPriority(responseData.priority); // Access the priority property from the response data
-        console.log(
-          "response:(2) ok",
-          responseData.name,
-          " ",
-          responseData.priority
-        );
-        setIsLoggedIn(true);
-        Swal.fire("Successful to login", "Welcome back", "success");
-        navigate("/");
+
+        if (responseData.priority > 1) {
+          Swal.fire(
+            "Unauthorized",
+            "Sorry! You do not have sufficient privileges to login!"
+          );
+        } else {
+          setUsername(responseData.name); // Access the name property from the response data
+          setUserPriority(responseData.priority); // Access the priority property from the response data
+          console.log(
+            "response:(2) ok",
+            responseData.name,
+            " ",
+            responseData.priority
+          );
+          setIsLoggedIn(true);
+          Swal.fire("Successful to login", "Welcome back", "success");
+          navigate("/");
+        }
       } else if (response.status === 401) {
         setIsLoggedIn(false);
         Swal.fire(

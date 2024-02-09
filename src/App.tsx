@@ -50,7 +50,11 @@ function App() {
   const Layout = () => {
     return (
       <div className="main">
-        <Navbar handleLogout={handleLogout} username={username} />
+        <Navbar
+          handleLogout={handleLogout}
+          username={username}
+          userPriority={userPriority}
+        />
         <div className="container">
           <div className="menuContainer">
             <Menu />

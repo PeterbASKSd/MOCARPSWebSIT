@@ -9,9 +9,14 @@ interface NavbarProps {
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => void;
   username: string;
+  userPriority: number;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ handleLogout, username }) => {
+const Navbar: React.FC<NavbarProps> = ({
+  handleLogout,
+  username,
+  userPriority,
+}) => {
   return (
     <div className="navbar">
       <div className="logo">
@@ -21,7 +26,11 @@ const Navbar: React.FC<NavbarProps> = ({ handleLogout, username }) => {
       <div className="icon">
         <div className="userLogo">
           <img src={UserIcon} alt="" />
-          <span>{username}</span>
+          {userPriority === 0 ? (
+            <span>{username} Admin</span>
+          ) : (
+            <span>{username} TA</span>
+          )}
           <Link to="/login" onClick={handleLogout as any}>
             <img src={LogoutIcon} alt="" title="Logout" />
           </Link>
