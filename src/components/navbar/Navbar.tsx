@@ -27,9 +27,9 @@ const Navbar: React.FC<NavbarProps> = ({
         <div className="userLogo">
           <img src={UserIcon} alt="" />
           {userPriority === 0 ? (
-            <span>{username} Admin</span>
+            <span>{username} [Admin]</span>
           ) : (
-            <span>{username} TA</span>
+            <span>{username} [TA]</span>
           )}
           <Link to="/login" onClick={handleLogout as any}>
             <img src={LogoutIcon} alt="" title="Logout" />

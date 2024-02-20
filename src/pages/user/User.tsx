@@ -1,10 +1,14 @@
 import DataTable from "../../components/dataTable/DataTable";
 import "./user.scss";
 import { useState, useEffect } from "react";
-import { userColumns } from "../../data";
+import { signUpColumns, userColumns, accountColumns } from "../../data";
 import { passwordColumns } from "../../data";
 import Edit from "../../components/edit/Add";
 import KeyChange from "../../components/password/Add";
+import ControlChange from "../../components/userControl/Add";
+import IconButton from "@mui/material/IconButton";
+import AddButton from "/src/assets/add.svg";
+import Add from "../../components/add/Add";
 
 const url = "https://mocarps.azurewebsites.net/user/";
 
@@ -15,8 +19,10 @@ interface UserProps {
 const User: React.FC<UserProps> = ({ priority }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [openKeyChange, setKeyChange] = useState(false);
+  const [openControlChange, setControlChange] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openAdd, setOpenAdd] = useState(false);
   const [targetId, setTargetId] = useState<number>(0);
 
   const fetchRowsFromAPI = async () => {
@@ -48,7 +54,8 @@ const User: React.FC<UserProps> = ({ priority }) => {
     console.log("Rows: ", rows);
     console.log("openEdit: ", openEdit);
     console.log("openAdd: ", openKeyChange);
-    console.log("openAdd: ", priority);
+    console.log("priority: ", priority);
+    console.log("rows: ", rows);
   });
 
   useEffect(() => {
@@ -65,10 +72,12 @@ const User: React.FC<UserProps> = ({ priority }) => {
     <div className="user">
       <div className="info">
         <h1>User</h1>
-        {/* <IconButton onClick={() => setOpenAdd(true)} className="addButton">
-          <img src={AddButton} alt="" />
-          <h3>New</h3>
-        </IconButton> */}
+        {priority === 0 ? (
+          <IconButton onClick={() => setOpenAdd(true)} className="addButton">
+            <img src={AddButton} alt="" />
+            <h3>New</h3>
+          </IconButton>
+        ) : null}
       </div>
       {loading ? (
         <p>Loading...</p>
@@ -80,16 +89,35 @@ const User: React.FC<UserProps> = ({ priority }) => {
           handleAfterAddRow={handleAfterAddRow}
           setOpen={setOpenEdit}
           setKeyChange={setKeyChange}
+          setControlChange={setControlChange}
           setId={setTargetId}
           passwordField={true}
           priority={priority}
         />
       )}
+      {openAdd && priority === 0 ? (
+        <Add
+          slug="user/portal/signup"
+          columns={signUpColumns}
+          setOpen={setOpenAdd}
+          handleAfterAddRow={handleAfterAddRow}
+        />
+      ) : null}
       {openKeyChange ? (
         <KeyChange
           slug="user"
           columns={passwordColumns}
           setKeyChange={setKeyChange}
+          handleAfterAddRow={handleAfterAddRow}
+          rows={rows.find((row) => row.id === targetId)}
+          targetId={targetId}
+        />
+      ) : null}
+      {openControlChange ? (
+        <ControlChange
+          slug="user"
+          columns={accountColumns}
+          setControlChange={setControlChange}
           handleAfterAddRow={handleAfterAddRow}
           rows={rows.find((row) => row.id === targetId)}
           targetId={targetId}

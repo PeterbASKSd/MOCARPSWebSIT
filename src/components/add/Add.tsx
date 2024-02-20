@@ -1,7 +1,7 @@
 import "../add/add.scss";
 import axios from "axios";
 import React, { useState } from "react";
-import { CustomGridColDef } from "../../data";
+import { CustomGridColDef, priorityOptions } from "../../data";
 import Select from "react-select";
 import PreviewModal from "react-media-previewer";
 import preview from "../../assets/preview.svg";
@@ -12,6 +12,7 @@ import katex from "katex";
 import "katex/dist/katex.min.css";
 window.katex = katex;
 import { Editor } from "@tinymce/tinymce-react";
+import Swal from "sweetalert2";
 
 type Props = {
   slug: string;
@@ -22,7 +23,6 @@ type Props = {
 
 const Add = (props: Props) => {
   const [open, setOpen] = useState<boolean>(false);
-  const [isSubmitted, setIsSubmitted] = useState<boolean | null>(null);
   const [formData, setFormData] = useState<FormData>(new FormData());
   const [file, setFile] = useState<File | undefined>(undefined);
   const [visible, setVisible] = useState(false);
@@ -33,7 +33,6 @@ const Add = (props: Props) => {
     undefined
   );
 
-  const errorMessage = missingFields.join(", ");
   const fileFormData = new FormData();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,33 +54,34 @@ const Add = (props: Props) => {
       Promise.all(
         numberFields.map(async (field) => {
           if (!Object.keys(formData).includes(field)) {
-            console.log("Please check here 11111:", formData);
-            await setFormData((prevData) => ({
+            setFormData((prevData) => ({
               ...prevData,
               [field]: 0,
             }));
           }
         })
       ),
-      setMissingFields(
-        requiredFields.filter(
-          (headerName) => !Object.keys(formData).includes(headerName)
-        )
-      ),
     ]);
+
+    await setMissingFields(
+      requiredFields.filter(
+        (headerName) => !Object.keys(formData).includes(headerName)
+      )
+    );
 
     if (
       !isAllFieldsPresent ||
       Object.values(formData).some((value) => value === "")
     ) {
-      setIsSubmitted(false);
+      Swal.fire({
+        title: "Error",
+        text: `Please input missing fields with *`,
+        icon: "error",
+      });
+      console.log("Please check missing fields:", missingFields);
       return;
     } else {
-      setIsSubmitted(true);
-
       console.log("Please check here:", formData);
-
-      console.log("Please check here 33333:", formData);
 
       if (file) {
         fileFormData.append("file", file);
@@ -116,12 +116,39 @@ const Add = (props: Props) => {
                 `https://mocarps.azurewebsites.net/${props.slug}`,
                 updatedFormData
               )
-              .then(() => {
-                console.log("Please check here Update file:", updatedFormData);
-                props.handleAfterAddRow(updatedFormData);
+              .then((response) => {
+                if (response.status === 200) {
+                  console.log(
+                    "Please check here Update file:",
+                    updatedFormData
+                  );
+                  props.handleAfterAddRow(updatedFormData);
+                  Swal.fire({
+                    title: "Successfully added",
+                    icon: "success",
+                  });
+                }
               })
               .catch((error) => {
-                console.error(error);
+                if (error.response && error.response.status === 400) {
+                  Swal.fire({
+                    title: "Error",
+                    text: `Please input the other title because it should be unique`,
+                    icon: "error",
+                  });
+                } else if (error.response && error.response.status === 404) {
+                  Swal.fire({
+                    title: "Error",
+                    text: `404`,
+                    icon: "error",
+                  });
+                } else {
+                  Swal.fire({
+                    title: "Error",
+                    text: `Something went wrong`,
+                    icon: "error",
+                  });
+                }
               });
           })
           .catch((error) => {
@@ -130,11 +157,36 @@ const Add = (props: Props) => {
       } else {
         axios
           .post(`https://mocarps.azurewebsites.net/${props.slug}`, formData)
-          .then(() => {
-            props.handleAfterAddRow(formData);
+          .then((response) => {
+            if (response.status === 200) {
+              console.log("Please check here Update file:", formData);
+              props.handleAfterAddRow(formData);
+              Swal.fire({
+                title: "Successfully added",
+                icon: "success",
+              });
+            }
           })
           .catch((error) => {
-            console.error(error);
+            if (error.response && error.response.status === 400) {
+              Swal.fire({
+                title: "Error",
+                text: `Please input the other title because it should be unique`,
+                icon: "error",
+              });
+            } else if (error.response && error.response.status === 404) {
+              Swal.fire({
+                title: "Error",
+                text: `404`,
+                icon: "error",
+              });
+            } else {
+              Swal.fire({
+                title: "Error",
+                text: `Something went wrong`,
+                icon: "error",
+              });
+            }
           });
       }
     }
@@ -160,6 +212,13 @@ const Add = (props: Props) => {
       ...prevFormData,
       [fieldName]: value,
     }));
+  };
+
+  const handlePriorityChange = (selectValue: number, fieldName: string) => {
+    setFormData({
+      ...formData,
+      [fieldName]: selectValue,
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -281,7 +340,9 @@ const Add = (props: Props) => {
                     }
                   />
                 ) : column.type === "file" ? (
-                  !column.preCondition ? null : conditionValue !== undefined ? (
+                  !column.preCondition ||
+                  conditionValue === "none" ? null : conditionValue !==
+                    undefined ? (
                     <div className="special-file">
                       <div className="uploadBox">
                         <input
@@ -320,6 +381,17 @@ const Add = (props: Props) => {
                       </div>
                     </div>
                   ) : null
+                ) : column.type === "priority" ? (
+                  <div className="special-option">
+                    <Select
+                      className="options"
+                      onChange={(selectValue) => {
+                        selectValue &&
+                          handlePriorityChange(selectValue.value, column.field);
+                      }}
+                      options={priorityOptions}
+                    />
+                  </div>
                 ) : column.type === "options" ? (
                   column.isCondition ? (
                     <div className="special-option">
@@ -415,14 +487,11 @@ const Add = (props: Props) => {
                 <span>Submit</span>
               </button>
             </div>
-
-            {isSubmitted === false && (
+            {/* {isSubmitted === "false" ? (
               <div className="error">Please input {errorMessage}</div>
-            )}
-
-            {isSubmitted === true && (
+            ) : isSubmitted === "true" ? (
               <div className="success">Successfully added</div>
-            )}
+            ) : null} */}
           </div>
         </form>
       </div>

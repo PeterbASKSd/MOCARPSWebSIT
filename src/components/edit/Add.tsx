@@ -32,12 +32,10 @@ const Add = (props: Props) => {
   const [formData, setFormData] = useState<MyFormData>({});
   const [file, setFile] = useState<File | undefined>(undefined);
   const [visible, setVisible] = useState(false);
-  const [missingFields, setMissingFields] = useState<string[]>([]);
   const [urls, setUrls] = useState<string | undefined>(undefined);
   const [conditionValue, setConditionValue] = useState<string | undefined>(
     undefined
   );
-  const errorMessage = missingFields.join(", ");
   const fileFormData = new FormData();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -108,18 +106,20 @@ const Add = (props: Props) => {
       Object.keys(formData).includes(field)
     );
 
-    const missingFields = requiredFields.filter(
+    const missingField = requiredFields.filter(
       (headerName) => !Object.keys(formData).includes(headerName)
     );
-    setMissingFields(missingFields);
 
     if (
       !isAllFieldsPresent ||
       Object.values(formData).some((value) => value === "")
     ) {
       Swal.fire({
-        title: "Please input" + { errorMessage },
+        title: "Error",
+        text: `Please input missing fields with *`,
+        icon: "error",
       });
+      console.log("Please check missing fields:", missingField);
     } else {
       Swal.fire({
         title: "Are you sure you want to edit this row?",
@@ -128,10 +128,6 @@ const Add = (props: Props) => {
         confirmButtonText: "Submit",
       }).then((result) => {
         if (result.isConfirmed) {
-          Swal.fire("Submitted!");
-
-          console.log("Please check here 44444:", formData);
-
           if (file) {
             fileFormData.append("file", file);
 
@@ -172,19 +168,61 @@ const Add = (props: Props) => {
                     `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
                     updatedFormData
                   )
-                  .then(() => {
-                    console.log(
-                      "Please check here Update file:",
-                      updatedFormData
-                    );
-                    props.handleAfterAddRow(updatedFormData);
+                  .then((response) => {
+                    if (response.status === 200) {
+                      console.log("Please check here Update file:", formData);
+                      props.handleAfterAddRow(formData);
+                      Swal.fire({
+                        title: "Successfully added",
+                        icon: "success",
+                      });
+                    }
                   })
                   .catch((error) => {
-                    console.error(error);
+                    if (error.response && error.response.status === 400) {
+                      Swal.fire({
+                        title: "Error",
+                        text: `Please input the other title because it should be unique`,
+                        icon: "error",
+                      });
+                    } else if (
+                      error.response &&
+                      error.response.status === 404
+                    ) {
+                      Swal.fire({
+                        title: "Error",
+                        text: `404`,
+                        icon: "error",
+                      });
+                    } else {
+                      Swal.fire({
+                        title: "Error",
+                        text: `Something went wrong`,
+                        icon: "error",
+                      });
+                    }
                   });
               })
               .catch((error) => {
-                console.error(error);
+                if (error.response && error.response.status === 400) {
+                  Swal.fire({
+                    title: "Error",
+                    text: `Please input the other title because it should be unique`,
+                    icon: "error",
+                  });
+                } else if (error.response && error.response.status === 404) {
+                  Swal.fire({
+                    title: "Error",
+                    text: `404`,
+                    icon: "error",
+                  });
+                } else {
+                  Swal.fire({
+                    title: "Error",
+                    text: `Something went wrong`,
+                    icon: "error",
+                  });
+                }
               });
           } else {
             axios
@@ -192,11 +230,36 @@ const Add = (props: Props) => {
                 `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
                 formData
               )
-              .then(() => {
-                props.handleAfterAddRow(formData);
+              .then((response) => {
+                if (response.status === 200) {
+                  console.log("Please check here Update file:", formData);
+                  props.handleAfterAddRow(formData);
+                  Swal.fire({
+                    title: "Successfully added",
+                    icon: "success",
+                  });
+                }
               })
               .catch((error) => {
-                console.error(error);
+                if (error.response && error.response.status === 400) {
+                  Swal.fire({
+                    title: "Error",
+                    text: `Please input the other title because it should be unique`,
+                    icon: "error",
+                  });
+                } else if (error.response && error.response.status === 404) {
+                  Swal.fire({
+                    title: "Error",
+                    text: `404`,
+                    icon: "error",
+                  });
+                } else {
+                  Swal.fire({
+                    title: "Error",
+                    text: `Something went wrong`,
+                    icon: "error",
+                  });
+                }
               });
           }
         }
@@ -379,101 +442,85 @@ const Add = (props: Props) => {
                   value={formData[column.field]}
                 />
               ) : column.type === "file" ? (
-                !column.preCondition ? (
-                  "123"
-                ) : conditionValue !== undefined ? (
-                  <div className="special-file">
-                    <div className="uploadBox">
-                      <input
-                        ref={fileInputRef}
-                        className="uploadButton"
-                        type="file"
-                        name={column.field}
-                        accept={handleFileAcceptance(conditionValue)}
-                        onChange={handleFileChange}
-                      />
-                    </div>
-                    <div className="previewBox">
-                      <IconButton
-                        className="previewButton"
-                        onClick={() => {
-                          handleButtonClick();
-                          setVisible(true);
-                        }}
-                      >
-                        <img
-                          src={preview}
-                          alt=""
-                          className="previewButtonIcon"
-                        />
-                        <label className="previewButtonText">Preview</label>
-                      </IconButton>
-                      {open && (
-                        <PreviewModal
-                          visible={visible}
-                          setVisible={() => {
-                            setVisible(false);
-                            setOpen(false);
-                          }}
-                          urls={[urls || ""]}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="previewExistFileBox">
-                    {defaultValueByRowAndColumnForLong(
-                      props.rows,
-                      column.field
-                    )?.includes(".jpg") ||
-                    defaultValueByRowAndColumnForLong(
-                      props.rows,
-                      column.field
-                    )?.includes(".jpeg") ||
-                    defaultValueByRowAndColumnForLong(
-                      props.rows,
-                      column.field
-                    )?.includes(".png") ? (
-                      <img
-                        src={defaultValueByRowAndColumn(
-                          props.rows,
-                          column.field
-                        )}
-                        alt=""
-                      />
-                    ) : defaultValueByRowAndColumnForLong(
-                        props.rows,
-                        column.field
-                      )?.includes(".mp3") ||
-                      defaultValueByRowAndColumnForLong(
-                        props.rows,
-                        column.field
-                      )?.includes(".m4a") ||
-                      defaultValueByRowAndColumnForLong(
-                        props.rows,
-                        column.field
-                      )?.includes(".aac") ? (
-                      <video
-                        src={defaultValueByRowAndColumn(
-                          props.rows,
-                          column.field
-                        )}
-                        controls
-                      />
-                    ) : defaultValueByRowAndColumnForLong(
-                        props.rows,
-                        column.field
-                      )?.includes(".mp4") ? (
-                      <audio
-                        src={defaultValueByRowAndColumn(
-                          props.rows,
-                          column.field
-                        )}
-                        controls
-                      />
-                    ) : null}
-                  </div>
-                )
+                (() => {
+                  const defaultValue = defaultValueByRowAndColumnForLong(
+                    props.rows,
+                    column.field
+                  );
+                  const sanitizedValue =
+                    defaultValue?.replace(/<\/?p>/g, "") ?? "";
+
+                  console.log(
+                    "Please check here sanitizedValue:",
+                    sanitizedValue
+                  );
+
+                  return (
+                    <>
+                      {conditionValue !== "none" ? (
+                        <div className="previewExistFileBox">
+                          {sanitizedValue.includes(".jpg") ||
+                          sanitizedValue.includes(".jpeg") ||
+                          sanitizedValue.includes(".png") ? (
+                            <img src={sanitizedValue} alt="" />
+                          ) : sanitizedValue.includes(".mp3") ||
+                            sanitizedValue.includes(".m4a") ||
+                            sanitizedValue.includes(".aac") ? (
+                            <audio src={sanitizedValue} controls />
+                          ) : sanitizedValue.includes(".mp4") ? (
+                            <video src={sanitizedValue} controls />
+                          ) : null}
+                        </div>
+                      ) : null}
+
+                      {conditionValue ===
+                      "none" ? null : !column.preCondition ? (
+                        "123"
+                      ) : conditionValue !== undefined ? (
+                        <div className="special-file">
+                          <div className="uploadBox">
+                            <input
+                              ref={fileInputRef}
+                              className="uploadButton"
+                              type="file"
+                              name={column.field}
+                              accept={handleFileAcceptance(conditionValue)}
+                              onChange={handleFileChange}
+                            />
+                          </div>
+                          <div className="previewBox">
+                            <IconButton
+                              className="previewButton"
+                              onClick={() => {
+                                handleButtonClick();
+                                setVisible(true);
+                              }}
+                            >
+                              <img
+                                src={preview}
+                                alt=""
+                                className="previewButtonIcon"
+                              />
+                              <label className="previewButtonText">
+                                Preview
+                              </label>
+                            </IconButton>
+                            {open && (
+                              <PreviewModal
+                                visible={visible}
+                                setVisible={() => {
+                                  setVisible(false);
+                                  setOpen(false);
+                                }}
+                                urls={[urls || ""]}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      ) : null}
+                    </>
+                  );
+                })()
               ) : column.type === "options" ? (
                 column.isCondition ? (
                   defaultValueByRowAndColumn(props.rows, column.field) ? (
@@ -603,7 +650,7 @@ const Add = (props: Props) => {
                     />
                   </div>
                 )
-              ) : column.type === "boolean" ? (
+              ) : column.type === "boolean" && column.showInForm === true ? (
                 <div className="checkbox-container">
                   <input
                     className="checkbox-input"
@@ -641,8 +688,14 @@ const Add = (props: Props) => {
                         formData[column.field] ||
                         ""
                   }
-                  disabled={column.input === false}
-                  className={column.input === false ? "disabled" : undefined}
+                  disabled={column.input === false || column.unqiue === true}
+                  className={
+                    column.input === false
+                      ? "disabled"
+                      : column.unqiue === true
+                      ? "disabled"
+                      : undefined
+                  }
                 />
               )}
             </div>

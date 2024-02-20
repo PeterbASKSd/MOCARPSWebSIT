@@ -6,6 +6,7 @@ import axios from "axios";
 import React from "react";
 import Swal from "sweetalert2";
 import keyIcon from "/src/assets/key.svg";
+import ControlIcon from "/src/assets/control.svg";
 
 type Props = {
   columns: GridColDef[];
@@ -14,6 +15,7 @@ type Props = {
   handleAfterAddRow: (newRow: any) => void;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setKeyChange?: React.Dispatch<React.SetStateAction<boolean>>;
+  setControlChange?: React.Dispatch<React.SetStateAction<boolean>>;
   setId: React.Dispatch<React.SetStateAction<number>>;
   passwordField?: boolean;
   setEmail?: React.Dispatch<React.SetStateAction<string>>;
@@ -95,6 +97,19 @@ const DataTable = (props: Props) => {
                 onClick={() => {
                   if (props.setKeyChange) {
                     props.setKeyChange(true);
+                  }
+                }}
+              />
+            </div>
+          ) : null}
+          {props.priority === 0 ? (
+            <div className="control">
+              <img
+                src={ControlIcon}
+                alt=""
+                onClick={() => {
+                  if (props.setControlChange) {
+                    props.setControlChange(true);
                   }
                 }}
               />

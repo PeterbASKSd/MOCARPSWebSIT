@@ -217,6 +217,7 @@ export type CustomGridColDef = GridColDef & {
   preCondition?: boolean;
   isCondition?: boolean;
   showInForm?: boolean;
+  unqiue?: boolean;
 };
 
 //edittable = can it edit in the table
@@ -239,6 +240,17 @@ export const dictionaryColumns: CustomGridColDef[] = [
     editable: false,
     required: true,
     input: true,
+    inputHint: "Enter a keyword",
+  },
+  {
+    field: "title",
+    headerName: "Title [Unique]",
+    type: "string",
+    width: 150,
+    editable: false,
+    required: true,
+    input: true,
+    unqiue: true,
     inputHint: "Enter a keyword",
   },
   {
@@ -279,7 +291,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     width: 150,
     editable: false,
     input: true,
-    inputOptions: ["image", "audio", "video"],
+    inputOptions: ["none", "image", "audio", "video"],
     isCondition: true,
   },
   {
@@ -339,6 +351,17 @@ export const valueColumns: CustomGridColDef[] = [
     editable: false,
     required: true,
     input: true,
+    inputHint: "Enter a keyword",
+  },
+  {
+    field: "title",
+    headerName: "Title [Unique]",
+    type: "string",
+    width: 150,
+    editable: false,
+    required: true,
+    input: true,
+    unqiue: true,
     inputHint: "Enter a keyword",
   },
   {
@@ -477,6 +500,7 @@ export const userColumns: CustomGridColDef[] = [
     width: 100,
     input: false,
     editable: false,
+    showInForm: false,
   },
   {
     field: "disabled",
@@ -486,6 +510,7 @@ export const userColumns: CustomGridColDef[] = [
     editable: false,
     required: false,
     input: false,
+    showInForm: false,
     renderCell: renderCellWithDisabled,
   },
   {
@@ -497,6 +522,83 @@ export const userColumns: CustomGridColDef[] = [
     editable: false,
     showInForm: false,
     renderCell: renderCellWithPriority,
+  },
+];
+
+export const signUpColumns: CustomGridColDef[] = [
+  {
+    field: "email",
+    headerName: "Email",
+    type: "email",
+    width: 250,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Enter a email",
+  },
+  {
+    field: "name",
+    headerName: "Name",
+    type: "string",
+    width: 150,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter your name",
+  },
+  {
+    field: "cardNumber",
+    headerName: "Card Number",
+    type: "string",
+    width: 160,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Enter a card number",
+  },
+  {
+    field: "password",
+    headerName: "Password",
+    type: "password",
+    width: 250,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Enter a new password",
+  },
+  {
+    field: "priority",
+    headerName: "Role",
+    type: "priority",
+    width: 180,
+    input: true,
+    editable: false,
+    required: true,
+    inputHint: "Select a role",
+    renderCell: renderCellWithPriority,
+  },
+];
+
+export const accountColumns: CustomGridColDef[] = [
+  {
+    field: "verified",
+    headerName: "Verified",
+    type: "boolean",
+    width: 100,
+    input: true,
+    editable: false,
+    showInForm: true,
+  },
+  {
+    field: "disabled",
+    headerName: "Active",
+    type: "boolean",
+    width: 180,
+    editable: false,
+    required: false,
+    input: true,
+    showInForm: true,
+    renderCell: renderCellWithDisabled,
   },
 ];
 
@@ -530,5 +632,20 @@ export const passwordColumns: CustomGridColDef[] = [
     required: true,
     input: true,
     inputHint: "Enter again the password",
+  },
+];
+
+export const priorityOptions = [
+  {
+    value: 0,
+    label: "Admin",
+  },
+  {
+    value: 1,
+    label: "TA",
+  },
+  {
+    value: 2,
+    label: "Student",
   },
 ];
