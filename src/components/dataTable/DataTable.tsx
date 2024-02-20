@@ -6,7 +6,7 @@ import axios from "axios";
 import React from "react";
 import Swal from "sweetalert2";
 import keyIcon from "/src/assets/key.svg";
-import ControlIcon from "/src/assets/control.svg";
+// import ControlIcon from "/src/assets/control.svg";
 
 type Props = {
   columns: GridColDef[];
@@ -53,6 +53,29 @@ const DataTable = (props: Props) => {
     };
   };
 
+  const handleDisable = (id: number) => {
+    Swal.fire({
+      title: "Are you sure you want to disable this account?",
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Disable",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Deleted!");
+        axios
+          .post(`https://mocarps.azurewebsites.net/user/disable/${id}`)
+          .then(() => {
+            console.log(id + " has been deleted");
+            const updatedRows = rows.filter((row: any) => row.id !== id);
+            setRows(updatedRows);
+          })
+          .catch((error) => {
+            console.error("Error deleting row:", error);
+          });
+      }
+    });
+  };
+
   // Add action column
   const actionColumn: GridColDef = {
     field: "actions",
@@ -61,16 +84,45 @@ const DataTable = (props: Props) => {
     renderCell: (params) => {
       return (
         <div className="actionSet">
-          <div className="edit">
-            <img
-              src={EditIcon}
-              alt=""
-              onClick={() => {
-                props.setOpen(true);
-                props.setId(params.row.id);
-              }}
-            />
-          </div>
+          {props.slug !== "user" ? (
+            <div className="edit">
+              <img
+                src={EditIcon}
+                alt=""
+                onClick={() => {
+                  props.setOpen(true);
+                  props.setId(params.row.id);
+                }}
+              />
+            </div>
+          ) : props.passwordField &&
+            props.priority === 0 &&
+            (params.row.priority === 0 ||
+              params.row.priority === 1 ||
+              params.row.priority === 2) ? (
+            <div className="edit">
+              <img
+                src={EditIcon}
+                alt=""
+                onClick={() => {
+                  props.setOpen(true);
+                  props.setId(params.row.id);
+                }}
+              />
+            </div>
+          ) : props.priority === 1 && params.row.priority === 2 ? (
+            <div className="edit">
+              <img
+                src={EditIcon}
+                alt=""
+                onClick={() => {
+                  props.setOpen(true);
+                  props.setId(params.row.id);
+                }}
+              />
+            </div>
+          ) : null}
+
           {props.passwordField &&
           props.priority === 0 &&
           (params.row.priority === 0 ||
@@ -102,7 +154,7 @@ const DataTable = (props: Props) => {
               />
             </div>
           ) : null}
-          {props.priority === 0 ? (
+          {/* {props.priority === 0 ? (
             <div className="control">
               <img
                 src={ControlIcon}
@@ -114,17 +166,46 @@ const DataTable = (props: Props) => {
                 }}
               />
             </div>
+          ) : null} */}
+
+          {props.slug !== "user" ? (
+            <div>
+              <img
+                className="delete"
+                src={Delete}
+                alt=""
+                onClick={() => {
+                  handleDelete(params.row.id);
+                }}
+              />
+            </div>
+          ) : props.passwordField &&
+            props.priority === 0 &&
+            (params.row.priority === 0 ||
+              params.row.priority === 1 ||
+              params.row.priority === 2) ? (
+            <div>
+              <img
+                className="delete"
+                src={Delete}
+                alt=""
+                onClick={() => {
+                  handleDisable(params.row.id);
+                }}
+              />
+            </div>
+          ) : props.priority === 1 && params.row.priority === 2 ? (
+            <div>
+              <img
+                className="delete"
+                src={Delete}
+                alt=""
+                onClick={() => {
+                  handleDisable(params.row.id);
+                }}
+              />
+            </div>
           ) : null}
-          <div>
-            <img
-              className="delete"
-              src={Delete}
-              alt=""
-              onClick={() => {
-                handleDelete(params.row.id);
-              }}
-            />
-          </div>
         </div>
       );
     },
