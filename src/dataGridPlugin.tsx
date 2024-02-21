@@ -1,5 +1,7 @@
 import { GridRenderCellParams } from "@mui/x-data-grid";
 import { MathJaxContext, MathJax } from "better-react-mathjax";
+import YesIcon from "@mui/icons-material/Done";
+import NoIcon from "@mui/icons-material/Close";
 
 export const renderCellUrl = (params: GridRenderCellParams<any, string>) => {
   if (typeof params.value === "string") {
@@ -103,10 +105,18 @@ export const renderCellWithPriority = (
   return priorityText;
 };
 
+export const renderCellWithVerify = (
+  params: GridRenderCellParams<any, boolean>
+) => {
+  const disabled = params.value;
+
+  return disabled ? <YesIcon /> : <NoIcon />;
+};
+
 export const renderCellWithDisabled = (
   params: GridRenderCellParams<any, boolean>
 ) => {
   const disabled = params.value;
 
-  return disabled ? "Yes" : "No";
+  return disabled ? <NoIcon /> : <YesIcon />;
 };

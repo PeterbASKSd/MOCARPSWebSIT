@@ -13,6 +13,7 @@ import {
   renderCellWithDateTime,
   renderCellWithPriority,
   renderCellWithDisabled,
+  renderCellWithVerify,
 } from "./dataGridPlugin";
 
 export const menu = [
@@ -501,6 +502,7 @@ export const userColumns: CustomGridColDef[] = [
     input: false,
     editable: false,
     showInForm: false,
+    renderCell: renderCellWithVerify,
   },
   {
     field: "disabled",

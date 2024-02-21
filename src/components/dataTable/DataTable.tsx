@@ -1,11 +1,12 @@
 import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import "./dataTable.scss";
 import EditIcon from "/src/assets/edit.svg";
-import Delete from "/src/assets/delete.svg";
+import DeleteIcon from "/src/assets/delete.svg";
 import axios from "axios";
 import React from "react";
 import Swal from "sweetalert2";
 import keyIcon from "/src/assets/key.svg";
+import EnableIcon from "/src/assets/enable.svg";
 // import ControlIcon from "/src/assets/control.svg";
 
 type Props = {
@@ -61,16 +62,49 @@ const DataTable = (props: Props) => {
       confirmButtonText: "Disable",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire("Deleted!");
+        Swal.fire("The account has been disabled now!");
         axios
           .post(`https://mocarps.azurewebsites.net/user/disable/${id}`)
           .then(() => {
-            console.log(id + " has been deleted");
-            const updatedRows = rows.filter((row: any) => row.id !== id);
+            console.log(id + " has been disabled");
+            const updatedRows = rows.map((row: any) => {
+              if (row.id === id) {
+                return { ...row, disabled: true };
+              }
+              return row;
+            });
             setRows(updatedRows);
           })
           .catch((error) => {
-            console.error("Error deleting row:", error);
+            console.error("Error disabling account:", error);
+          });
+      }
+    });
+  };
+
+  const handleEnable = (id: number) => {
+    Swal.fire({
+      title: "Are you sure you want to enable this account?",
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Enable",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("The account is ready now!");
+        axios
+          .post(`https://mocarps.azurewebsites.net/user/enable/${id}`)
+          .then(() => {
+            console.log(id + " has been enabled");
+            const updatedRows = rows.map((row: any) => {
+              if (row.id === id) {
+                return { ...row, disabled: false };
+              }
+              return row;
+            });
+            setRows(updatedRows);
+          })
+          .catch((error) => {
+            console.error("Error enabling account:", error);
           });
       }
     });
@@ -172,7 +206,7 @@ const DataTable = (props: Props) => {
             <div>
               <img
                 className="delete"
-                src={Delete}
+                src={DeleteIcon}
                 alt=""
                 onClick={() => {
                   handleDelete(params.row.id);
@@ -187,7 +221,7 @@ const DataTable = (props: Props) => {
             <div>
               <img
                 className="delete"
-                src={Delete}
+                src={DeleteIcon}
                 alt=""
                 onClick={() => {
                   handleDisable(params.row.id);
@@ -198,10 +232,38 @@ const DataTable = (props: Props) => {
             <div>
               <img
                 className="delete"
-                src={Delete}
+                src={DeleteIcon}
                 alt=""
                 onClick={() => {
                   handleDisable(params.row.id);
+                }}
+              />
+            </div>
+          ) : null}
+
+          {props.slug !== "user" ? null : props.passwordField &&
+            props.priority === 0 &&
+            (params.row.priority === 0 ||
+              params.row.priority === 1 ||
+              params.row.priority === 2) ? (
+            <div>
+              <img
+                className="delete"
+                src={EnableIcon}
+                alt=""
+                onClick={() => {
+                  handleEnable(params.row.id);
+                }}
+              />
+            </div>
+          ) : props.priority === 1 && params.row.priority === 2 ? (
+            <div>
+              <img
+                className="delete"
+                src={EnableIcon}
+                alt=""
+                onClick={() => {
+                  handleEnable(params.row.id);
                 }}
               />
             </div>
