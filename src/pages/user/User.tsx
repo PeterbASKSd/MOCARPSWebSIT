@@ -32,7 +32,20 @@ const User: React.FC<UserProps> = ({ priority }) => {
         throw new Error("Failed to fetch rows from API");
       }
       const data = await response.json();
-      setRows(data);
+      if (priority === 0) {
+        setRows(data);
+        console.log("Data 0: ", data);
+      } else {
+        for (let i = data.length - 1; i >= 0; i--) {
+          const row = data[i];
+          if (row.priority <= priority) {
+            console.log("Row: ", row);
+            data.splice(i, 1);
+          }
+        }
+        setRows(data);
+        console.log("Data 1: ", data);
+      }
     } catch (error) {
       console.error("Error fetching rows:", error);
     } finally {

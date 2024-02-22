@@ -2,6 +2,7 @@ import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
 import "./dataTable.scss";
 import EditIcon from "/src/assets/edit.svg";
 import DeleteIcon from "/src/assets/delete.svg";
+import DisableIcon from "/src/assets/disable.svg";
 import axios from "axios";
 import React from "react";
 import Swal from "sweetalert2";
@@ -114,7 +115,7 @@ const DataTable = (props: Props) => {
   const actionColumn: GridColDef = {
     field: "actions",
     headerName: "Actions",
-    width: 250,
+    width: 200,
     renderCell: (params) => {
       return (
         <div className="actionSet">
@@ -215,24 +216,27 @@ const DataTable = (props: Props) => {
             </div>
           ) : props.passwordField &&
             props.priority === 0 &&
+            params.row.disabled === false &&
             (params.row.priority === 0 ||
               params.row.priority === 1 ||
               params.row.priority === 2) ? (
             <div>
               <img
                 className="delete"
-                src={DeleteIcon}
+                src={EnableIcon}
                 alt=""
                 onClick={() => {
                   handleDisable(params.row.id);
                 }}
               />
             </div>
-          ) : props.priority === 1 && params.row.priority === 2 ? (
+          ) : props.priority === 1 &&
+            params.row.priority === 2 &&
+            params.row.disabled === false ? (
             <div>
               <img
                 className="delete"
-                src={DeleteIcon}
+                src={EnableIcon}
                 alt=""
                 onClick={() => {
                   handleDisable(params.row.id);
@@ -243,24 +247,27 @@ const DataTable = (props: Props) => {
 
           {props.slug !== "user" ? null : props.passwordField &&
             props.priority === 0 &&
+            params.row.disabled === true &&
             (params.row.priority === 0 ||
               params.row.priority === 1 ||
               params.row.priority === 2) ? (
             <div>
               <img
                 className="delete"
-                src={EnableIcon}
+                src={DisableIcon}
                 alt=""
                 onClick={() => {
                   handleEnable(params.row.id);
                 }}
               />
             </div>
-          ) : props.priority === 1 && params.row.priority === 2 ? (
+          ) : props.priority === 1 &&
+            params.row.priority === 2 &&
+            params.row.disabled === true ? (
             <div>
               <img
                 className="delete"
-                src={EnableIcon}
+                src={DisableIcon}
                 alt=""
                 onClick={() => {
                   handleEnable(params.row.id);
@@ -296,6 +303,8 @@ const DataTable = (props: Props) => {
           },
         }}
         pageSizeOptions={[5, 10, 20, 50, 100]}
+        checkboxSelection
+        disableRowSelectionOnClick
       />
     </div>
   );

@@ -3,9 +3,6 @@ import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import { CustomGridColDef } from "../../data";
 import Select from "react-select";
-import PreviewModal from "react-media-previewer";
-import preview from "../../assets/preview.svg";
-import { IconButton } from "@mui/material";
 import Swal from "sweetalert2";
 import "react-quill/dist/quill.snow.css";
 import "../../styles/custom-quill.scss";
@@ -18,6 +15,12 @@ interface MyFormData {
   [key: string]: string | undefined;
 }
 
+// File preview component
+interface FilePreviewProps {
+  file: string | undefined;
+  conditionValue?: string;
+}
+
 type Props = {
   slug: string;
   columns: CustomGridColDef[];
@@ -28,14 +31,13 @@ type Props = {
 };
 
 const Add = (props: Props) => {
-  const [open, setOpen] = useState<boolean>(false);
   const [formData, setFormData] = useState<MyFormData>({});
   const [file, setFile] = useState<File | undefined>(undefined);
-  const [visible, setVisible] = useState(false);
   const [urls, setUrls] = useState<string | undefined>(undefined);
   const [conditionValue, setConditionValue] = useState<string | undefined>(
     undefined
   );
+  const [editing, setEditing] = useState<boolean>(false);
   const fileFormData = new FormData();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -177,6 +179,7 @@ const Add = (props: Props) => {
                         icon: "success",
                       });
                     }
+                    props.setOpen(false);
                   })
                   .catch((error) => {
                     if (error.response && error.response.status === 400) {
@@ -225,6 +228,10 @@ const Add = (props: Props) => {
                 }
               });
           } else {
+            if (formData.resourceType === "none") {
+              formData.resourceUri = "";
+            }
+
             axios
               .put(
                 `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
@@ -238,6 +245,7 @@ const Add = (props: Props) => {
                     title: "Successfully added",
                     icon: "success",
                   });
+                  props.setOpen(false);
                 }
               })
               .catch((error) => {
@@ -272,6 +280,7 @@ const Add = (props: Props) => {
       ...formData,
       [fieldName]: selectValue,
     });
+    setEditing(true);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -279,6 +288,7 @@ const Add = (props: Props) => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    setEditing(true);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -302,10 +312,8 @@ const Add = (props: Props) => {
             );
             e.target.value = ""; // Reset the file input value
           } else {
-            console.log("Please check here 11111:", selectedFile);
             setFile(selectedFile); // Convert the file to a URL
             setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
-            setVisible(true); // Show the preview modal
             handleInputChange(e); // Update the formData
           }
         };
@@ -326,16 +334,22 @@ const Add = (props: Props) => {
         alert("Audio file size should be limited to 5MB.");
         e.target.value = ""; // Reset the file input value
       } else {
-        console.log("Please check here 11111:", selectedFile);
         setFile(selectedFile); // Convert the file to a URL
         setUrls(URL.createObjectURL(selectedFile)); // Convert the file to a URL
-        setVisible(true); // Show the preview modal
         handleInputChange(e); // Update the formData
       }
     } else {
-      setVisible(false); // Hide the preview modal
       setFile(undefined); // Convert the file to a URL
     }
+    setEditing(true);
+  };
+
+  const handleLongInputChangeForLong = (fieldName: string, value: string) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [fieldName]: value,
+    }));
+    setEditing(true);
   };
 
   const handleFileAcceptance = (conditionValue: string) => {
@@ -348,10 +362,6 @@ const Add = (props: Props) => {
     } else {
       return "";
     }
-  };
-
-  const handleButtonClick = () => {
-    setOpen(true);
   };
 
   const defaultValueByRowAndColumn = (
@@ -384,17 +394,84 @@ const Add = (props: Props) => {
   //   }));
   // };
 
-  const handleLongInputChangeForLong = (fieldName: string, value: string) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [fieldName]: value,
-    }));
+  // Helper function to determine file type based on extension
+  const getFileType = (fileName: string | undefined | Blob): string | null => {
+    if (!fileName) {
+      return null;
+    }
+
+    if (fileName instanceof Blob) {
+      console.log("Please check here fileName1:", fileName);
+      if (fileName.type.startsWith("image/")) {
+        return "image";
+      } else if (fileName.type.startsWith("audio/")) {
+        return "audio";
+      } else if (fileName.type.startsWith("video/")) {
+        return "video";
+      } else {
+        return null;
+      }
+    }
+
+    console.log("Please check here fileName2:", fileName);
+    const extension = fileName?.toLowerCase().split(".").pop() ?? "";
+    if (["jpg", "jpeg", "png"].includes(extension)) {
+      return "image";
+    } else if (["mp3", "m4a", "aac"].includes(extension)) {
+      return "audio";
+    } else if (extension === "mp4") {
+      return "video";
+    } else {
+      return null;
+    }
+  };
+
+  const FilePreview = ({ file, conditionValue }: FilePreviewProps) => {
+    if (conditionValue) {
+      if (conditionValue === "image") {
+        return <img src={file} alt="" />;
+      } else if (conditionValue === "audio") {
+        return <audio src={file} controls />;
+      } else if (conditionValue === "video") {
+        return <video src={file} controls />;
+      } else {
+        return null;
+      }
+    } else {
+      const fileType = getFileType(file);
+
+      if (fileType === "image") {
+        return <img src={file} alt="" />;
+      } else if (fileType === "audio") {
+        return <audio src={file} controls />;
+      } else if (fileType === "video") {
+        return <video src={file} controls />;
+      } else {
+        return null;
+      }
+    }
   };
 
   return (
     <div className="add">
       <div className="model">
-        <span className="close" onClick={() => props.setOpen(false)}>
+        <span
+          className="close"
+          onClick={() =>
+            editing === true
+              ? Swal.fire({
+                  title: "Are you sure you want to discard your changes?",
+                  showDenyButton: false,
+                  showCancelButton: true,
+                  confirmButtonText: "Discard",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    props.setOpen(false);
+                  }
+                })
+              : props.setOpen(false)
+          }
+        >
           x
         </span>
         <h1>Edit Exist Entry</h1>
@@ -447,6 +524,7 @@ const Add = (props: Props) => {
                     props.rows,
                     column.field
                   );
+
                   const sanitizedValue =
                     defaultValue?.replace(/<\/?p>/g, "") ?? "";
 
@@ -455,28 +533,20 @@ const Add = (props: Props) => {
                     sanitizedValue
                   );
 
+                  console.log("Please check here urls:", urls);
+
                   return (
                     <>
-                      {conditionValue !== "none" ? (
-                        <div className="previewExistFileBox">
-                          {sanitizedValue.includes(".jpg") ||
-                          sanitizedValue.includes(".jpeg") ||
-                          sanitizedValue.includes(".png") ? (
-                            <img src={sanitizedValue} alt="" />
-                          ) : sanitizedValue.includes(".mp3") ||
-                            sanitizedValue.includes(".m4a") ||
-                            sanitizedValue.includes(".aac") ? (
-                            <audio src={sanitizedValue} controls />
-                          ) : sanitizedValue.includes(".mp4") ? (
-                            <video src={sanitizedValue} controls />
-                          ) : null}
-                        </div>
-                      ) : null}
-
-                      {conditionValue ===
-                      "none" ? null : !column.preCondition ? (
-                        "123"
-                      ) : conditionValue !== undefined ? (
+                      {conditionValue === "none" ? (
+                        <input
+                          type="file"
+                          name={column.field}
+                          defaultValue={""}
+                          disabled={true}
+                          className={"disabled"}
+                        />
+                      ) : column.preCondition &&
+                        conditionValue !== undefined ? (
                         <div className="special-file">
                           <div className="uploadBox">
                             <input
@@ -488,36 +558,25 @@ const Add = (props: Props) => {
                               onChange={handleFileChange}
                             />
                           </div>
-                          <div className="previewBox">
-                            <IconButton
-                              className="previewButton"
-                              onClick={() => {
-                                handleButtonClick();
-                                setVisible(true);
-                              }}
-                            >
-                              <img
-                                src={preview}
-                                alt=""
-                                className="previewButtonIcon"
-                              />
-                              <label className="previewButtonText">
-                                Preview
-                              </label>
-                            </IconButton>
-                            {open && (
-                              <PreviewModal
-                                visible={visible}
-                                setVisible={() => {
-                                  setVisible(false);
-                                  setOpen(false);
-                                }}
-                                urls={[urls || ""]}
-                              />
-                            )}
-                          </div>
                         </div>
                       ) : null}
+                      <div className="previewArea">
+                        <div>
+                          <div>Uploaded File:</div>
+                          <div className="previewExistFileBox">
+                            <FilePreview file={sanitizedValue} />
+                          </div>
+                        </div>
+                        <div>
+                          <div>New File:</div>
+                          <div className="previewExistFileBox">
+                            <FilePreview
+                              file={urls}
+                              conditionValue={conditionValue}
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </>
                   );
                 })()
@@ -556,18 +615,24 @@ const Add = (props: Props) => {
                       undefined ? null : conditionValue.includes("image") ? (
                         <div className="fileReminder">
                           {" "}
-                          Notice! Only image under 2MB will be accepted{" "}
+                          Notice! Only image under 2MB will be accepted
+                          <br />
+                          Accept ".jpg / .jpeg / .png" file types
                         </div>
                       ) : conditionValue.includes("audio") ? (
                         <div className="fileReminder">
                           {" "}
-                          Notice! Only audio under 5MB will be accepted{" "}
+                          Notice! Only audio under 5MB will be accepted
+                          <br />
+                          Accept ".mp3 / .m4a / .aac" file types
                         </div>
                       ) : conditionValue.includes("video") ? (
                         <div className="fileReminder">
                           {" "}
                           Notice! Only video under or equal 480P will be
-                          accepted{" "}
+                          accepted
+                          <br />
+                          Accept ".mp4 " file type
                         </div>
                       ) : null}
                     </div>

@@ -129,7 +129,7 @@ const Login: React.FC<LoginProps> = ({
               onClick={handleTogglePassword}
               className="password-toggle-icon"
             >
-              <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
             </span>
           </div>
           <button type="submit">Login</button>
