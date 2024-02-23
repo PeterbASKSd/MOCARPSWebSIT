@@ -271,7 +271,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     type: "longText",
     width: 300,
     editable: false,
-    required: true,
+    required: false,
     input: true,
     inputHint: "Please enter an example",
     renderCell: renderCellWithMathJax,
@@ -385,7 +385,7 @@ export const valueColumns: CustomGridColDef[] = [
     editable: false,
     required: false,
     input: true,
-    inputHint: "Enter a keyword",
+    inputHint: "Enter a unit",
     // renderCell: renderCellExpand,
   },
   {

@@ -28,7 +28,6 @@ const Add = (props: Props) => {
   const [formData, setFormData] = useState<FormData>(new FormData());
   const [file, setFile] = useState<File | undefined>(undefined);
   const [selectValue, setSelectValue] = useState(null);
-  const [missingFields, setMissingFields] = useState<string[]>([]);
   const [urls, setUrls] = useState<string | undefined>(undefined);
   const [conditionValue, setConditionValue] = useState<string | undefined>(
     undefined
@@ -40,17 +39,24 @@ const Add = (props: Props) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const requiredFields = props.columns
-      .filter((column) => column.required && column.type !== "number")
-      .map((column) => column.field);
-
     const numberFields = props.columns
       .filter((column) => column.required && column.type === "number")
       .map((column) => column.field);
 
-    const isAllFieldsPresent = requiredFields.every((field) =>
-      Object.keys(formData).includes(field)
+    const requiredFields = props.columns
+      .filter((column) => column.required === true && column.type !== "number")
+      .map((column) => column.field);
+
+    const missingFields = requiredFields.filter(
+      (field) => !(field in formData)
     );
+
+    const missingHeaders = missingFields.map((field) => {
+      const matchingColumn = props.columns.find(
+        (column) => column.field === field
+      );
+      return matchingColumn ? matchingColumn.headerName : "";
+    });
 
     await Promise.all([
       Promise.all(
@@ -65,22 +71,13 @@ const Add = (props: Props) => {
       ),
     ]);
 
-    await setMissingFields(
-      requiredFields.filter(
-        (headerName) => !Object.keys(formData).includes(headerName)
-      )
-    );
-
-    if (
-      !isAllFieldsPresent ||
-      Object.values(formData).some((value) => value === "")
-    ) {
+    if (missingFields.length > 0) {
       Swal.fire({
         title: "Error",
-        text: `Please input missing fields with *`,
+        text: `Please input missing fields with *: ${missingHeaders}`,
         icon: "error",
       });
-      console.log("Please check missing fields:", missingFields);
+      console.log("Missing Fields:", missingHeaders);
       return;
     } else if (
       "password" in formData &&
@@ -138,6 +135,7 @@ const Add = (props: Props) => {
                     title: "Successfully added",
                     icon: "success",
                   });
+                  setEditing(false);
                 }
               })
               .catch((error) => {
@@ -182,6 +180,7 @@ const Add = (props: Props) => {
                 title: "Successfully added",
                 icon: "success",
               });
+              setEditing(false);
             }
           })
           .catch((error) => {
@@ -259,10 +258,9 @@ const Add = (props: Props) => {
         video.onloadedmetadata = () => {
           window.URL.revokeObjectURL(video.src);
 
-          const videoWidth = video.videoWidth;
           const videoHeight = video.videoHeight;
 
-          if (videoWidth > 720 || videoHeight > 480) {
+          if (videoHeight > 480) {
             // Display an error message for incorrect video resolution
             alert(
               "Video resolution should be limited to 480p (720x480) or below."
@@ -410,11 +408,11 @@ const Add = (props: Props) => {
                     tinymceScriptSrc="/dependencies/tinymce/tinymce.min.js"
                     init={{
                       height: 400,
-                      plugins: "mathjax",
+                      plugins: "mathjax wordcount link", // Add the wordcount plugin
                       toolbar1:
-                        "undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | indent outdent | lineheight | mathjax",
+                        "undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | indent outdent | lineheight | link mathjax",
                       toolbar2:
-                        "subscript superscript|  bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap",
+                        "subscript superscript| bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap | wordcount", // Add the wordcount button
                       external_plugins: {
                         mathjax:
                           "../@dimakorotkov/tinymce-mathjax/plugin.min.js",

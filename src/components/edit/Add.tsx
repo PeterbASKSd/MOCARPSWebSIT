@@ -56,8 +56,8 @@ const Add = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    console.log("Please check here 33333:", formData);
-  }, [formData]);
+    console.log("Please check here formData:", formData);
+  }, []);
 
   const resetFormData = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -101,27 +101,25 @@ const Add = (props: Props) => {
     e.preventDefault();
 
     const requiredFields = props.columns
-      .filter((column) => column.required)
+      .filter((column) => column.required === true && column.type !== "number")
       .map((column) => column.field);
 
-    const isAllFieldsPresent = requiredFields.every((field) =>
-      Object.keys(formData).includes(field)
-    );
+    const missingFields = requiredFields.filter((field) => !formData[field]);
 
-    const missingField = requiredFields.filter(
-      (headerName) => !Object.keys(formData).includes(headerName)
-    );
+    const missingHeaders = missingFields.map((field) => {
+      const matchingColumn = props.columns.find(
+        (column) => column.field === field
+      );
+      return matchingColumn ? matchingColumn.headerName : "";
+    });
 
-    if (
-      !isAllFieldsPresent ||
-      Object.values(formData).some((value) => value === "")
-    ) {
+    if (missingFields.length > 0) {
       Swal.fire({
         title: "Error",
-        text: `Please input missing fields with *`,
+        text: `Please input missing fields with *: ${missingHeaders}`,
         icon: "error",
       });
-      console.log("Please check missing fields:", missingField);
+      console.log("Please check here missingFields:", missingHeaders);
     } else {
       Swal.fire({
         title: "Are you sure you want to edit this row?",
@@ -130,6 +128,13 @@ const Add = (props: Props) => {
         confirmButtonText: "Submit",
       }).then((result) => {
         if (result.isConfirmed) {
+          props.columns.forEach((column) => {
+            if (column.type === "number" && !formData[column.field]) {
+              formData[column.field] = "0";
+            }
+          });
+
+          console.log("Please check here formData 2:", formData);
           if (file) {
             fileFormData.append("file", file);
 
@@ -302,10 +307,9 @@ const Add = (props: Props) => {
         video.onloadedmetadata = () => {
           window.URL.revokeObjectURL(video.src);
 
-          const videoWidth = video.videoWidth;
           const videoHeight = video.videoHeight;
 
-          if (videoWidth > 720 || videoHeight > 480) {
+          if (videoHeight > 480) {
             // Display an error message for incorrect video resolution
             alert(
               "Video resolution should be limited to 480p (720x480) or below."
@@ -486,38 +490,41 @@ const Add = (props: Props) => {
                 <label>{column.headerName}</label>
               )}
               {column.type === "longText" ? (
-                <Editor
-                  tinymceScriptSrc="/dependencies/tinymce/tinymce.min.js"
-                  key={column.field}
-                  initialValue={defaultValueByRowAndColumnForLong(
-                    props.rows,
-                    column.field
-                  )}
-                  init={{
-                    height: 400,
-                    plugins: "mathjax",
-                    toolbar1:
-                      "undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | indent outdent | lineheight | mathjax",
-                    toolbar2:
-                      "subscript superscript|  bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap",
-                    external_plugins: {
-                      mathjax: "../@dimakorotkov/tinymce-mathjax/plugin.min.js",
-                    },
-                    mathjax: {
-                      lib: "/dependencies/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
-                      symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
-                      className: "math-tex", //optional: mathjax element class
-                      configUrl:
-                        "/dependencies/@dimakorotkov/tinymce-mathjax/config.js", //optional: mathjax config js
-                    },
-                    htmlAllowedTags: [".*"],
-                    htmlAllowedAttrs: [".*"],
-                  }}
-                  onEditorChange={(value) =>
-                    handleLongInputChangeForLong(column.field, value)
-                  }
-                  value={formData[column.field]}
-                />
+                <>
+                  <Editor
+                    tinymceScriptSrc="/dependencies/tinymce/tinymce.min.js"
+                    key={column.field}
+                    initialValue={defaultValueByRowAndColumnForLong(
+                      props.rows,
+                      column.field
+                    )}
+                    init={{
+                      height: 400,
+                      plugins: "mathjax wordcount link", // Add the wordcount plugin
+                      toolbar1:
+                        "undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | indent outdent | lineheight | link mathjax",
+                      toolbar2:
+                        "subscript superscript| bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap | wordcount", // Add the wordcount button
+                      external_plugins: {
+                        mathjax:
+                          "../@dimakorotkov/tinymce-mathjax/plugin.min.js",
+                      },
+                      mathjax: {
+                        lib: "/dependencies/mathjax/es5/tex-mml-chtml.js",
+                        symbols: { start: "\\(", end: "\\)" },
+                        className: "math-tex",
+                        configUrl:
+                          "/dependencies/@dimakorotkov/tinymce-mathjax/config.js",
+                      },
+                      htmlAllowedTags: [".*"],
+                      htmlAllowedAttrs: [".*"],
+                    }}
+                    onEditorChange={(value) =>
+                      handleLongInputChangeForLong(column.field, value)
+                    }
+                    value={formData[column.field]}
+                  />
+                </>
               ) : column.type === "file" ? (
                 (() => {
                   const defaultValue = defaultValueByRowAndColumnForLong(
@@ -528,24 +535,9 @@ const Add = (props: Props) => {
                   const sanitizedValue =
                     defaultValue?.replace(/<\/?p>/g, "") ?? "";
 
-                  console.log(
-                    "Please check here sanitizedValue:",
-                    sanitizedValue
-                  );
-
-                  console.log("Please check here urls:", urls);
-
                   return (
                     <>
-                      {conditionValue === "none" ? (
-                        <input
-                          type="file"
-                          name={column.field}
-                          defaultValue={""}
-                          disabled={true}
-                          className={"disabled"}
-                        />
-                      ) : column.preCondition &&
+                      {conditionValue === "none" ? null : column.preCondition &&
                         conditionValue !== undefined ? (
                         <div className="special-file">
                           <div className="uploadBox">
