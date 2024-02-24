@@ -1,7 +1,7 @@
 import "../edit/add.scss";
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
-import { CustomGridColDef } from "../../data";
+import { CustomGridColDef, priorityOptions } from "../../data";
 import Select from "react-select";
 import Swal from "sweetalert2";
 import "react-quill/dist/quill.snow.css";
@@ -43,11 +43,13 @@ const Add = (props: Props) => {
 
   const existFormData = () => {
     props.columns.forEach((column) => {
-      const value = defaultValueByRowAndColumn(props.rows, column.field);
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        [column.field]: value,
-      }));
+      if (column.field !== "title") {
+        const value = defaultValueByRowAndColumn(props.rows, column.field);
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          [column.field]: value,
+        }));
+      }
     });
   };
 
@@ -101,7 +103,12 @@ const Add = (props: Props) => {
     e.preventDefault();
 
     const requiredFields = props.columns
-      .filter((column) => column.required === true && column.type !== "number")
+      .filter(
+        (column) =>
+          column.required === true &&
+          column.type !== "number" &&
+          column.field !== "title"
+      )
       .map((column) => column.field);
 
     const missingFields = requiredFields.filter((field) => !formData[field]);
@@ -356,6 +363,14 @@ const Add = (props: Props) => {
     setEditing(true);
   };
 
+  const handlePriorityChange = (selectValue: number, fieldName: string) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [fieldName]: selectValue.toString(), // Convert selectValue to string
+    }));
+    setEditing(true);
+  };
+
   const handleFileAcceptance = (conditionValue: string) => {
     if (conditionValue === "image") {
       return ".jpg, .jpeg, .png";
@@ -572,6 +587,17 @@ const Add = (props: Props) => {
                     </>
                   );
                 })()
+              ) : column.type === "priority" ? (
+                <div className="special-option">
+                  <Select
+                    className="options"
+                    onChange={(selectValue) => {
+                      selectValue &&
+                        handlePriorityChange(selectValue.value, column.field);
+                    }}
+                    options={priorityOptions}
+                  />
+                </div>
               ) : column.type === "options" ? (
                 column.isCondition ? (
                   defaultValueByRowAndColumn(props.rows, column.field) ? (

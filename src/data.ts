@@ -498,11 +498,12 @@ export const userColumns: CustomGridColDef[] = [
   {
     field: "priority",
     headerName: "Role",
-    type: "string",
+    type: "priority",
     width: 180,
-    input: false,
+    input: true,
     editable: false,
-    showInForm: false,
+    required: true,
+    inputHint: "Select a role",
     renderCell: renderCellWithPriority,
   },
   {
