@@ -12,7 +12,7 @@ window.katex = katex;
 import { Editor } from "@tinymce/tinymce-react";
 
 interface MyFormData {
-  [key: string]: string | undefined;
+  [key: string]: string | undefined | number;
 }
 
 // File preview component
@@ -59,7 +59,7 @@ const Add = (props: Props) => {
 
   useEffect(() => {
     console.log("Please check here formData:", formData);
-  }, []);
+  }, [formData]);
 
   const resetFormData = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -137,10 +137,11 @@ const Add = (props: Props) => {
         if (result.isConfirmed) {
           props.columns.forEach((column) => {
             if (column.type === "number" && !formData[column.field]) {
-              formData[column.field] = "0";
+              formData[column.field] = 0;
             }
           });
 
+          console.log("Please check here 22222:", formData);
           console.log("Please check here formData 2:", formData);
           if (file) {
             fileFormData.append("file", file);
@@ -184,7 +185,10 @@ const Add = (props: Props) => {
                   )
                   .then((response) => {
                     if (response.status === 200) {
-                      console.log("Please check here Update file:", formData);
+                      console.log(
+                        "Please check here missingfield formData:",
+                        updatedFormData
+                      );
                       props.handleAfterAddRow(formData);
                       Swal.fire({
                         title: "Successfully added",
@@ -251,7 +255,10 @@ const Add = (props: Props) => {
               )
               .then((response) => {
                 if (response.status === 200) {
-                  console.log("Please check here Update file:", formData);
+                  console.log(
+                    "Please check here missingfield formData:",
+                    formData
+                  );
                   props.handleAfterAddRow(formData);
                   Swal.fire({
                     title: "Successfully added",
@@ -274,6 +281,7 @@ const Add = (props: Props) => {
                     icon: "error",
                   });
                 } else {
+                  console.log("Please check missingfield formData:", formData);
                   Swal.fire({
                     title: "Error",
                     text: `Something went wrong`,
@@ -366,7 +374,7 @@ const Add = (props: Props) => {
   const handlePriorityChange = (selectValue: number, fieldName: string) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [fieldName]: selectValue.toString(), // Convert selectValue to string
+      [fieldName]: selectValue, // Convert selectValue to string
     }));
     setEditing(true);
   };
@@ -537,7 +545,7 @@ const Add = (props: Props) => {
                     onEditorChange={(value) =>
                       handleLongInputChangeForLong(column.field, value)
                     }
-                    value={formData[column.field]}
+                    value={formData[column.field]?.toString() ?? ""}
                   />
                 </>
               ) : column.type === "file" ? (
