@@ -418,7 +418,7 @@ const Add = (props: Props) => {
                           "../@dimakorotkov/tinymce-mathjax/plugin.min.js",
                       },
                       mathjax: {
-                        lib: "/dependencies/mathjax/es5/tex-mml-chtml.js", //required path to mathjax
+                        lib: "/dependencies/mathjax/es5/tex-mml-svg.js", //required path to mathjax
                         symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
                         className: "math-tex", //optional: mathjax element class
                         configUrl:

@@ -281,7 +281,10 @@ const Add = (props: Props) => {
                     icon: "error",
                   });
                 } else {
-                  console.log("Please check missingfield formData:", formData);
+                  console.log(
+                    "Please check missingfield formData 3:",
+                    formData
+                  );
                   Swal.fire({
                     title: "Error",
                     text: `Something went wrong`,
@@ -307,6 +310,14 @@ const Add = (props: Props) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
+    });
+    setEditing(true);
+  };
+
+  const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: parseInt(e.target.value),
     });
     setEditing(true);
   };
@@ -533,7 +544,7 @@ const Add = (props: Props) => {
                           "../@dimakorotkov/tinymce-mathjax/plugin.min.js",
                       },
                       mathjax: {
-                        lib: "/dependencies/mathjax/es5/tex-mml-chtml.js",
+                        lib: "/dependencies/mathjax/es5/tex-mml-svg.js",
                         symbols: { start: "\\(", end: "\\)" },
                         className: "math-tex",
                         configUrl:
@@ -764,6 +775,26 @@ const Add = (props: Props) => {
                     <span className="inner-ball"></span>
                   </label>
                 </div>
+              ) : column.type === "number" ? (
+                <input
+                  type={column.type}
+                  name={column.field}
+                  placeholder={column.inputHint}
+                  onChange={handleNumberInputChange}
+                  defaultValue={
+                    defaultValueByRowAndColumn(props.rows, column.field) ||
+                    formData[column.field] ||
+                    0
+                  }
+                  disabled={column.input === false || column.unqiue === true}
+                  className={
+                    column.input === false
+                      ? "disabled"
+                      : column.unqiue === true
+                      ? "disabled"
+                      : undefined
+                  }
+                />
               ) : column.showInForm === false ? null : (
                 <input
                   type={column.type}
