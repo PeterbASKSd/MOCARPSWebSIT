@@ -73,6 +73,45 @@ export const menu = [
   },
 ];
 
+// export interface TreeNodeData {
+//   id: number;
+//   jsonValue: string;
+//   createdAt: string;
+// }
+
+export interface Section {
+  id: string;
+  title: string;
+  description: string;
+  imageUri: string;
+  sections: Section[];
+  resource: {
+    media?: string;
+    uri?: string;
+  };
+}
+
+export type CustomGridColDef = GridColDef & {
+  required?: boolean;
+  input?: boolean;
+  inputHint?: string;
+  inputOptions?: string[];
+  preCondition?: boolean;
+  isCondition?: boolean;
+  showInForm?: boolean;
+  unqiue?: boolean;
+};
+
+export type UserType = {
+  id: number;
+  email: string;
+  name: string;
+  cardNumber: string;
+  verified: boolean;
+  disabled: boolean;
+  priority: number;
+};
+
 export const addRowToAPI = async (
   url: string,
   data: any
@@ -128,51 +167,6 @@ export const fetchRowFromAPI = async (url: string): Promise<any | null> => {
   }
 };
 
-/* 
-CustomGridColDef{
-  field: string
-  headerName: string
-  type: string || longText || number || file || options
-  width: number
-  required: boolean
-  input: boolean
-  inputHint: string
-  inputOptions: string[]
-}
-*/
-
-// const myColors = [
-//   "purple",
-//   "#785412",
-//   "#452632",
-//   "#856325",
-//   "#963254",
-//   "#254563",
-//   "white",
-// ];
-
-export type UserType = {
-  id: number;
-  email: string;
-  name: string;
-  cardNumber: string;
-  verified: boolean;
-  disabled: boolean;
-  priority: number;
-};
-
-export interface TreeNode {
-  id: string;
-  title: string;
-  description: string;
-  imageUri: string;
-  sections: TreeNode[];
-  resource: {
-    media: string;
-    uri: string;
-  };
-}
-
 export const EditorModules = {
   toolbar: [
     [{ font: [] }],
@@ -209,17 +203,6 @@ export const EditorFormats = [
   "formula",
   "script",
 ];
-
-export type CustomGridColDef = GridColDef & {
-  required?: boolean;
-  input?: boolean;
-  inputHint?: string;
-  inputOptions?: string[];
-  preCondition?: boolean;
-  isCondition?: boolean;
-  showInForm?: boolean;
-  unqiue?: boolean;
-};
 
 //edittable = can it edit in the table
 //input = can it input in the form
@@ -414,7 +397,7 @@ export const valueColumns: CustomGridColDef[] = [
     type: "number",
     width: 120,
     editable: false,
-    required: true,
+    required: false,
     input: true,
   },
   {
@@ -433,7 +416,7 @@ export const valueColumns: CustomGridColDef[] = [
     type: "number",
     width: 120,
     editable: false,
-    required: true,
+    required: false,
     input: true,
   },
   {
@@ -661,5 +644,106 @@ export const priorityOptions = [
   {
     value: 2,
     label: "Student",
+  },
+];
+
+export const initialData: Section[] = [
+  {
+    id: "1",
+    title: "Assessment",
+    description: "Assessment description",
+    imageUri: "https://mocarpsassets.blob.core.windows.net/files/icon01.png",
+    sections: [
+      {
+        id: "5",
+        title: "CXR",
+        description: "CXR description",
+        imageUri:
+          "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
+        sections: [],
+        resource: {
+          media: "image",
+          uri: "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
+        },
+      },
+      {
+        id: "6",
+        title: "Techniques",
+        description: "Techniques description",
+        imageUri:
+          "https://mocarpsassets.blob.core.windows.net/files/icon06.png",
+        sections: [
+          {
+            id: "7",
+            title: "Assessment Duplicate",
+            description: "Assessment Duplicate description",
+            imageUri:
+              "https://mocarpsassets.blob.core.windows.net/files/icon01.png",
+            sections: [
+              {
+                id: "8",
+                title: "CXR Duplicate",
+                description: "CXR Duplicate description",
+                imageUri:
+                  "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
+                sections: [],
+                resource: {
+                  media: "image",
+                  uri: "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
+                },
+              },
+              {
+                id: "9",
+                title: "Techniques Duplicate",
+                description: "Techniques Duplicate description",
+                imageUri:
+                  "https://mocarpsassets.blob.core.windows.net/files/icon06.png",
+                sections: [],
+                resource: {
+                  media: "image",
+                  uri: "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
+                },
+              },
+            ],
+            resource: {},
+          },
+        ],
+        resource: {},
+      },
+    ],
+    resource: {},
+  },
+  {
+    id: "2",
+    title: "Durgs",
+    description: "Durgs description",
+    imageUri: "https://mocarpsassets.blob.core.windows.net/files/icon02.png",
+    sections: [],
+    resource: {
+      media: "image",
+      uri: "https://mocarpsassets.blob.core.windows.net/files/icon01.png",
+    },
+  },
+  {
+    id: "3",
+    title: "Laboratory Values",
+    description: "Laboratory Values description",
+    imageUri: "https://mocarpsassets.blob.core.windows.net/files/icon03.png",
+    sections: [],
+    resource: {
+      media: "audio",
+      uri: "https://mocarpsassets.blob.core.windows.net/files/A1.aac",
+    },
+  },
+  {
+    id: "4",
+    title: "Treatment",
+    description: "Treatment description",
+    imageUri: "https://mocarpsassets.blob.core.windows.net/files/icon04.png",
+    sections: [],
+    resource: {
+      media: "video",
+      uri: "https://mocarpsassets.blob.core.windows.net/files/A1.mp4",
+    },
   },
 ];
