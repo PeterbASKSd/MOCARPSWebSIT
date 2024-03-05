@@ -27,11 +27,13 @@ const Add = (props: Props) => {
 
   const existFormData = () => {
     props.columns.forEach((column) => {
-      const value = defaultValueByRowAndColumn(props.rows, column.field);
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        [column.field]: value,
-      }));
+      if (column.field !== "title") {
+        const value = defaultValueByRowAndColumn(props.rows, column.field);
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          [column.field]: value,
+        }));
+      }
     });
   };
 
@@ -42,6 +44,10 @@ const Add = (props: Props) => {
   useEffect(() => {
     console.log("Please check here 33333:", formData);
   }, [formData]);
+
+  useEffect(() => {
+    console.log("Please check here props.rows:", props.rows);
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedFormData = {
@@ -95,6 +101,7 @@ const Add = (props: Props) => {
               )
               .then(() => {
                 props.handleAfterAddRow(formData);
+                props.setKeyChange(false);
               })
               .catch((error) => {
                 console.error(error);
@@ -121,7 +128,7 @@ const Add = (props: Props) => {
         <h1>Change Password</h1>
         <form onSubmit={handleSubmit}>
           {props.columns
-            .filter((item) => item.input === true)
+            .filter((item) => item.required === true)
             .map((column) => (
               <div className="item" key={column.field}>
                 {column.required ? (

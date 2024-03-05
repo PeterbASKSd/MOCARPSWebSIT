@@ -61,6 +61,32 @@ const Add = (props: Props) => {
     console.log("Please check here formData:", formData);
   }, [formData]);
 
+  const isFileTypeValid = (
+    file: File | undefined,
+    conditionValue: string | undefined
+  ): boolean => {
+    // If no specific media type is selected ('none'), the file type validation should pass
+    if (conditionValue === "none") return true;
+
+    // If a file or conditionValue is not provided, fail the validation
+    if (!file || !conditionValue) return false;
+
+    // Extract the file extension
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+
+    // Validate the file extension based on the selected media type (conditionValue)
+    switch (conditionValue) {
+      case "audio":
+        return fileExtension === "mp3"; // Consider adding more extensions as needed
+      case "image":
+        return ["jpg", "jpeg", "png"].includes(fileExtension!); // Use non-null assertion wisely
+      case "video":
+        return fileExtension === "mp4"; // Consider adding more extensions as needed
+      default:
+        return false; // Fail validation for unrecognized media types
+    }
+  };
+
   const resetFormData = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
@@ -68,10 +94,20 @@ const Add = (props: Props) => {
 
     const updatedFormData: { [key: string]: any } = {}; // Add type assertion
 
+    setConditionValue(undefined); // or 'none' if that's your default state
+    setFile(undefined);
+    setUrls(undefined);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clear the file input
+    }
+
     props.columns.forEach((column) => {
       let value;
       if (column.type === "longtext") {
         value = defaultValueByRowAndColumnForLong(props.rows, column.field);
+      } else if (column.type === "options") {
+        value = defaultValueByRowAndColumn(props.rows, column.field);
       } else {
         value = defaultValueByRowAndColumn(props.rows, column.field);
       }
@@ -99,19 +135,235 @@ const Add = (props: Props) => {
     });
   };
 
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   const missingFields = props.columns
+  //     .filter(
+  //       (column) =>
+  //         column.required &&
+  //         column.type !== "number" &&
+  //         column.field !== "title" &&
+  //         column.field !== "priority"
+  //     )
+  //     .filter((column) => !formData[column.field])
+  //     .map((column) => column.headerName);
+
+  //   const missingHeaders = missingFields.map((field) => {
+  //     const matchingColumn = props.columns.find(
+  //       (column) => column.field === field
+  //     );
+  //     return matchingColumn ? matchingColumn.headerName : "";
+  //   });
+
+  //   if (missingFields.length > 0) {
+  //     Swal.fire({
+  //       title: "Error",
+  //       text: `Please input missing fields with *: ${missingHeaders}`,
+  //       icon: "error",
+  //     });
+  //     console.log("Please check here missingFields:", missingHeaders);
+  //   } else if (
+  //     conditionValue === undefined ||
+  //     !isFileTypeValid(file, conditionValue)
+  //   ) {
+  //     Swal.fire({
+  //       title: "Error",
+  //       text: "Uploaded file type does not match the selected media type.",
+  //       icon: "error",
+  //     });
+  //     return; // Prevent form submission
+  //   } else if (conditionValue !== "none" && !file) {
+  //     Swal.fire({
+  //       title: "Error",
+  //       text: "Missing file for the selected resource type.",
+  //       icon: "error",
+  //     });
+  //     return; // Stop the form submission process
+  //   } else {
+  //     if (conditionValue === "none") {
+  //       formData.resourceUri = "";
+  //     }
+
+  //     Swal.fire({
+  //       title: "Are you sure you want to edit this row?",
+  //       showDenyButton: false,
+  //       showCancelButton: true,
+  //       confirmButtonText: "Submit",
+  //     }).then((result) => {
+  //       if (result.isConfirmed) {
+  //         props.columns.forEach((column) => {
+  //           if (column.type === "number" && !formData[column.field]) {
+  //             formData[column.field] = 0;
+  //           }
+  //         });
+
+  //         console.log("Please check here formData 2:", formData);
+  //         if (file) {
+  //           fileFormData.append("file", file);
+
+  //           axios
+  //             .post(
+  //               `https://mocarps.azurewebsites.net/uploadFile`,
+  //               fileFormData,
+  //               {
+  //                 headers: {
+  //                   "Content-Type": "application/octet-stream",
+  //                 },
+  //               }
+  //             )
+  //             .then((response) => {
+  //               const blobUrl = response.data.blobUrl;
+  //               const updatedFormData = { ...formData };
+  //               // const contentType = file.type;
+
+  //               const replaceUrlsInFormData = (
+  //                 oldUrl: File,
+  //                 newUrl: string
+  //               ) => {
+  //                 Object.entries(updatedFormData).forEach(([key, value]) => {
+  //                   if (
+  //                     typeof value === "string" &&
+  //                     (value as string).includes(oldUrl.name)
+  //                   ) {
+  //                     (updatedFormData as any)[key] = newUrl;
+  //                     setFormData(updatedFormData);
+  //                   }
+  //                 });
+  //               };
+
+  //               replaceUrlsInFormData(file, blobUrl);
+
+  //               axios
+  //                 .put(
+  //                   `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
+  //                   updatedFormData
+  //                 )
+  //                 .then((response) => {
+  //                   if (response.status === 200) {
+  //                     console.log(
+  //                       "Please check here missingfield formData:",
+  //                       updatedFormData
+  //                     );
+  //                     props.handleAfterAddRow(formData);
+  //                     Swal.fire({
+  //                       title: "Successfully added",
+  //                       icon: "success",
+  //                     });
+  //                   }
+  //                   props.setOpen(false);
+  //                 })
+  //                 .catch((error) => {
+  //                   if (error.response && error.response.status === 400) {
+  //                     Swal.fire({
+  //                       title: "Error",
+  //                       text: `Please input the other title because it should be unique`,
+  //                       icon: "error",
+  //                     });
+  //                   } else if (
+  //                     error.response &&
+  //                     error.response.status === 401
+  //                   ) {
+  //                     Swal.fire({
+  //                       title: "Error",
+  //                       text: `Please enter another card number or email, those already exists`,
+  //                       icon: "error",
+  //                     });
+  //                   } else if (
+  //                     error.response &&
+  //                     error.response.status === 404
+  //                   ) {
+  //                     Swal.fire({
+  //                       title: "Error",
+  //                       text: `404`,
+  //                       icon: "error",
+  //                     });
+  //                   } else {
+  //                     Swal.fire({
+  //                       title: "Error",
+  //                       text: `Something went wrong`,
+  //                       icon: "error",
+  //                     });
+  //                   }
+  //                 });
+  //             })
+  //             .catch((error) => {
+  //               if (error.response && error.response.status === 400) {
+  //                 Swal.fire({
+  //                   title: "Error",
+  //                   text: `Please input the other title because it should be unique`,
+  //                   icon: "error",
+  //                 });
+  //               } else if (error.response && error.response.status === 401) {
+  //                 Swal.fire({
+  //                   title: "Error",
+  //                   text: `Please enter another card number or email, those already exists`,
+  //                   icon: "error",
+  //                 });
+  //               } else if (error.response && error.response.status === 404) {
+  //                 Swal.fire({
+  //                   title: "Error",
+  //                   text: `404`,
+  //                   icon: "error",
+  //                 });
+  //               } else {
+  //                 Swal.fire({
+  //                   title: "Error",
+  //                   text: `Something went wrong`,
+  //                   icon: "error",
+  //                 });
+  //               }
+  //             });
+  //         } else {
+  //           if (formData.resourceType === "none") {
+  //             formData.resourceUri = "";
+  //           }
+
+  //           axios
+  //             .put(
+  //               `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
+  //               formData
+  //             )
+  //             .then((response) => {
+  //               if (response.status === 200) {
+  //                 console.log(
+  //                   "Please check here missingfield formData:",
+  //                   formData
+  //                 );
+  //                 props.handleAfterAddRow(formData);
+  //                 Swal.fire({
+  //                   title: "Successfully added",
+  //                   icon: "success",
+  //                 });
+  //                 props.setOpen(false);
+  //               }
+  //             })
+  //             .catch((error) => {
+  //               handleSubmissionError(error);
+  //             });
+  //         }
+  //       }
+  //     });
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const requiredFields = props.columns
-      .filter(
-        (column) =>
-          column.required === true &&
-          column.type !== "number" &&
-          column.field !== "title"
-      )
+    const numberFields = props.columns
+      .filter((column) => column.required && column.type === "number")
       .map((column) => column.field);
 
-    const missingFields = requiredFields.filter((field) => !formData[field]);
+    const missingFields = props.columns
+      .filter(
+        (column) =>
+          column.required &&
+          column.type !== "number" &&
+          column.field !== "title" &&
+          column.field !== "priority"
+      )
+      .filter((column) => !formData[column.field])
+      .map((column) => column.headerName);
 
     const missingHeaders = missingFields.map((field) => {
       const matchingColumn = props.columns.find(
@@ -120,183 +372,231 @@ const Add = (props: Props) => {
       return matchingColumn ? matchingColumn.headerName : "";
     });
 
+    await Promise.all([
+      Promise.all(
+        numberFields.map(async (field) => {
+          if (!Object.keys(formData).includes(field)) {
+            setFormData((prevData) => ({
+              ...prevData,
+              [field]: 0,
+            }));
+          }
+        })
+      ),
+    ]);
+
+    // Check for missing required fields
     if (missingFields.length > 0) {
       Swal.fire({
         title: "Error",
         text: `Please input missing fields with *: ${missingHeaders}`,
         icon: "error",
       });
-      console.log("Please check here missingFields:", missingHeaders);
-    } else {
-      Swal.fire({
-        title: "Are you sure you want to edit this row?",
-        showDenyButton: false,
-        showCancelButton: true,
-        confirmButtonText: "Submit",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          props.columns.forEach((column) => {
-            if (column.type === "number" && !formData[column.field]) {
-              formData[column.field] = 0;
-            }
-          });
-
-          console.log("Please check here 22222:", formData);
-          console.log("Please check here formData 2:", formData);
-          if (file) {
-            fileFormData.append("file", file);
-
-            axios
-              .post(
-                `https://mocarps.azurewebsites.net/uploadFile`,
-                fileFormData,
-                {
-                  headers: {
-                    "Content-Type": "application/octet-stream",
-                  },
-                }
-              )
-              .then((response) => {
-                const blobUrl = response.data.blobUrl;
-                const updatedFormData = { ...formData };
-                // const contentType = file.type;
-
-                const replaceUrlsInFormData = (
-                  oldUrl: File,
-                  newUrl: string
-                ) => {
-                  Object.entries(updatedFormData).forEach(([key, value]) => {
-                    if (
-                      typeof value === "string" &&
-                      (value as string).includes(oldUrl.name)
-                    ) {
-                      (updatedFormData as any)[key] = newUrl;
-                      setFormData(updatedFormData);
-                    }
-                  });
-                };
-
-                replaceUrlsInFormData(file, blobUrl);
-
-                axios
-                  .put(
-                    `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
-                    updatedFormData
-                  )
-                  .then((response) => {
-                    if (response.status === 200) {
-                      console.log(
-                        "Please check here missingfield formData:",
-                        updatedFormData
-                      );
-                      props.handleAfterAddRow(formData);
-                      Swal.fire({
-                        title: "Successfully added",
-                        icon: "success",
-                      });
-                    }
-                    props.setOpen(false);
-                  })
-                  .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                      Swal.fire({
-                        title: "Error",
-                        text: `Please input the other title because it should be unique`,
-                        icon: "error",
-                      });
-                    } else if (
-                      error.response &&
-                      error.response.status === 404
-                    ) {
-                      Swal.fire({
-                        title: "Error",
-                        text: `404`,
-                        icon: "error",
-                      });
-                    } else {
-                      Swal.fire({
-                        title: "Error",
-                        text: `Something went wrong`,
-                        icon: "error",
-                      });
-                    }
-                  });
-              })
-              .catch((error) => {
-                if (error.response && error.response.status === 400) {
-                  Swal.fire({
-                    title: "Error",
-                    text: `Please input the other title because it should be unique`,
-                    icon: "error",
-                  });
-                } else if (error.response && error.response.status === 404) {
-                  Swal.fire({
-                    title: "Error",
-                    text: `404`,
-                    icon: "error",
-                  });
-                } else {
-                  Swal.fire({
-                    title: "Error",
-                    text: `Something went wrong`,
-                    icon: "error",
-                  });
-                }
-              });
-          } else {
-            if (formData.resourceType === "none") {
-              formData.resourceUri = "";
-            }
-
-            axios
-              .put(
-                `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
-                formData
-              )
-              .then((response) => {
-                if (response.status === 200) {
-                  console.log(
-                    "Please check here missingfield formData:",
-                    formData
-                  );
-                  props.handleAfterAddRow(formData);
-                  Swal.fire({
-                    title: "Successfully added",
-                    icon: "success",
-                  });
-                  props.setOpen(false);
-                }
-              })
-              .catch((error) => {
-                if (error.response && error.response.status === 400) {
-                  Swal.fire({
-                    title: "Error",
-                    text: `Please input the other title because it should be unique`,
-                    icon: "error",
-                  });
-                } else if (error.response && error.response.status === 404) {
-                  Swal.fire({
-                    title: "Error",
-                    text: `404`,
-                    icon: "error",
-                  });
-                } else {
-                  console.log(
-                    "Please check missingfield formData 3:",
-                    formData
-                  );
-                  Swal.fire({
-                    title: "Error",
-                    text: `Something went wrong`,
-                    icon: "error",
-                  });
-                }
-              });
-          }
-        }
-      });
+      console.log("Missing Fields:", missingHeaders);
+      return;
     }
+
+    // Password confirmation check (if applicable)
+    if (
+      "password" in formData &&
+      "passwordConfirm" in formData &&
+      formData.password !== formData.passwordConfirm
+    ) {
+      Swal.fire({
+        title: "Error",
+        text: "Please double check your password",
+        icon: "error",
+      });
+      return;
+    }
+
+    // Min and max value check for number fields
+    if ("maxValue" in formData && "minValue" in formData) {
+      // Ensure both maxValue and minValue are actually numbers before comparing
+      const maxValue = parseFloat(formData.maxValue as string);
+      const minValue = parseFloat(formData.minValue as string);
+      if (!isNaN(maxValue) && !isNaN(minValue) && maxValue < minValue) {
+        Swal.fire({
+          title: "Error",
+          text: "Max value cannot be less than Min value.",
+          icon: "error",
+        });
+        return;
+      }
+    }
+
+    // Conditional media validation
+    if (shouldValidateMedia()) {
+      // Implement this function based on your form/page logic
+      if (!isFileTypeValid(file, conditionValue)) {
+        Swal.fire({
+          title: "Error",
+          text: "Uploaded file type does not match the selected media type.",
+          icon: "error",
+        });
+        return;
+      } else if (conditionValue !== "none" && !file) {
+        Swal.fire({
+          title: "Error",
+          text: "Missing file for the selected resource type.",
+          icon: "error",
+        });
+        return;
+      }
+    }
+
+    // If conditionValue is "none" or media not applicable, ensure resourceUri is not set
+    if (conditionValue === "none" || !shouldValidateMedia()) {
+      (formData as any).resourceUri = "";
+    }
+
+    // Proceed with form data submission
+    submitFormData(formData); // Implement this function to handle form submission
   };
+
+  // Example implementation based on your application's logic
+  function shouldValidateMedia(): boolean {
+    // Return true if the current form/page context requires media validation
+    // This logic might depend on the presence of certain fields, page identifiers, etc.
+    return conditionValue !== undefined; // Simplified example
+  }
+
+  async function submitFormData(formData: any) {
+    if (conditionValue === "none") {
+      formData.resourceUri = "";
+    }
+
+    Swal.fire({
+      title: "Are you sure you want to edit this row?",
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Submit",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        props.columns.forEach((column) => {
+          if (column.type === "number" && !formData[column.field]) {
+            formData[column.field] = 0;
+          }
+        });
+
+        console.log("Please check here formData 2:", formData);
+        if (file) {
+          fileFormData.append("file", file);
+
+          axios
+            .post(
+              `https://mocarps.azurewebsites.net/uploadFile`,
+              fileFormData,
+              {
+                headers: {
+                  "Content-Type": "application/octet-stream",
+                },
+              }
+            )
+            .then((response) => {
+              const blobUrl = response.data.blobUrl;
+              const updatedFormData = { ...formData };
+              // const contentType = file.type;
+
+              const replaceUrlsInFormData = (oldUrl: File, newUrl: string) => {
+                Object.entries(updatedFormData).forEach(([key, value]) => {
+                  if (
+                    typeof value === "string" &&
+                    (value as string).includes(oldUrl.name)
+                  ) {
+                    (updatedFormData as any)[key] = newUrl;
+                    setFormData(updatedFormData);
+                  }
+                });
+              };
+
+              replaceUrlsInFormData(file, blobUrl);
+
+              axios
+                .put(
+                  `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
+                  updatedFormData
+                )
+                .then((response) => {
+                  if (response.status === 200) {
+                    console.log(
+                      "Please check here missingfield formData:",
+                      updatedFormData
+                    );
+                    props.handleAfterAddRow(formData);
+                    Swal.fire({
+                      title: "Successfully added",
+                      icon: "success",
+                    });
+                  }
+                  props.setOpen(false);
+                })
+                .catch((error) => {
+                  handleSubmissionError(error);
+                });
+            })
+            .catch((error) => {
+              handleSubmissionError(error);
+            });
+        } else {
+          if (formData.resourceType === "none") {
+            formData.resourceUri = "";
+          }
+
+          axios
+            .put(
+              `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
+              formData
+            )
+            .then((response) => {
+              if (response.status === 200) {
+                console.log(
+                  "Please check here missingfield formData:",
+                  formData
+                );
+                props.handleAfterAddRow(formData);
+                Swal.fire({
+                  title: "Successfully added",
+                  icon: "success",
+                });
+                props.setOpen(false);
+              }
+            })
+            .catch((error) => {
+              handleSubmissionError(error);
+            });
+        }
+      }
+    });
+  }
+
+  function handleSubmissionError(error: any) {
+    let message = "Something went wrong"; // Default error message
+
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+
+      switch (status) {
+        case 400:
+          message = "Please input the other title because it should be unique";
+          break;
+        case 401:
+          message =
+            "Please enter another card number or email, those already exist";
+          break;
+        case 404:
+          message = "Not found";
+          break;
+        case 500:
+          message = "Internal server error. Please try again later.";
+          break;
+        default:
+          break; // Keep the default message
+      }
+    }
+
+    Swal.fire("Error", message, "error");
+  }
 
   const handleOptionChange = (selectValue: string, fieldName: string) => {
     setFormData({
@@ -615,6 +915,22 @@ const Add = (props: Props) => {
                         handlePriorityChange(selectValue.value, column.field);
                     }}
                     options={priorityOptions}
+                    defaultValue={{
+                      value: defaultValueByRowAndColumn(
+                        props.rows,
+                        column.field
+                      ),
+                      label:
+                        defaultValueByRowAndColumn(props.rows, column.field) ===
+                        0
+                          ? "Admin"
+                          : defaultValueByRowAndColumn(
+                              props.rows,
+                              column.field
+                            ) === 1
+                          ? "User"
+                          : "Student",
+                    }}
                   />
                 </div>
               ) : column.type === "options" ? (

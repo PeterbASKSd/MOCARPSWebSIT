@@ -34,7 +34,6 @@ const User: React.FC<UserProps> = ({ priority }) => {
       const data = await response.json();
       if (priority === 0) {
         setRows(data);
-        console.log("Data 0: ", data);
       } else {
         for (let i = data.length - 1; i >= 0; i--) {
           const row = data[i];
@@ -44,7 +43,6 @@ const User: React.FC<UserProps> = ({ priority }) => {
           }
         }
         setRows(data);
-        console.log("Data 1: ", data);
       }
     } catch (error) {
       console.error("Error fetching rows:", error);
@@ -68,14 +66,21 @@ const User: React.FC<UserProps> = ({ priority }) => {
     console.log("openEdit: ", openEdit);
     console.log("openAdd: ", openKeyChange);
     console.log("priority: ", priority);
-    console.log("rows: ", rows);
+    console.log("targetId: ", targetId);
   });
 
-  useEffect(() => {
-    if (!openEdit) {
-      setTargetId(0);
-    }
-  }, [openEdit]);
+  // useEffect(() => {
+  //   // This function checks if any of the conditions are false
+  //   // and sets the targetId to 0 if so.
+  //   const checkAndResetTargetId = () => {
+  //     if (!openEdit || !openControlChange || !openKeyChange) {
+  //       setTargetId(0);
+  //     }
+  //   };
+
+  //   // Call the function to check conditions and possibly reset targetId.
+  //   checkAndResetTargetId();
+  // }, [openEdit, openControlChange, openKeyChange]);
 
   useEffect(() => {
     fetchRowsFromAPI();

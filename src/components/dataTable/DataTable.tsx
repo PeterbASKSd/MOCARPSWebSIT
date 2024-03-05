@@ -170,6 +170,7 @@ const DataTable = (props: Props) => {
                 onClick={() => {
                   if (props.setKeyChange) {
                     props.setKeyChange(true);
+                    props.setId(params.row.id);
                   }
                 }}
               />
@@ -184,6 +185,7 @@ const DataTable = (props: Props) => {
                 onClick={() => {
                   if (props.setKeyChange) {
                     props.setKeyChange(true);
+                    props.setId(params.row.id);
                   }
                 }}
               />

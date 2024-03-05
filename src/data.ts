@@ -225,7 +225,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     required: true,
     input: true,
     unqiue: true,
-    inputHint: "Enter a keyword",
+    inputHint: "Enter a title",
   },
   {
     field: "keyword",
@@ -266,6 +266,7 @@ export const dictionaryColumns: CustomGridColDef[] = [
     width: 80,
     editable: false,
     input: true,
+    inputHint: "0",
     required: true,
   },
   {
@@ -337,7 +338,7 @@ export const valueColumns: CustomGridColDef[] = [
     required: true,
     input: true,
     unqiue: true,
-    inputHint: "Enter a keyword",
+    inputHint: "Enter a title",
   },
   {
     field: "keyword",
@@ -399,6 +400,7 @@ export const valueColumns: CustomGridColDef[] = [
     editable: false,
     required: false,
     input: true,
+    inputHint: "0",
   },
   {
     field: "lowerDesc",
@@ -418,6 +420,7 @@ export const valueColumns: CustomGridColDef[] = [
     editable: false,
     required: false,
     input: true,
+    inputHint: "0",
   },
   {
     field: "createdAt",
