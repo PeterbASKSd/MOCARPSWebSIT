@@ -6,12 +6,15 @@ import Footer from "./components/footer/Footer";
 import Menu from "./components/menu/Menu";
 import Login from "./pages/login/Login";
 import Information from "./pages/information/Information";
+import InformationDetails from "./pages/information/InformationDetails";
 import Question from "./pages/question/Question";
 import Quiz from "./pages/quiz/Quiz";
 import Value from "./pages/value/Value";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 import "./styles/global.scss";
 
@@ -90,6 +93,10 @@ function App() {
           element: <Information />,
         },
         {
+          path: "/information/:categoryId",
+          element: <InformationDetails />,
+        },
+        {
           path: "/question",
           element: <Question />,
         },
@@ -115,7 +122,11 @@ function App() {
     },
   ];
 
-  return <RouterProvider router={createBrowserRouter(routes)} />;
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <RouterProvider router={createBrowserRouter(routes)} />
+    </DndProvider>
+  );
 }
 
 export default App;

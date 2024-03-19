@@ -79,16 +79,25 @@ export const menu = [
 //   createdAt: string;
 // }
 
-export interface Section {
+export interface TreeNode {
   id: string;
   title: string;
   description: string;
-  imageUri: string;
-  sections: Section[];
-  resource: {
-    media?: string;
-    uri?: string;
-  };
+  sections: TreeNode[];
+  resourceType: string;
+  resourceUri: string;
+  expanded?: boolean;
+}
+
+export interface GenerateNodePropsParams {
+  node: TreeNode; // Or whatever type your nodes are
+  path: (string | number)[];
+  treeIndex: number;
+  // Add other properties if needed
+}
+
+export interface InfoNode extends TreeNode {
+  selected: boolean;
 }
 
 export type CustomGridColDef = GridColDef & {
@@ -111,6 +120,9 @@ export type UserType = {
   disabled: boolean;
   priority: number;
 };
+
+export const getNodeKey = ({ treeIndex }: { treeIndex: number }): number =>
+  treeIndex;
 
 export const addRowToAPI = async (
   url: string,
@@ -635,6 +647,59 @@ export const passwordColumns: CustomGridColDef[] = [
   },
 ];
 
+export const categoryColumns: CustomGridColDef[] = [
+  {
+    field: "id",
+    headerName: "ID",
+    type: "id",
+    width: 80,
+    input: true,
+    editable: false,
+    required: false,
+  },
+  {
+    field: "title",
+    headerName: "Title",
+    type: "string",
+    width: 150,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter your title",
+  },
+  {
+    field: "subtitle",
+    headerName: "Description",
+    type: "string",
+    width: 160,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Enter a description",
+  },
+  {
+    field: "resourceType",
+    headerName: "Media Type",
+    type: "options",
+    width: 150,
+    editable: false,
+    input: true,
+    required: true,
+    inputOptions: ["none", "image", "audio", "video"],
+    isCondition: true,
+  },
+  {
+    field: "resourceUri",
+    headerName: "Media",
+    type: "file",
+    width: 180,
+    editable: false,
+    input: true,
+    preCondition: true,
+    renderCell: renderCellUrl,
+  },
+];
+
 export const priorityOptions = [
   {
     value: 0,
@@ -647,106 +712,5 @@ export const priorityOptions = [
   {
     value: 2,
     label: "Student",
-  },
-];
-
-export const initialData: Section[] = [
-  {
-    id: "1",
-    title: "Assessment",
-    description: "Assessment description",
-    imageUri: "https://mocarpsassets.blob.core.windows.net/files/icon01.png",
-    sections: [
-      {
-        id: "5",
-        title: "CXR",
-        description: "CXR description",
-        imageUri:
-          "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
-        sections: [],
-        resource: {
-          media: "image",
-          uri: "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
-        },
-      },
-      {
-        id: "6",
-        title: "Techniques",
-        description: "Techniques description",
-        imageUri:
-          "https://mocarpsassets.blob.core.windows.net/files/icon06.png",
-        sections: [
-          {
-            id: "7",
-            title: "Assessment Duplicate",
-            description: "Assessment Duplicate description",
-            imageUri:
-              "https://mocarpsassets.blob.core.windows.net/files/icon01.png",
-            sections: [
-              {
-                id: "8",
-                title: "CXR Duplicate",
-                description: "CXR Duplicate description",
-                imageUri:
-                  "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
-                sections: [],
-                resource: {
-                  media: "image",
-                  uri: "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
-                },
-              },
-              {
-                id: "9",
-                title: "Techniques Duplicate",
-                description: "Techniques Duplicate description",
-                imageUri:
-                  "https://mocarpsassets.blob.core.windows.net/files/icon06.png",
-                sections: [],
-                resource: {
-                  media: "image",
-                  uri: "https://mocarpsassets.blob.core.windows.net/files/icon05.png",
-                },
-              },
-            ],
-            resource: {},
-          },
-        ],
-        resource: {},
-      },
-    ],
-    resource: {},
-  },
-  {
-    id: "2",
-    title: "Durgs",
-    description: "Durgs description",
-    imageUri: "https://mocarpsassets.blob.core.windows.net/files/icon02.png",
-    sections: [],
-    resource: {
-      media: "image",
-      uri: "https://mocarpsassets.blob.core.windows.net/files/icon01.png",
-    },
-  },
-  {
-    id: "3",
-    title: "Laboratory Values",
-    description: "Laboratory Values description",
-    imageUri: "https://mocarpsassets.blob.core.windows.net/files/icon03.png",
-    sections: [],
-    resource: {
-      media: "audio",
-      uri: "https://mocarpsassets.blob.core.windows.net/files/A1.aac",
-    },
-  },
-  {
-    id: "4",
-    title: "Treatment",
-    description: "Treatment description",
-    imageUri: "https://mocarpsassets.blob.core.windows.net/files/icon04.png",
-    sections: [],
-    resource: {
-      media: "video",
-      uri: "https://mocarpsassets.blob.core.windows.net/files/A1.mp4",
-    },
   },
 ];

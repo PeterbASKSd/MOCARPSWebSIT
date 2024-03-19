@@ -1,0 +1,73 @@
+@import "/src/styles/color.scss";
+
+.treeAdd{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.724);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    z-index: 99;
+}
+
+.model{
+    width: 60%;
+    height: auto;
+    max-height: 95%;
+    background-color: $main-bg;
+    display: block;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2%;
+    position: relative;
+    overflow-y: auto;
+    animation: scaleAnimation 0.3s ease-in-out;
+    padding: 2%;
+    z-index: 100;
+
+    @keyframes scaleAnimation {
+        0% {
+            transform: scale(0);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    h1{
+        font-size: 30px;
+        color: $soft-color;
+        padding: unset;
+    }
+
+    p {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .error {
+        color: red;
+        text-align: center;
+    }
+
+    .success {
+        color: greenyellow;
+        text-align: center;
+    }
+
+
+    .close{
+        font-size: 36px;
+        position: absolute;
+        top: 1%;
+        right: 2%;
+        cursor: pointer;
+        color: red
+    }
+}

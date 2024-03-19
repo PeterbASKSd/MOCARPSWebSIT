@@ -16,6 +16,8 @@ type Props = {
   columns: CustomGridColDef[];
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleAfterAddRow: (newRow: any) => void;
+  largestId?: number;
+  treeData?: any[];
 };
 
 // File preview component
@@ -33,81 +35,9 @@ const Add = (props: Props) => {
     undefined
   );
   const [editing, setEditing] = useState<boolean>(false);
+  const [treeData, setTreeData] = useState(props.treeData);
 
   const fileFormData = new FormData();
-
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  // e.preventDefault();
-
-  // const numberFields = props.columns
-  //   .filter((column) => column.required && column.type === "number")
-  //   .map((column) => column.field);
-
-  // const requiredFields = props.columns
-  //   .filter((column) => column.required === true && column.type !== "number")
-  //   .map((column) => column.field);
-
-  // const missingFields = requiredFields.filter(
-  //   (field) => !(field in formData)
-  // );
-
-  // const missingHeaders = missingFields.map((field) => {
-  //   const matchingColumn = props.columns.find(
-  //     (column) => column.field === field
-  //   );
-  //   return matchingColumn ? matchingColumn.headerName : "";
-  // });
-
-  // await Promise.all([
-  //   Promise.all(
-  //     numberFields.map(async (field) => {
-  //       if (!Object.keys(formData).includes(field)) {
-  //         setFormData((prevData) => ({
-  //           ...prevData,
-  //           [field]: 0,
-  //         }));
-  //       }
-  //     })
-  //   ),
-  // ]);
-
-  //   if (missingFields.length > 0) {
-  //     Swal.fire({
-  //       title: "Error",
-  //       text: `Please input missing fields with *: ${missingHeaders}`,
-  //       icon: "error",
-  //     });
-  //     console.log("Missing Fields:", missingHeaders);
-  //     return;
-  //   } else if (
-  //     "password" in formData &&
-  //     "passwordConfirm" in formData &&
-  //     formData.password !== formData.passwordConfirm
-  //   ) {
-  //     Swal.fire({
-  //       title: "Error",
-  //       text: "Please double check your password",
-  //       icon: "error",
-  //     });
-  //     return;
-  //   } else if (!isFileTypeValid(file, conditionValue)) {
-  //     Swal.fire({
-  //       title: "Error",
-  //       text: "Uploaded file type does not match the selected media type.",
-  //       icon: "error",
-  //     });
-  //     return; // Prevent form submission
-  //   } else if (conditionValue !== "none" && !file) {
-  //     Swal.fire({
-  //       title: "Error",
-  //       text: "Missing file for the selected resource type.",
-  //       icon: "error",
-  //     });
-  //     return; // Stop the form submission process
-  //   } else {
-  //     submitFormData(formData);
-  //   }
-  // };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -210,7 +140,11 @@ const Add = (props: Props) => {
     }
 
     // Proceed with form data submission
-    submitFormData(formData); // Implement this function to handle form submission
+    if (props.slug === "information") {
+      submitTreeNode(formData); // Implement this function to handle form submission
+    } else {
+      submitFormData(formData); // Implement this function to handle form submission
+    }
   };
 
   // Example implementation based on your application's logic
@@ -218,6 +152,139 @@ const Add = (props: Props) => {
     // Return true if the current form/page context requires media validation
     // This logic might depend on the presence of certain fields, page identifiers, etc.
     return conditionValue !== undefined; // Simplified example
+  }
+
+  const addFormDataToTreeData = (formData: any) => {
+    // Use the spread operator to create a new array with the new formData object.
+    setTreeData([...(treeData ?? []), formData]);
+  };
+
+  function prepareTreeDataForSubmission(treeData: any) {
+    const transformNode = (node: any) => {
+      // Create a new node with the structure that matches TreeNode
+      return {
+        id: node.id.toString(),
+        title: node.title,
+        description: node.subtitle, // Use subtitle as the description
+        sections: node.children ? node.children.map(transformNode) : [], // Recursively transform children
+        resourceType: node.resourceType || "none",
+        resourceUri: node.resourceUri || "",
+        expanded: node.expanded || false,
+      };
+    };
+
+    console.log("Please check here treeData:", treeData);
+
+    // Transform each node in the treeData array
+    const transformedTreeData = treeData.map(transformNode);
+
+    // Convert the transformedTreeData to a JSON string
+    const jsonValueObject = {
+      jsonValue: JSON.stringify({ sections: transformedTreeData }),
+    };
+
+    console.log(jsonValueObject.jsonValue);
+
+    return jsonValueObject;
+  }
+
+  async function submitTreeNode(formData: any) {
+    if (props.largestId !== undefined) {
+      formData.id = props.largestId.toString();
+      formData.sections = [];
+    }
+
+    // Prepare formData
+    if (conditionValue === "none") {
+      formData.resourceUri = "";
+    }
+
+    // Add formData to treeData first
+    try {
+      await addFormDataToTreeData(formData);
+    } catch (error) {
+      console.error("Error adding formData to treeData", error);
+      return; // Stop execution if this fails
+    }
+
+    if (file) {
+      fileFormData.append("file", file);
+
+      axios
+        .post(`https://mocarps.azurewebsites.net/uploadFile`, fileFormData, {
+          headers: {
+            "Content-Type": "application/octet-stream",
+          },
+        })
+        .then((response) => {
+          const blobUrl = response.data.blobUrl;
+          const updatedFormData = { ...formData };
+          // const contentType = file.type;
+
+          const replaceUrlsInFormData = (oldUrl: File, newUrl: string) => {
+            Object.entries(updatedFormData).forEach(([key, value]) => {
+              if (
+                typeof value === "string" &&
+                (value as string).includes(oldUrl.name)
+              ) {
+                (updatedFormData as any)[key] = newUrl;
+                setFormData(updatedFormData);
+              }
+            });
+          };
+
+          replaceUrlsInFormData(file, blobUrl);
+        });
+
+      axios
+        .post(
+          `https://mocarps.azurewebsites.net/${props.slug}`,
+          prepareTreeDataForSubmission(treeData)
+        )
+        .then((response) => {
+          if (response.status === 200) {
+            console.log(
+              "Please check here treeData:",
+              prepareTreeDataForSubmission(treeData)
+            );
+            Swal.fire({
+              title: "Successfully added",
+              icon: "success",
+            });
+            setEditing(false);
+            props.setOpen(false);
+          }
+        })
+        .catch((error) => {
+          handleSubmissionError(error);
+        });
+    } else {
+      console.log("Please check here treeData:", treeData);
+
+      axios
+        .post(
+          `https://mocarps.azurewebsites.net/${props.slug}`,
+          JSON.stringify(prepareTreeDataForSubmission(treeData))
+        )
+        .then((response) => {
+          if (response.status === 200) {
+            console.log(
+              "Please check here treeData:",
+              prepareTreeDataForSubmission(treeData)
+            );
+            Swal.fire({
+              title: "Successfully added",
+              icon: "success",
+            });
+            setEditing(false);
+            props.setOpen(false);
+          }
+        })
+        .catch((error) => {
+          handleSubmissionError(error);
+          JSON.stringify(prepareTreeDataForSubmission(treeData));
+        });
+    }
   }
 
   async function submitFormData(formData: any) {
@@ -549,7 +616,15 @@ const Add = (props: Props) => {
                 ) : (
                   <label>{column.headerName}</label>
                 )}
-                {column.type === "longText" ? (
+                {column.type === "id" ? (
+                  <input
+                    type="text"
+                    name={column.field}
+                    placeholder={column.inputHint}
+                    defaultValue={props.largestId}
+                    disabled={true}
+                  />
+                ) : column.type === "longText" ? (
                   <Editor
                     tinymceScriptSrc="/dependencies/tinymce/tinymce.min.js"
                     init={{

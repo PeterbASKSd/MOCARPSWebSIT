@@ -28,6 +28,7 @@ type Props = {
   handleAfterAddRow: (newRow: any) => void;
   rows: object[];
   targetId: number;
+  treeData?: any[];
 };
 
 const Add = (props: Props) => {

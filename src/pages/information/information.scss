@@ -1,3 +1,283 @@
+@import "../../styles/color.scss";
+
 .information{
-    background-color: red;
+  font-family: 'Arial', sans-serif;
+  color: #f4f4f8;
+
+  .info{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 8px 0px 8px 0px;
+    
+    button{
+      background-color: unset;
+      padding: unset;
+      margin: unset;
+      gap: 10px;
+    }
+
+    .addButton{
+      background-color: $main-bg;
+      border: none;
+      color: white;
+      cursor: pointer;
+      width: 35px;
+      height: 35px;
+      cursor: pointer;
+      padding: unset;
+      margin: unset;
+    }
+  }
+
+  .information-container{
+    font-size: 22px;
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    color: black;
+    background: $main-bg;
+    border-radius: 5px;
+  }
+
+  .selection-container{
+    h3{
+      color: white;
+    }
+  }
+
+  .rst__lineHalfHorizontalRight::before, .rst__lineFullVertical::after, .rst__lineHalfVerticalTop::after, .rst__lineHalfVerticalBottom::after{
+    background-color: #f4f4f8;
+  }
+
+  .rst__tree{
+    max-height: 90%;
+  }
+
+  .tree-container {
+    flex: 1.75;
+    border-right: 1px solid #ccc;
+    padding: 1%;
+  }
+
+  .edit-container {
+    flex: 1.25;
+    padding: 1%;
+    color: white;
+  }
+
+  .actionSet{
+    display: flex;
+  }
+
+  .actionSet button {
+    padding: 0.5em 1em; // Smaller padding
+    font-size: 0.8rem; // Smaller font size
+    // Set a max-width and max-height if needed
+    max-width: 100px;
+    max-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // Adjusting icon size
+    img {
+      width: 20px; // Adjust as necessary
+      height: auto;
+    }
+    background-color: white;
+  }
+  
+  .actionSet button:hover,
+  .actionSet button:focus {
+    opacity: 0.8;
+  }
+
+  .footerOfCategory{
+    color: white;
+    padding-bottom: 1%;
+    display: flex;
+    gap: 1%;
+    align-items: center;
+
+    img{
+      width: 30px;
+      height: 30px;
+    }
+
+    .footerButtons{
+      background-color: unset;
+      padding: unset;
+      margin: unset;
+    }
+  }
+
+  .toolBar {
+    display: flex;
+    align-items: center; // This ensures vertical centering
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+
+  .otherButtons{
+    display: flex;
+    gap: 10px;
+  }
+
+  .searchBox {
+    display: flex;
+    align-items: center; // Align items on the same line
+  }
+  
+  .searchBox input {
+    margin-right: 5px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    width: 200px;
+    height: 36px; // Match the height with your buttons
+  }
+  
+  .toolsButton {
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-left: 5px;
+    height: 36px; // Ensure the buttons have a specific height
+    font-size: large;
+  }
+  
+  .toolsButton:hover,
+  .toolsButton:focus {
+    opacity: 0.8;
+  }
+
+  .rst__expandButton {
+    position: absolute !important; 
+    top: auto !important;
+    right: auto !important;
+    bottom: 8px;
+  }
+
+  .rst__collapseButton {
+    position: absolute !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: 8px;
+  }
+}
+
+.information-menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; // Ensure the container spans the full width
+  padding: 20px; // Padding around the grid container
+  box-sizing: border-box;
+
+  .selection-title {
+    color: white;
+    margin-bottom: 20px; // Space between the title and the grid
+    text-align: center;
+  }
+
+  .selection-container {
+    display: grid;
+    width: calc(100% - 40px); // Adjust width based on the padding of the parent
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); // Adjusts number of columns by available space
+    gap: 20px; // Space between grid items
+    
+    // Adjust the grid item styling as per the design
+    .category-item {
+      background-color: #5F5F5F; // Card background color
+      border: 5px solid #6A8EAE; // Card border color
+      border-radius: 10px; // Rounded corners for cards
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Box shadow for depth
+      padding: 20px; // Padding inside each card
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+
+      &:before {
+        content: '';
+        position: absolute;
+        height: 1%; // Height of the line
+        width: 90%; // Width of the line
+        background-color: #fff; // Line color
+        top: 65%;
+      }
+
+      // Define a fixed size for the buttons to control the grid items size
+      button {
+        width: 100%; // Fixed width
+        text-align: center; // Align text to the left for buttons
+        font-size: 2rem;
+        margin-bottom: 10%;
+      }
+
+      button:last-child {
+        background-color: transparent;
+        margin-right: 0; // Adjust according to your design
+      }
+  
+      button:first-child {
+        background-color: unset;
+        color: white;
+
+        &:hover {
+          background-color: #FFFFFF80;
+        }
+      }
+
+      img {
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #FFFFFF80;
+          border-radius: 25%;
+        }
+      }
+
+      .categoryTools {
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+      }
+
+      &:hover {
+        background-color: #a792bd;
+        border-radius: 25%;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .selection-container {
+    grid-template-columns: repeat(4, 1fr); // 4 items per row
+  }
+}
+
+@media (max-width: 992px) {
+  .selection-container {
+    grid-template-columns: repeat(3, 1fr); // 3 items per row
+  }
+}
+
+@media (max-width: 768px) {
+  .selection-container {
+    grid-template-columns: repeat(2, 1fr); // 2 items per row
+  }
+}
+
+@media (max-width: 576px) {
+  .selection-container {
+    grid-template-columns: repeat(1, 1fr); // 1 item per row
+  }
 }

@@ -27,7 +27,7 @@
     "src/components/.editForm",
     "src/pages/.dictionaryEdit",
     "public/dependencies"
-  ],
+, "src/pages/information/Information.tsx"  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
