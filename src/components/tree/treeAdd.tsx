@@ -8,7 +8,7 @@ type Props = {
   largestID: number;
   columns: CustomGridColDef[];
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  updateTreeData: (treeData: any[]) => void; // Callback to update tree data in Information
+  setTargetTreeData: React.Dispatch<React.SetStateAction<any[]>>;
   nodeInfo: GenerateNodePropsParams | null; // Ensure this is used
   treeData: any[]; // Current tree data
   setChange: React.Dispatch<React.SetStateAction<boolean>>; // Ensure this is used
@@ -16,6 +16,7 @@ type Props = {
 
 const treeAdd = (props: Props) => {
   const inputEl = useRef<HTMLInputElement>(null);
+  const inputEl2 = useRef<HTMLInputElement>(null);
   const [editing, setEditing] = useState<boolean>(false);
 
   const generateUniqueId = () =>
@@ -23,8 +24,13 @@ const treeAdd = (props: Props) => {
 
   const createNode = () => {
     const value = inputEl.current?.value.trim();
+    const subtitle = inputEl2.current?.value.trim();
+
     if (!value) {
       inputEl.current?.focus();
+      return;
+    } else if (!subtitle) {
+      inputEl2.current?.focus();
       return;
     }
 
@@ -35,12 +41,16 @@ const treeAdd = (props: Props) => {
       treeData: props.treeData,
       parentKey: parentKey, // Can be null for adding a primary node
       getNodeKey: ({ treeIndex }) => treeIndex,
-      newNode: { id: generateUniqueId(), title: value },
+      newNode: {
+        id: generateUniqueId(),
+        title: value,
+        subtitle: subtitle,
+      },
       expandParent: true,
     });
 
     if (newTree.treeData) {
-      props.updateTreeData(newTree.treeData);
+      props.setTargetTreeData(newTree.treeData);
       props.setChange(true);
       props.setOpen(false); // Close the component after adding the node
     } else {
@@ -50,6 +60,10 @@ const treeAdd = (props: Props) => {
     // Reset input field and editing state
     if (inputEl.current) {
       inputEl.current.value = "";
+    }
+
+    if (inputEl2.current) {
+      inputEl2.current.value = "";
     }
     setEditing(false);
   };
@@ -76,13 +90,22 @@ const treeAdd = (props: Props) => {
         >
           x
         </span>
-        <h1>Add New Sub-Item</h1>
+        <h1>Add New Item</h1>
         <div>
           <label>
             <strong>Node Title:</strong>
           </label>
           <input
             ref={inputEl}
+            type="text"
+            placeholder="Enter node title"
+            onChange={() => setEditing(true)}
+          />
+          <label>
+            <strong>Description:</strong>
+          </label>
+          <input
+            ref={inputEl2}
             type="text"
             placeholder="Enter node title"
             onChange={() => setEditing(true)}

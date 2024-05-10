@@ -1,0 +1,291 @@
+@import "../../styles/color.scss";
+
+.questionDetails{
+    font-family: 'Arial', sans-serif;
+    color: #f4f4f8;
+
+    .info{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+
+        padding: 8px 0px 28px 0px;
+        position: relative; /* Add relative positioning */
+        z-index: 0; /* Ensure z-index is higher than overlay but equal or lower than edit-container */      
+        background-color: $main-bg;
+
+        button{
+          background-color: unset;
+          padding: unset;
+          margin: unset;
+          gap: 10px;
+        }
+    
+        .addButton{
+          background-color: $main-bg;
+          border: none;
+          color: white;
+          cursor: pointer;
+          width: 35px;
+          height: 35px;
+          cursor: pointer;
+          padding: unset;
+          margin: unset;
+        }
+    }
+
+    .toolsbar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; // Align the button to the left
+        background-color: $main-bg; // A dark background to match your sidebar
+        padding: 10px; // Add some padding around the bar
+        
+        .addButton {
+          background-color: #4CAF50; // A green background for the add button
+          border: none; // Remove the default button border
+          color: white; // Text color for the button
+          padding: 10px 20px; // Padding inside the button
+          text-align: center; // Center the text/icon inside the button
+          text-decoration: none; // Remove any text decoration like underlines
+          display: inline-block; // Allows setting margins and padding
+          font-size: 16px; // Size of the text if there is any
+          margin: 4px 2px; // Margin around the button
+          transition-duration: 0.4s; // Smooth transition for hover effects
+          cursor: pointer; // Change the cursor to indicate it's clickable
+          
+          // Hover state for the button
+          &:hover {
+            background-color: #45a049; // Darken the green a bit on hover
+          }
+          
+          // Focus state for the button to maintain accessibility
+          &:focus {
+            outline: none; // Remove the default focus outline
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #4CAF50; // Add a custom focus indicator
+          }
+          
+          // Styles for the icon inside the button, if there is one
+          img {
+            width: 30px; // Set a size for the icon
+            height: auto; // Keep the aspect ratio of the icon
+            vertical-align: middle; // Align the icon vertically with any text
+          }
+        }
+      }
+      
+
+    .question-container{
+        font-size: 22px;
+        display: flex;
+        flex-direction: row;
+        height: 100vh;
+        color: black;
+        background: $main-bg;
+        border-radius: 5px;
+    }
+
+    // .list-container {
+    //     flex: 2.0;
+    //     border-right: 1px solid #ccc;
+    //     padding: 1%;
+    //     z-index: 0;
+    //     background: $main-bg;
+    //     overflow: auto;
+
+    //     .question-item {
+    //         display: flex; // Ensures child elements are in a row
+    //         align-items: center; // Centers the items vertically
+    //         margin-bottom: 1rem; // Adds space between the items
+        
+    //         .question-info {
+    //           flex-grow: 1; // Allows question-info to fill the space
+    //           padding-right: 1rem; // Adds space between the text and the buttons
+    //         }
+        
+    //         .question-actions {
+    //           display: flex; // Aligns buttons in a row
+    //           gap: 0.5rem; // Adds space between the buttons
+        
+    //           .actionButton {
+    //             background-color: transparent; // Removes any background color
+    //             border: none; // Removes border
+    //             cursor: pointer; // Changes cursor on hover
+    //             padding: 0.5rem; // Adds padding around the icon
+    //             img {
+    //               width: auto; // Maintains aspect ratio
+    //               height: 1.5rem; // Sets a fixed height for the icons
+    //             }
+    //           }
+    //         }
+    //     }
+    // }
+
+    .list-container {
+        flex: 1.5;
+        border-right: 1px solid #ccc;
+        padding: 1%;
+        z-index: 0;
+        background: $main-bg;
+        overflow: auto;
+        
+        .question-item {
+          background: #2c3e50;
+          padding: 10px;
+          border-radius: 4px;
+          margin-bottom: 15px;
+          color: white;
+      
+          .question-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+      
+          .question-info {
+            color: white;
+            font-weight: bold;
+            flex: 1; // ensures the text part grows to fill the space
+            overflow: hidden; // prevents content from overflowing
+            white-space: nowrap; // keeps the content on a single line
+            text-overflow: ellipsis; // adds ellipsis for overflowed text
+          }
+      
+          .question-actions {
+            display: flex;
+            align-items: center;
+            // Removing margin-left as flexbox spacing can be handled with gap
+            gap: 20px;
+            button {
+                background-color: transparent;
+                border: none;
+                padding: 0;
+                cursor: pointer;
+          
+                img {
+                  width: 30px;
+                  height: auto; // ensures the image maintains its aspect ratio
+                }
+              }
+          }
+      
+          .option-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            background-color: #f4f4f8; // Light grey background
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          
+            .option-content {
+              display: flex;
+              flex-direction: column;
+          
+              span {
+                display: flex;
+                margin-bottom: 10px;
+          
+                input {
+                  flex: 1; // Each input takes equal space
+                  padding: 8px 12px;
+                  margin-right: 10px; // Space between the inputs
+                  border: 1px solid #ccc; // Light grey border
+                  border-radius: 4px;
+                  &:last-child {
+                    margin-right: 0; // No margin for the last input
+                  }
+                  &:focus {
+                    border-color: #0056b3; // Highlight focus with a different color
+                    outline: none;
+                  }
+                }
+              }
+            }
+          
+            .option-actions {
+              display: flex;
+              justify-content: flex-end; // Align action buttons to the right
+          
+              .actionButton {
+                background-color: #e0e0e0; // Light gray background for buttons
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s, box-shadow 0.3s;
+          
+                &:hover {
+                  background-color: #d6d6d6; // Darker shade on hover
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                }
+          
+                img {
+                  width: 20px; // Standardize image size in buttons
+                  height: auto;
+                }
+              }
+            }
+          }
+          
+            }
+        }
+
+    .edit-container {
+        flex: 1.5;
+        padding: 1%;
+        color: white;
+        background-color: #2a3447;
+        position: relative; // This ensures z-index is applied
+        z-index: 11; // Higher than the overlay to stay interactive
+        .button-group {
+            display: flex;
+            justify-content: center; // Center the buttons
+            gap: 10px; // Adds space between the buttons
+        
+            // You can also use `justify-content: space-around` or `space-between` for different spacing effects
+          }
+        
+          // Button styles
+          .save-button {
+            background-color: #04AA6D; // A shade of slate blue
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        
+            &:hover {
+              background-color: darken(#04AA6D, 10%);
+            }
+          }
+        
+          .cancel-button {
+            background-color: red; // A shade of slate blue
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        
+            &:hover {
+              background-color: darken(red, 10%);
+            }
+          }
+    }
+
+    .questionAddOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5); // Semi-transparent black background
+        z-index: 10; // Make sure it's above other content but below your editor panel
+      }
+}

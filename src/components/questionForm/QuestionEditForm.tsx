@@ -1,29 +1,20 @@
-import "../add/add.scss";
 import axios from "axios";
-import React, { useState } from "react";
-import {
-  CustomGridColDef,
-  priorityOptions,
-  prepareTreeDataForSubmission,
-} from "../../data";
+import React, { useEffect, useState, useRef } from "react";
 import Select from "react-select";
-import "react-quill/dist/quill.snow.css";
-import "../../styles/custom-quill.scss";
-import katex from "katex";
-import "katex/dist/katex.min.css";
-window.katex = katex;
-import { Editor } from "@tinymce/tinymce-react";
+import { CustomGridColDef, questionTypes } from "../../data";
 import Swal from "sweetalert2";
+import "./questionForm.scss";
 
 type Props = {
   slug: string;
-  columns: CustomGridColDef[];
+  rows: any;
+  allRows?: any;
+  columns: CustomGridColDef[]; // Replace "MyInterface" with the actual interface name or a valid type
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleAfterAddRow: (newRow: any) => void;
-  largestId?: number;
-  treeData?: any[];
-  setTreeData?: React.Dispatch<React.SetStateAction<any[]>>;
-  questionSetID?: number;
+  setRow: React.Dispatch<React.SetStateAction<any>>;
+  name: string;
+  questionID?: number;
+  editingQuestion?: number;
 };
 
 // File preview component
@@ -32,17 +23,49 @@ interface FilePreviewProps {
   conditionValue?: string;
 }
 
-const Add = (props: Props) => {
+const QuestionEditForm = (props: Props) => {
   const [formData, setFormData] = useState<FormData>(new FormData());
   const [file, setFile] = useState<File | undefined>(undefined);
-  const [selectValue, setSelectValue] = useState(null);
   const [urls, setUrls] = useState<string | undefined>(undefined);
   const [conditionValue, setConditionValue] = useState<string | undefined>(
     undefined
   );
   const [editing, setEditing] = useState<boolean>(false);
-
   const fileFormData = new FormData();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const defaultValueByRowAndColumn = (
+    rows: any, // Add index signature to allow indexing with a string
+    columnName: string
+  ) => {
+    return rows?.[columnName];
+  };
+
+  useEffect(() => {
+    if (!editing) {
+      setFormData(props.rows);
+      if (props.rows.resourceType !== "none") {
+        setConditionValue(props.rows?.resourceType as string);
+        setUrls(props.rows.resourceUri);
+      }
+    }
+  }, [props.rows, editing]);
+
+  useEffect(() => {
+    console.log("formData", formData);
+    console.log("props.rows", props.rows);
+    console.log("props.allrows", props.allRows);
+    console.log(
+      "props.editingQuestion:",
+      props.editingQuestion !== undefined ? props.editingQuestion : undefined
+    );
+    console.log(
+      "props.allrows",
+      props.editingQuestion !== undefined
+        ? props.allRows?.find((row: any) => row.id === props.editingQuestion)
+        : undefined
+    );
+  });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -90,52 +113,28 @@ const Add = (props: Props) => {
       return;
     }
 
-    // Password confirmation check (if applicable)
-    if (
-      "password" in formData &&
-      "passwordConfirm" in formData &&
-      formData.password !== formData.passwordConfirm
-    ) {
-      Swal.fire({
-        title: "Error",
-        text: "Please double check your password",
-        icon: "error",
-      });
-      return;
-    }
-
-    // Min and max value check for number fields
-    if ("maxValue" in formData && "minValue" in formData) {
-      // Ensure both maxValue and minValue are actually numbers before comparing
-      const maxValue = parseFloat(formData.maxValue as string);
-      const minValue = parseFloat(formData.minValue as string);
-      if (!isNaN(maxValue) && !isNaN(minValue) && maxValue < minValue) {
-        Swal.fire({
-          title: "Error",
-          text: "Max value cannot be less than Min value.",
-          icon: "error",
-        });
-        return;
-      }
-    }
+    console.log("formData checking", formData);
 
     // Conditional media validation
     if (shouldValidateMedia()) {
       // Implement this function based on your form/page logic
-      if (!isFileTypeValid(file, conditionValue)) {
-        Swal.fire({
-          title: "Error",
-          text: "Uploaded file type does not match the selected media type.",
-          icon: "error",
-        });
-        return;
-      } else if (conditionValue !== "none" && !file) {
-        Swal.fire({
-          title: "Error",
-          text: "Missing file for the selected resource type.",
-          icon: "error",
-        });
-        return;
+      if (urls && conditionValue) {
+      } else {
+        if (!isFileTypeValid(file, conditionValue)) {
+          Swal.fire({
+            title: "Error",
+            text: "Uploaded file type does not match the selected media type.",
+            icon: "error",
+          });
+          return;
+        } else if (conditionValue !== "none" && !file) {
+          Swal.fire({
+            title: "Error",
+            text: "Missing file for the selected resource type.",
+            icon: "error",
+          });
+          return;
+        }
       }
     }
 
@@ -144,12 +143,7 @@ const Add = (props: Props) => {
       (formData as any).resourceUri = "";
     }
 
-    // Proceed with form data submission
-    if (props.slug === "information") {
-      submitTreeNode(formData); // Implement this function to handle form submission
-    } else {
-      submitFormData(formData); // Implement this function to handle form submission
-    }
+    submitFormData(formData); // Implement this function to handle form submission
   };
 
   // Example implementation based on your application's logic
@@ -159,74 +153,15 @@ const Add = (props: Props) => {
     return conditionValue !== undefined; // Simplified example
   }
 
-  async function submitTreeNode(formData: any) {
-    // Step 1: Initialize formData with an ID, empty sections, and handle resourceUri
-    if (props.largestId !== undefined) {
-      formData.id = props.largestId.toString();
-      formData.sections = [];
-    }
-
-    if (conditionValue === "none") {
-      formData.resourceUri = "";
-    }
-
-    // Ensure treeData is treated as an array even if it's initially undefined
-    let updatedTreeData = [...(props.treeData ?? []), formData];
-
-    if (file) {
-      fileFormData.append("file", file);
-
-      try {
-        const response = await axios.post(
-          `https://mocarps.azurewebsites.net/uploadFile`,
-          fileFormData,
-          {
-            headers: {
-              "Content-Type": "application/octet-stream",
-            },
-          }
-        );
-
-        const blobUrl = response.data.blobUrl;
-
-        // Directly update the formData's resourceUri with the blobUrl
-        const updatedFormData = {
-          ...formData,
-          resourceUri: blobUrl, // Assuming blobUrl is the direct URL to the uploaded file
-        };
-
-        updatedTreeData = [...(props.treeData ?? []), updatedFormData];
-      } catch (error) {
-        console.error("Error uploading file", error);
-        // Handle the error accordingly
-      }
-    }
-
-    // Step 3: Prepare and submit the updated tree data to the backend
-    const submissionData = prepareTreeDataForSubmission(updatedTreeData);
-    try {
-      const response = await axios.post(
-        `https://mocarps.azurewebsites.net/${props.slug}`,
-        submissionData
-      );
-      if (response.status === 200) {
-        console.log("Tree data successfully submitted:", submissionData);
-        Swal.fire({ title: "Successfully added", icon: "success" });
-        setEditing(false);
-        if (props.setTreeData) {
-          props.setTreeData(updatedTreeData);
-        }
-        props.setOpen(false);
-      }
-    } catch (error) {
-      console.error("Error submitting tree data", error);
-      handleSubmissionError(error);
-    }
-  }
-
   async function submitFormData(formData: any) {
     if (conditionValue === "none") {
       (formData as any).resourceUri = "";
+      console.log("Please check here Update file:", formData);
+    }
+
+    //if no questionID, then it is a new question
+    if (!formData.questionID) {
+      (formData as any).questionSetId = props.questionID;
     }
 
     if (file) {
@@ -243,6 +178,8 @@ const Add = (props: Props) => {
           const updatedFormData = { ...formData };
           // const contentType = file.type;
 
+          console.log("updatedFormData 1:", updatedFormData);
+
           const replaceUrlsInFormData = (oldUrl: File, newUrl: string) => {
             Object.entries(updatedFormData).forEach(([key, value]) => {
               if (
@@ -258,19 +195,28 @@ const Add = (props: Props) => {
           replaceUrlsInFormData(file, blobUrl);
 
           axios
-            .post(
-              `https://mocarps.azurewebsites.net/${props.slug}`,
+            .put(
+              `https://mocarps.azurewebsites.net/${props.slug}/${props.editingQuestion}`,
               updatedFormData
             )
             .then((response) => {
               if (response.status === 200) {
                 console.log("Please check here Update file:", updatedFormData);
-                props.handleAfterAddRow(updatedFormData);
                 Swal.fire({
-                  title: "Successfully added",
+                  title: "Successfully added 1",
                   icon: "success",
                 });
                 setEditing(false);
+                props.setRow(
+                  props.allRows.map((row: any) => {
+                    if (row.id === props.editingQuestion) {
+                      // Replace the entire row with the new formData
+                      // Assuming formData is an object with the updated question data
+                      return { ...row, ...formData };
+                    }
+                    return row;
+                  })
+                );
                 props.setOpen(false);
               }
             })
@@ -283,16 +229,30 @@ const Add = (props: Props) => {
         });
     } else {
       axios
-        .post(`https://mocarps.azurewebsites.net/${props.slug}`, formData)
+        .put(
+          `https://mocarps.azurewebsites.net/${props.slug}/${props.editingQuestion}`,
+          formData
+        )
         .then((response) => {
           if (response.status === 200) {
             console.log("Please check here Update file:", formData);
-            props.handleAfterAddRow(formData);
             Swal.fire({
-              title: "Successfully added",
+              title: "Successfully added 2",
               icon: "success",
             });
             setEditing(false);
+
+            props.setRow(
+              props.allRows.map((row: any) => {
+                if (row.id === props.editingQuestion) {
+                  // Replace the entire row with the new formData
+                  // Assuming formData is an object with the updated question data
+                  return { ...row, ...formData };
+                }
+                return row;
+              })
+            );
+
             props.setOpen(false);
           }
         })
@@ -357,7 +317,6 @@ const Add = (props: Props) => {
   };
 
   const handleOptionChange = (selectValue: string, fieldName: string) => {
-    setSelectValue(null);
     setFormData({
       ...formData,
       [fieldName]: selectValue,
@@ -381,20 +340,20 @@ const Add = (props: Props) => {
     setEditing(true);
   };
 
-  const handleLongInputChange = (fieldName: any, value: any) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [fieldName]: value,
-    }));
-    setEditing(true);
-  };
+  const defaultValueByRowAndColumnForLong = (
+    rows: Record<string, any> | undefined,
+    columnName: string
+  ): string | undefined => {
+    const wrapInPTags = (text: string | undefined): string | undefined => {
+      if (text && !text.startsWith("<p>") && !text.endsWith("</p>")) {
+        return `<p>${text}</p>`;
+      }
+      return text;
+    };
 
-  const handlePriorityChange = (selectValue: number, fieldName: string) => {
-    setFormData({
-      ...formData,
-      [fieldName]: selectValue,
-    });
-    setEditing(true);
+    const wrappedValue = wrapInPTags(rows?.[columnName]);
+
+    return wrappedValue;
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -519,28 +478,9 @@ const Add = (props: Props) => {
   };
 
   return (
-    <div className="add">
-      <div className="model">
-        <span
-          className="close"
-          onClick={() =>
-            editing === true
-              ? Swal.fire({
-                  title: "Are you sure you want to discard your changes?",
-                  showDenyButton: false,
-                  showCancelButton: true,
-                  confirmButtonText: "Discard",
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    props.setOpen(false);
-                  }
-                })
-              : props.setOpen(false)
-          }
-        >
-          x
-        </span>
-        <h1>Add New Entry</h1>
+    <div className="edit-form">
+      <div className="edit-model">
+        <h1>Edit {props.name}</h1>
         <form onSubmit={handleSubmit}>
           {props.columns
             .filter((item) => item.input === true)
@@ -553,133 +493,194 @@ const Add = (props: Props) => {
                 ) : (
                   <label>{column.headerName}</label>
                 )}
-                {column.type === "id" ? (
-                  <input
-                    type="text"
-                    name={column.field}
-                    placeholder={column.inputHint}
-                    defaultValue={props.largestId}
-                    disabled={true}
-                  />
-                ) : column.type === "longText" ? (
-                  <Editor
-                    tinymceScriptSrc="/dependencies/tinymce/tinymce.min.js"
-                    init={{
-                      height: 400,
-                      plugins: "mathjax wordcount link", // Add the wordcount plugin
-                      toolbar1:
-                        "undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | indent outdent | lineheight | link mathjax",
-                      toolbar2:
-                        "subscript superscript| bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap | wordcount", // Add the wordcount button
-                      external_plugins: {
-                        mathjax:
-                          "../@dimakorotkov/tinymce-mathjax/plugin.min.js",
-                      },
-                      mathjax: {
-                        lib: "/dependencies/mathjax/es5/tex-mml-svg.js", //required path to mathjax
-                        symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
-                        className: "math-tex", //optional: mathjax element class
-                        configUrl:
-                          "/dependencies/@dimakorotkov/tinymce-mathjax/config.js", //optional: mathjax config js
-                      },
-                      htmlAllowedTags: [".*"],
-                      htmlAllowedAttrs: [".*"],
-                    }}
-                    onEditorChange={(value) =>
-                      handleLongInputChange(column.field, value)
-                    }
-                  />
-                ) : column.type === "file" ? (
-                  !column.preCondition ||
-                  conditionValue === "none" ? null : conditionValue !==
-                    undefined ? (
-                    <div>
-                      <div className="special-file">
-                        <div className="uploadBox">
-                          <input
-                            className="uploadButton"
-                            type="file"
-                            name={column.field}
-                            accept={handleFileAcceptance(conditionValue)}
-                            onChange={handleFileChange}
-                          />
-                        </div>
-                      </div>
-                      <div className="previewArea">
-                        <div>
-                          <div>New File:</div>
-                          <div className="previewExistFileBox">
-                            <FilePreview
-                              file={urls}
-                              conditionValue={conditionValue}
-                            />
+                {column.type === "file" ? (
+                  (() => {
+                    const defaultValue = defaultValueByRowAndColumnForLong(
+                      props.rows,
+                      column.field
+                    );
+
+                    const sanitizedValue =
+                      defaultValue?.replace(/<\/?p>/g, "") ?? "";
+
+                    return (
+                      <>
+                        {conditionValue ===
+                        "none" ? null : column.preCondition &&
+                          conditionValue !== undefined ? (
+                          <div className="special-file">
+                            <div className="uploadBox">
+                              <input
+                                ref={fileInputRef}
+                                className="uploadButton"
+                                type="file"
+                                name={column.field}
+                                accept={handleFileAcceptance(conditionValue)}
+                                onChange={handleFileChange}
+                              />
+                            </div>
+                          </div>
+                        ) : null}
+                        <div className="previewArea">
+                          <div>
+                            <div className="title">Uploaded File:</div>
+                            <div className="previewExistFileBox">
+                              <FilePreview file={sanitizedValue} />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="title">New File:</div>
+                            <div className="previewExistFileBox">
+                              <FilePreview
+                                file={urls}
+                                conditionValue={conditionValue}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  ) : null
-                ) : column.type === "priority" ? (
+                      </>
+                    );
+                  })()
+                ) : column.type === "questionType" ? (
                   <div className="special-option">
                     <Select
                       className="options"
                       onChange={(selectValue) => {
                         selectValue &&
-                          handlePriorityChange(selectValue.value, column.field);
+                          handleOptionChange(selectValue.value, column.field);
                       }}
-                      options={priorityOptions}
+                      options={questionTypes}
+                      defaultValue={{
+                        value: defaultValueByRowAndColumn(
+                          props.rows,
+                          column.field
+                        ),
+                        label: defaultValueByRowAndColumn(
+                          props.rows,
+                          column.field
+                        ),
+                      }}
                     />
                   </div>
                 ) : column.type === "options" ? (
                   column.isCondition ? (
-                    <div className="special-option">
-                      <Select
-                        className="options"
-                        defaultValue={selectValue}
-                        onChange={(selectValue) => {
-                          selectValue &&
-                            handleOptionChange(
-                              selectValue.value?.join(", "),
+                    defaultValueByRowAndColumn(props.rows, column.field) ? (
+                      <div className="special-option">
+                        <Select
+                          className="options"
+                          defaultValue={{
+                            value: defaultValueByRowAndColumn(
+                              props.rows,
                               column.field
-                            );
-                          setConditionValue(selectValue?.value?.join(", "));
-                        }}
-                        options={
-                          column.inputOptions?.map((option) => ({
-                            value: [option],
-                            label: [option],
-                          })) || []
-                        }
-                      />
-                      {conditionValue ===
-                      undefined ? null : conditionValue.includes("image") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only image under 2MB will be accepted
-                          <br />
-                          Accept ".jpg / .jpeg / .png" file types
-                        </div>
-                      ) : conditionValue.includes("audio") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only audio under 5MB will be accepted
-                          <br />
-                          Accept ".mp3 / .m4a / .aac" file types
-                        </div>
-                      ) : conditionValue.includes("video") ? (
-                        <div className="fileReminder">
-                          {" "}
-                          Notice! Only video under or equal 480P will be
-                          accepted
-                          <br />
-                          Accept ".mp4 " file type
-                        </div>
-                      ) : null}
-                    </div>
+                            ),
+                            label: defaultValueByRowAndColumn(
+                              props.rows,
+                              column.field
+                            ),
+                          }}
+                          onChange={(selectValue) => {
+                            selectValue &&
+                              handleOptionChange(
+                                selectValue.value?.join(", "),
+                                column.field
+                              );
+                            setConditionValue(selectValue?.value?.join(", "));
+                          }}
+                          options={
+                            column.inputOptions?.map((option) => ({
+                              value: [option],
+                              label: [option],
+                            })) || []
+                          }
+                        />
+                        {conditionValue ===
+                        undefined ? null : conditionValue.includes("image") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only image under 2MB will be accepted
+                            <br />
+                            Accept ".jpg / .jpeg / .png" file types
+                          </div>
+                        ) : conditionValue.includes("audio") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only audio under 5MB will be accepted
+                            <br />
+                            Accept ".mp3 / .m4a / .aac" file types
+                          </div>
+                        ) : conditionValue.includes("video") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only video under or equal 480P will be
+                            accepted
+                            <br />
+                            Accept ".mp4 " file type
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <div className="special-option">
+                        <Select
+                          className="options"
+                          defaultValue={{
+                            value: defaultValueByRowAndColumn(
+                              props.rows,
+                              column.field
+                            ),
+                            label: defaultValueByRowAndColumn(
+                              props.rows,
+                              column.field
+                            ),
+                          }}
+                          onChange={(selectValue) => {
+                            selectValue &&
+                              handleOptionChange(
+                                selectValue.value?.join(", "),
+                                column.field
+                              );
+                            setConditionValue(selectValue?.value?.join(", "));
+                          }}
+                          options={
+                            column.inputOptions?.map((option) => ({
+                              value: [option],
+                              label: [option],
+                            })) || []
+                          }
+                        />
+                        {conditionValue ===
+                        undefined ? null : conditionValue.includes("image") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only image under 2MB will be accepted{" "}
+                          </div>
+                        ) : conditionValue.includes("audio") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only audio under 5MB will be accepted{" "}
+                          </div>
+                        ) : conditionValue.includes("video") ? (
+                          <div className="fileReminder">
+                            {" "}
+                            Notice! Only video under or equal 480P will be
+                            accepted{" "}
+                          </div>
+                        ) : null}
+                      </div>
+                    )
                   ) : (
                     <div className="special-option">
                       <Select
                         className="options"
-                        defaultValue={selectValue}
+                        defaultValue={{
+                          value: defaultValueByRowAndColumn(
+                            props.rows,
+                            column.field
+                          ),
+                          label: defaultValueByRowAndColumn(
+                            props.rows,
+                            column.field
+                          ),
+                        }}
                         onChange={(selectValue) =>
                           selectValue &&
                           handleOptionChange(
@@ -696,57 +697,65 @@ const Add = (props: Props) => {
                       />
                     </div>
                   )
-                ) : column.type === "boolean" ? (
-                  <div>
-                    <input
-                      className="checkbox"
-                      type="checkbox"
-                      name={column.field}
-                      onChange={(event) =>
-                        handleOptionChange(
-                          event.target.checked.toString(),
-                          column.field
-                        )
-                      }
-                    />
-                  </div>
                 ) : column.type === "number" ? (
                   <input
                     type={column.type}
                     name={column.field}
                     placeholder={column.inputHint}
                     onChange={handleNumberChange}
+                    defaultValue={
+                      defaultValueByRowAndColumn(props.rows, column.field) || 0
+                    }
                   />
                 ) : (
                   <input
-                    type={column.type}
+                    type="text"
                     name={column.field}
                     placeholder={column.inputHint}
-                    defaultValue={column.type === "number" ? 0 : undefined}
+                    defaultValue={
+                      defaultValueByRowAndColumn(props.rows, column.field) || ""
+                    }
                     onChange={handleInputChange}
                   />
                 )}
               </div>
             ))}
           <div className="item">
-            <label className="postScript">
-              Please enter all <label className="redStar">*</label> field
-            </label>
-            <div className="buttonArea">
-              <button className="submit button1">
+            <label className="postScript">Please enter all * field</label>
+            <div className="button-group">
+              <button className="save-button">
                 <span>Submit</span>
               </button>
             </div>
-            {/* {isSubmitted === "false" ? (
-              <div className="error">Please input {errorMessage}</div>
-            ) : isSubmitted === "true" ? (
-              <div className="success">Successfully added</div>
-            ) : null} */}
           </div>
         </form>
+        <button
+          className="cancel-button"
+          onClick={() => {
+            if (editing) {
+              Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, cancel it!",
+              }).then((confirmed) => {
+                if (confirmed.isConfirmed) {
+                  props.setOpen(false);
+                }
+              });
+            } else {
+              props.setOpen(false);
+            }
+          }}
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );
 };
 
-export default Add;
+export default QuestionEditForm;

@@ -1,29 +1,22 @@
-import "../add/add.scss";
 import axios from "axios";
 import React, { useState } from "react";
+import Select from "react-select";
 import {
   CustomGridColDef,
-  priorityOptions,
+  questionTypes,
   prepareTreeDataForSubmission,
 } from "../../data";
-import Select from "react-select";
-import "react-quill/dist/quill.snow.css";
-import "../../styles/custom-quill.scss";
-import katex from "katex";
-import "katex/dist/katex.min.css";
-window.katex = katex;
-import { Editor } from "@tinymce/tinymce-react";
 import Swal from "sweetalert2";
+import "./questionForm.scss";
 
 type Props = {
   slug: string;
-  columns: CustomGridColDef[];
+  rows: any;
+  columns: CustomGridColDef[]; // Replace "MyInterface" with the actual interface name or a valid type
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleAfterAddRow: (newRow: any) => void;
-  largestId?: number;
-  treeData?: any[];
-  setTreeData?: React.Dispatch<React.SetStateAction<any[]>>;
-  questionSetID?: number;
+  setRow: React.Dispatch<React.SetStateAction<any>>;
+  name: string;
+  questionID?: number;
 };
 
 // File preview component
@@ -32,7 +25,7 @@ interface FilePreviewProps {
   conditionValue?: string;
 }
 
-const Add = (props: Props) => {
+const QuestionForm = (props: Props) => {
   const [formData, setFormData] = useState<FormData>(new FormData());
   const [file, setFile] = useState<File | undefined>(undefined);
   const [selectValue, setSelectValue] = useState(null);
@@ -41,7 +34,6 @@ const Add = (props: Props) => {
     undefined
   );
   const [editing, setEditing] = useState<boolean>(false);
-
   const fileFormData = new FormData();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -161,17 +153,13 @@ const Add = (props: Props) => {
 
   async function submitTreeNode(formData: any) {
     // Step 1: Initialize formData with an ID, empty sections, and handle resourceUri
-    if (props.largestId !== undefined) {
-      formData.id = props.largestId.toString();
-      formData.sections = [];
-    }
 
     if (conditionValue === "none") {
       formData.resourceUri = "";
     }
 
     // Ensure treeData is treated as an array even if it's initially undefined
-    let updatedTreeData = [...(props.treeData ?? []), formData];
+    let updatedTreeData = [formData];
 
     if (file) {
       fileFormData.append("file", file);
@@ -195,15 +183,26 @@ const Add = (props: Props) => {
           resourceUri: blobUrl, // Assuming blobUrl is the direct URL to the uploaded file
         };
 
-        updatedTreeData = [...(props.treeData ?? []), updatedFormData];
+        updatedTreeData = [updatedFormData];
       } catch (error) {
         console.error("Error uploading file", error);
         // Handle the error accordingly
       }
     }
 
+    //if no questionID, then it is a new question
+    if (!formData.questionID) {
+      setFormData({
+        ...formData,
+        questionSetId: props.questionID,
+      });
+    }
+
     // Step 3: Prepare and submit the updated tree data to the backend
     const submissionData = prepareTreeDataForSubmission(updatedTreeData);
+
+    console.log("Tree data:", submissionData);
+
     try {
       const response = await axios.post(
         `https://mocarps.azurewebsites.net/${props.slug}`,
@@ -213,9 +212,6 @@ const Add = (props: Props) => {
         console.log("Tree data successfully submitted:", submissionData);
         Swal.fire({ title: "Successfully added", icon: "success" });
         setEditing(false);
-        if (props.setTreeData) {
-          props.setTreeData(updatedTreeData);
-        }
         props.setOpen(false);
       }
     } catch (error) {
@@ -227,6 +223,13 @@ const Add = (props: Props) => {
   async function submitFormData(formData: any) {
     if (conditionValue === "none") {
       (formData as any).resourceUri = "";
+      console.log("Please check here Update file:", formData);
+    }
+
+    //if no questionID, then it is a new question
+    if (!formData.questionID) {
+      (formData as any).questionSetId = props.questionID;
+      (formData as any).options = [];
     }
 
     if (file) {
@@ -265,7 +268,6 @@ const Add = (props: Props) => {
             .then((response) => {
               if (response.status === 200) {
                 console.log("Please check here Update file:", updatedFormData);
-                props.handleAfterAddRow(updatedFormData);
                 Swal.fire({
                   title: "Successfully added",
                   icon: "success",
@@ -286,8 +288,9 @@ const Add = (props: Props) => {
         .post(`https://mocarps.azurewebsites.net/${props.slug}`, formData)
         .then((response) => {
           if (response.status === 200) {
-            console.log("Please check here Update file:", formData);
-            props.handleAfterAddRow(formData);
+            const updatedRows = [...props.rows, formData];
+            console.log("Please check here Update file:", updatedRows);
+            props.setRow(updatedRows);
             Swal.fire({
               title: "Successfully added",
               icon: "success",
@@ -377,22 +380,6 @@ const Add = (props: Props) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    });
-    setEditing(true);
-  };
-
-  const handleLongInputChange = (fieldName: any, value: any) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [fieldName]: value,
-    }));
-    setEditing(true);
-  };
-
-  const handlePriorityChange = (selectValue: number, fieldName: string) => {
-    setFormData({
-      ...formData,
-      [fieldName]: selectValue,
     });
     setEditing(true);
   };
@@ -519,28 +506,9 @@ const Add = (props: Props) => {
   };
 
   return (
-    <div className="add">
-      <div className="model">
-        <span
-          className="close"
-          onClick={() =>
-            editing === true
-              ? Swal.fire({
-                  title: "Are you sure you want to discard your changes?",
-                  showDenyButton: false,
-                  showCancelButton: true,
-                  confirmButtonText: "Discard",
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    props.setOpen(false);
-                  }
-                })
-              : props.setOpen(false)
-          }
-        >
-          x
-        </span>
-        <h1>Add New Entry</h1>
+    <div className="edit-form">
+      <div className="edit-model">
+        <h1>Add New {props.name}</h1>
         <form onSubmit={handleSubmit}>
           {props.columns
             .filter((item) => item.input === true)
@@ -553,43 +521,7 @@ const Add = (props: Props) => {
                 ) : (
                   <label>{column.headerName}</label>
                 )}
-                {column.type === "id" ? (
-                  <input
-                    type="text"
-                    name={column.field}
-                    placeholder={column.inputHint}
-                    defaultValue={props.largestId}
-                    disabled={true}
-                  />
-                ) : column.type === "longText" ? (
-                  <Editor
-                    tinymceScriptSrc="/dependencies/tinymce/tinymce.min.js"
-                    init={{
-                      height: 400,
-                      plugins: "mathjax wordcount link", // Add the wordcount plugin
-                      toolbar1:
-                        "undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | indent outdent | lineheight | link mathjax",
-                      toolbar2:
-                        "subscript superscript| bullist numlist | fontfamily fontsize forecolor backcolor | emoticons charmap | wordcount", // Add the wordcount button
-                      external_plugins: {
-                        mathjax:
-                          "../@dimakorotkov/tinymce-mathjax/plugin.min.js",
-                      },
-                      mathjax: {
-                        lib: "/dependencies/mathjax/es5/tex-mml-svg.js", //required path to mathjax
-                        symbols: { start: "\\(", end: "\\)" }, //optional: mathjax symbols
-                        className: "math-tex", //optional: mathjax element class
-                        configUrl:
-                          "/dependencies/@dimakorotkov/tinymce-mathjax/config.js", //optional: mathjax config js
-                      },
-                      htmlAllowedTags: [".*"],
-                      htmlAllowedAttrs: [".*"],
-                    }}
-                    onEditorChange={(value) =>
-                      handleLongInputChange(column.field, value)
-                    }
-                  />
-                ) : column.type === "file" ? (
+                {column.type === "file" ? (
                   !column.preCondition ||
                   conditionValue === "none" ? null : conditionValue !==
                     undefined ? (
@@ -618,15 +550,15 @@ const Add = (props: Props) => {
                       </div>
                     </div>
                   ) : null
-                ) : column.type === "priority" ? (
+                ) : column.type === "questionType" ? (
                   <div className="special-option">
                     <Select
                       className="options"
                       onChange={(selectValue) => {
                         selectValue &&
-                          handlePriorityChange(selectValue.value, column.field);
+                          handleOptionChange(selectValue.value, column.field);
                       }}
-                      options={priorityOptions}
+                      options={questionTypes}
                     />
                   </div>
                 ) : column.type === "options" ? (
@@ -696,20 +628,6 @@ const Add = (props: Props) => {
                       />
                     </div>
                   )
-                ) : column.type === "boolean" ? (
-                  <div>
-                    <input
-                      className="checkbox"
-                      type="checkbox"
-                      name={column.field}
-                      onChange={(event) =>
-                        handleOptionChange(
-                          event.target.checked.toString(),
-                          column.field
-                        )
-                      }
-                    />
-                  </div>
                 ) : column.type === "number" ? (
                   <input
                     type={column.type}
@@ -729,24 +647,41 @@ const Add = (props: Props) => {
               </div>
             ))}
           <div className="item">
-            <label className="postScript">
-              Please enter all <label className="redStar">*</label> field
-            </label>
-            <div className="buttonArea">
-              <button className="submit button1">
+            <label className="postScript">Please enter all * field</label>
+            <div className="button-group">
+              <button className="save-button">
                 <span>Submit</span>
               </button>
             </div>
-            {/* {isSubmitted === "false" ? (
-              <div className="error">Please input {errorMessage}</div>
-            ) : isSubmitted === "true" ? (
-              <div className="success">Successfully added</div>
-            ) : null} */}
           </div>
         </form>
+        <button
+          className="cancel-button"
+          onClick={() => {
+            if (editing) {
+              Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, cancel it!",
+              }).then((confirmed) => {
+                if (confirmed.isConfirmed) {
+                  props.setOpen(false);
+                }
+              });
+            } else {
+              props.setOpen(false);
+            }
+          }}
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );
 };
 
-export default Add;
+export default QuestionForm;

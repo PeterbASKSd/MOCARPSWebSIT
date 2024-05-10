@@ -8,6 +8,7 @@ import Login from "./pages/login/Login";
 import Information from "./pages/information/Information";
 import InformationDetails from "./pages/information/InformationDetails";
 import Question from "./pages/question/Question";
+import QuestionDetails from "./pages/question/QuestionDetails";
 import Quiz from "./pages/quiz/Quiz";
 import Value from "./pages/value/Value";
 import { useState } from "react";
@@ -97,8 +98,12 @@ function App() {
           element: <InformationDetails />,
         },
         {
-          path: "/question",
+          path: "/questionset",
           element: <Question />,
+        },
+        {
+          path: "/questionset/:questionsetId",
+          element: <QuestionDetails />,
         },
         {
           path: "/quiz",

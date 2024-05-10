@@ -8,6 +8,9 @@ import React from "react";
 import Swal from "sweetalert2";
 import keyIcon from "/src/assets/key.svg";
 import EnableIcon from "/src/assets/enable.svg";
+import NavigateIcon from "/src/assets/navigate.svg";
+import ViewIcon from "/src/assets/view.svg";
+import { useNavigate } from "react-router-dom";
 // import ControlIcon from "/src/assets/control.svg";
 
 type Props = {
@@ -26,6 +29,7 @@ type Props = {
 
 const DataTable = (props: Props) => {
   const [rows, setRows] = React.useState<object[]>(props.rows);
+  const navigate = useNavigate();
 
   // Delete id message
   const handleDelete = (id: number) => {
@@ -111,6 +115,91 @@ const DataTable = (props: Props) => {
     });
   };
 
+  const handleDisPublished = (id: number) => {
+    Swal.fire({
+      title: "Are you sure you want to disable this publish?",
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Disable",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("The publish has been disabled now!");
+        axios
+          .put(`https://mocarps.azurewebsites.net/questionSet/publish/${id}`, {
+            publish: false, // Sending JSON data
+          })
+          .then(() => {
+            console.log(id + " has been disabled");
+            const updatedRows = rows.map((row: any) => {
+              if (row.id === id) {
+                return { ...row, published: false };
+              }
+              return row;
+            });
+            setRows(updatedRows);
+          })
+          .catch((error) => {
+            console.error("Error disabling publish:", error);
+          });
+      }
+    });
+  };
+
+  const handlePublished = (id: number) => {
+    Swal.fire({
+      title: "Are you sure you want to enable this publish?",
+      showDenyButton: false,
+      showCancelButton: true,
+      confirmButtonText: "Enable",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("The publish is ready now!");
+        axios
+          .put(`https://mocarps.azurewebsites.net/questionSet/publish/${id}`, {
+            publish: true, // Sending JSON data
+          })
+          .then(() => {
+            console.log(id + " has been enabled");
+            const updatedRows = rows.map((row: any) => {
+              if (row.id === id) {
+                return { ...row, published: true };
+              }
+              return row;
+            });
+            setRows(updatedRows);
+          })
+          .catch((error) => {
+            console.error("Error enabling account:", error);
+          });
+      }
+    });
+  };
+
+  const handleCategoryClick = (questions: any, id: any) => {
+    navigate(`/questionset/${id}`, {
+      state: {
+        questions,
+        id,
+      },
+    });
+  };
+
+  const handleResultClick = (
+    questionSet: any,
+    answers: any,
+    userId: any,
+    questionSetId: any
+  ) => {
+    navigate(`/quiz/${userId}/${questionSetId}`, {
+      state: {
+        questionSet,
+        answers,
+        userId,
+        questionSetId,
+      },
+    });
+  };
+
   // Add action column
   const actionColumn: GridColDef = {
     field: "actions",
@@ -119,7 +208,7 @@ const DataTable = (props: Props) => {
     renderCell: (params) => {
       return (
         <div className="actionSet">
-          {props.slug !== "user" ? (
+          {props.slug !== "user" && props.slug !== "quiz" ? (
             <div className="edit">
               <img
                 src={EditIcon}
@@ -205,7 +294,9 @@ const DataTable = (props: Props) => {
             </div>
           ) : null} */}
 
-          {props.slug !== "user" ? (
+          {props.slug !== "user" &&
+          props.slug !== "questionSet" &&
+          props.slug !== "quiz" ? (
             <div>
               <img
                 className="delete"
@@ -238,10 +329,32 @@ const DataTable = (props: Props) => {
             <div>
               <img
                 className="delete"
-                src={EnableIcon}
+                src={DisableIcon}
                 alt=""
                 onClick={() => {
                   handleDisable(params.row.id);
+                }}
+              />
+            </div>
+          ) : params.row.published === true ? (
+            <div>
+              <img
+                className="delete"
+                src={EnableIcon}
+                alt=""
+                onClick={() => {
+                  handleDisPublished(params.row.id);
+                }}
+              />
+            </div>
+          ) : params.row.published === false ? (
+            <div>
+              <img
+                className="delete"
+                src={DisableIcon}
+                alt=""
+                onClick={() => {
+                  handlePublished(params.row.id);
                 }}
               />
             </div>
@@ -277,6 +390,37 @@ const DataTable = (props: Props) => {
               />
             </div>
           ) : null}
+
+          {props.slug !== "questionSet" ? null : (
+            <div>
+              <img
+                className="navigate"
+                src={NavigateIcon}
+                alt=""
+                onClick={() => {
+                  handleCategoryClick(params.row.question, params.row.id);
+                }}
+              />
+            </div>
+          )}
+
+          {props.slug !== "quiz" ? null : (
+            <div>
+              <img
+                className="view"
+                src={ViewIcon}
+                alt=""
+                onClick={() => {
+                  handleResultClick(
+                    params.row.questionSet,
+                    params.row.answers,
+                    params.row.userId,
+                    params.row.questionSetId
+                  );
+                }}
+              />
+            </div>
+          )}
         </div>
       );
     },
@@ -307,6 +451,11 @@ const DataTable = (props: Props) => {
         pageSizeOptions={[5, 10, 20, 50, 100]}
         checkboxSelection
         disableRowSelectionOnClick
+        columnVisibilityModel={{
+          questions: false,
+          questionSet: false,
+          answers: false,
+        }}
       />
     </div>
   );

@@ -1,7 +1,11 @@
 import "../edit/add.scss";
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
-import { CustomGridColDef, priorityOptions } from "../../data";
+import {
+  CustomGridColDef,
+  priorityOptions,
+  prepareTreeDataForSubmission,
+} from "../../data";
 import Select from "react-select";
 import Swal from "sweetalert2";
 import "react-quill/dist/quill.snow.css";
@@ -29,6 +33,7 @@ type Props = {
   rows: object[];
   targetId: number;
   treeData?: any[];
+  setTreeData?: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
 const Add = (props: Props) => {
@@ -136,218 +141,6 @@ const Add = (props: Props) => {
     });
   };
 
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   const missingFields = props.columns
-  //     .filter(
-  //       (column) =>
-  //         column.required &&
-  //         column.type !== "number" &&
-  //         column.field !== "title" &&
-  //         column.field !== "priority"
-  //     )
-  //     .filter((column) => !formData[column.field])
-  //     .map((column) => column.headerName);
-
-  //   const missingHeaders = missingFields.map((field) => {
-  //     const matchingColumn = props.columns.find(
-  //       (column) => column.field === field
-  //     );
-  //     return matchingColumn ? matchingColumn.headerName : "";
-  //   });
-
-  //   if (missingFields.length > 0) {
-  //     Swal.fire({
-  //       title: "Error",
-  //       text: `Please input missing fields with *: ${missingHeaders}`,
-  //       icon: "error",
-  //     });
-  //     console.log("Please check here missingFields:", missingHeaders);
-  //   } else if (
-  //     conditionValue === undefined ||
-  //     !isFileTypeValid(file, conditionValue)
-  //   ) {
-  //     Swal.fire({
-  //       title: "Error",
-  //       text: "Uploaded file type does not match the selected media type.",
-  //       icon: "error",
-  //     });
-  //     return; // Prevent form submission
-  //   } else if (conditionValue !== "none" && !file) {
-  //     Swal.fire({
-  //       title: "Error",
-  //       text: "Missing file for the selected resource type.",
-  //       icon: "error",
-  //     });
-  //     return; // Stop the form submission process
-  //   } else {
-  //     if (conditionValue === "none") {
-  //       formData.resourceUri = "";
-  //     }
-
-  //     Swal.fire({
-  //       title: "Are you sure you want to edit this row?",
-  //       showDenyButton: false,
-  //       showCancelButton: true,
-  //       confirmButtonText: "Submit",
-  //     }).then((result) => {
-  //       if (result.isConfirmed) {
-  //         props.columns.forEach((column) => {
-  //           if (column.type === "number" && !formData[column.field]) {
-  //             formData[column.field] = 0;
-  //           }
-  //         });
-
-  //         console.log("Please check here formData 2:", formData);
-  //         if (file) {
-  //           fileFormData.append("file", file);
-
-  //           axios
-  //             .post(
-  //               `https://mocarps.azurewebsites.net/uploadFile`,
-  //               fileFormData,
-  //               {
-  //                 headers: {
-  //                   "Content-Type": "application/octet-stream",
-  //                 },
-  //               }
-  //             )
-  //             .then((response) => {
-  //               const blobUrl = response.data.blobUrl;
-  //               const updatedFormData = { ...formData };
-  //               // const contentType = file.type;
-
-  //               const replaceUrlsInFormData = (
-  //                 oldUrl: File,
-  //                 newUrl: string
-  //               ) => {
-  //                 Object.entries(updatedFormData).forEach(([key, value]) => {
-  //                   if (
-  //                     typeof value === "string" &&
-  //                     (value as string).includes(oldUrl.name)
-  //                   ) {
-  //                     (updatedFormData as any)[key] = newUrl;
-  //                     setFormData(updatedFormData);
-  //                   }
-  //                 });
-  //               };
-
-  //               replaceUrlsInFormData(file, blobUrl);
-
-  //               axios
-  //                 .put(
-  //                   `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
-  //                   updatedFormData
-  //                 )
-  //                 .then((response) => {
-  //                   if (response.status === 200) {
-  //                     console.log(
-  //                       "Please check here missingfield formData:",
-  //                       updatedFormData
-  //                     );
-  //                     props.handleAfterAddRow(formData);
-  //                     Swal.fire({
-  //                       title: "Successfully added",
-  //                       icon: "success",
-  //                     });
-  //                   }
-  //                   props.setOpen(false);
-  //                 })
-  //                 .catch((error) => {
-  //                   if (error.response && error.response.status === 400) {
-  //                     Swal.fire({
-  //                       title: "Error",
-  //                       text: `Please input the other title because it should be unique`,
-  //                       icon: "error",
-  //                     });
-  //                   } else if (
-  //                     error.response &&
-  //                     error.response.status === 401
-  //                   ) {
-  //                     Swal.fire({
-  //                       title: "Error",
-  //                       text: `Please enter another card number or email, those already exists`,
-  //                       icon: "error",
-  //                     });
-  //                   } else if (
-  //                     error.response &&
-  //                     error.response.status === 404
-  //                   ) {
-  //                     Swal.fire({
-  //                       title: "Error",
-  //                       text: `404`,
-  //                       icon: "error",
-  //                     });
-  //                   } else {
-  //                     Swal.fire({
-  //                       title: "Error",
-  //                       text: `Something went wrong`,
-  //                       icon: "error",
-  //                     });
-  //                   }
-  //                 });
-  //             })
-  //             .catch((error) => {
-  //               if (error.response && error.response.status === 400) {
-  //                 Swal.fire({
-  //                   title: "Error",
-  //                   text: `Please input the other title because it should be unique`,
-  //                   icon: "error",
-  //                 });
-  //               } else if (error.response && error.response.status === 401) {
-  //                 Swal.fire({
-  //                   title: "Error",
-  //                   text: `Please enter another card number or email, those already exists`,
-  //                   icon: "error",
-  //                 });
-  //               } else if (error.response && error.response.status === 404) {
-  //                 Swal.fire({
-  //                   title: "Error",
-  //                   text: `404`,
-  //                   icon: "error",
-  //                 });
-  //               } else {
-  //                 Swal.fire({
-  //                   title: "Error",
-  //                   text: `Something went wrong`,
-  //                   icon: "error",
-  //                 });
-  //               }
-  //             });
-  //         } else {
-  //           if (formData.resourceType === "none") {
-  //             formData.resourceUri = "";
-  //           }
-
-  //           axios
-  //             .put(
-  //               `https://mocarps.azurewebsites.net/${props.slug}/${props.targetId}`,
-  //               formData
-  //             )
-  //             .then((response) => {
-  //               if (response.status === 200) {
-  //                 console.log(
-  //                   "Please check here missingfield formData:",
-  //                   formData
-  //                 );
-  //                 props.handleAfterAddRow(formData);
-  //                 Swal.fire({
-  //                   title: "Successfully added",
-  //                   icon: "success",
-  //                 });
-  //                 props.setOpen(false);
-  //               }
-  //             })
-  //             .catch((error) => {
-  //               handleSubmissionError(error);
-  //             });
-  //         }
-  //       }
-  //     });
-  //   }
-  // };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -452,7 +245,11 @@ const Add = (props: Props) => {
     }
 
     // Proceed with form data submission
-    submitFormData(formData); // Implement this function to handle form submission
+    if (props.slug === "information") {
+      submitTreeNode(formData); // Implement this function to handle form submission
+    } else {
+      submitFormData(formData); // Implement this function to handle form submission
+    }
   };
 
   // Example implementation based on your application's logic
@@ -461,6 +258,105 @@ const Add = (props: Props) => {
     // This logic might depend on the presence of certain fields, page identifiers, etc.
     return conditionValue !== undefined; // Simplified example
   }
+
+  const updateNodeInTreeData = (
+    treeData: any[],
+    formData: any,
+    targetId: string
+  ): any[] => {
+    return treeData.map((node: any) => {
+      if (node.id === targetId) {
+        // This node is the one we want to update
+        return { ...node, ...formData };
+      } else if (node.children && node.children.length > 0) {
+        // This node is not the target, but it might contain the target in its children
+        return {
+          ...node,
+          children: updateNodeInTreeData(node.children, formData, targetId),
+        };
+      }
+      // This node is not the target and doesn't contain the target
+      return node;
+    });
+  };
+
+  const submitTreeNode = async (formData: any) => {
+    if (conditionValue === "none") {
+      formData.resourceUri = "";
+    }
+
+    // Start with the current tree data or an empty array if undefined
+    let updatedTreeData = props.treeData ? [...props.treeData] : [];
+
+    // Update the specific node in the tree data using targetId
+    console.log("Please check here formData 2:", formData);
+    console.log("Please check here updatedTreeData:", updatedTreeData);
+
+    // If there is a file to upload, handle that separately
+    if (file) {
+      fileFormData.append("file", file);
+
+      try {
+        // Upload the file
+        const uploadResponse = await axios.post(
+          `https://mocarps.azurewebsites.net/uploadFile`,
+          fileFormData,
+          {
+            headers: {
+              "Content-Type": "application/octet-stream",
+            },
+          }
+        );
+
+        // Get the blob URL from the response
+        const blobUrl = uploadResponse.data.blobUrl;
+
+        // Update formData with the new blob URL
+        formData.resourceUri = blobUrl;
+
+        // Find the node in updatedTreeData that matches the targetId and update its resourceUri
+        updatedTreeData = updatedTreeData.map((node) => {
+          if (node.id === props.targetId) {
+            return { ...node, resourceUri: blobUrl };
+          }
+          return node;
+        });
+      } catch (error) {
+        console.error("Error uploading file", error);
+        // Optionally, handle the error (e.g., display a message to the user)
+        return; // Exit the function if the file upload fails
+      }
+    }
+
+    updatedTreeData = updateNodeInTreeData(
+      updatedTreeData,
+      formData,
+      props.targetId.toString() // Convert props.targetId to a string
+    );
+
+    // At this point, updatedTreeData should have the latest changes
+    const submissionData = prepareTreeDataForSubmission(updatedTreeData);
+
+    try {
+      const submitResponse = await axios.post(
+        `https://mocarps.azurewebsites.net/${props.slug}`,
+        submissionData
+      );
+      if (submitResponse.status === 200) {
+        console.log("Tree data successfully submitted:", submissionData);
+        Swal.fire({ title: "Successfully added", icon: "success" });
+        setEditing(false);
+        if (props.setTreeData) {
+          // Update the parent component's tree data with the latest
+          props.setTreeData(updatedTreeData);
+        }
+        props.setOpen(false); // Close the form/modal
+      }
+    } catch (submitError) {
+      console.error("Error submitting tree data:", submitError);
+      // Optionally, handle the error (e.g., display a message to the user)
+    }
+  };
 
   async function submitFormData(formData: any) {
     if (conditionValue === "none") {

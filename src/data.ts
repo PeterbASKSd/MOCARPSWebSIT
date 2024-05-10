@@ -54,7 +54,7 @@ export const menu = [
       {
         id: 3,
         title: "Question Set",
-        url: "question",
+        url: "questionset",
         icon: QuestionIcon,
       },
       {
@@ -87,6 +87,28 @@ export interface TreeNode {
   resourceType: string;
   resourceUri: string;
   expanded?: boolean;
+  subtitle?: string;
+  children?: TreeNode[];
+}
+
+export interface QuestionNode {
+  id: string;
+  description: string;
+  resourceType: string;
+  resourceUri: string;
+  questionSetId: number;
+  questionType: string;
+  score: number;
+  options?: OptionsNode[];
+}
+
+export interface OptionsNode {
+  id: string;
+  description: string;
+  isCorrect: boolean;
+  jumpTo: number;
+  keyword: string;
+  questionId: number;
 }
 
 export interface GenerateNodePropsParams {
@@ -120,6 +142,35 @@ export type UserType = {
   disabled: boolean;
   priority: number;
 };
+
+export function prepareTreeDataForSubmission(treeData: any) {
+  const transformNode = (node: any) => {
+    // Create a new node with the structure that matches TreeNode
+    return {
+      id: node.id.toString(),
+      title: node.title,
+      description: node.subtitle, // Use subtitle as the description
+      sections: node.children ? node.children.map(transformNode) : [], // Recursively transform children
+      resourceType: node.resourceType || "none",
+      resourceUri: node.resourceUri || "",
+      expanded: node.expanded || false,
+    };
+  };
+
+  console.log("Please check here treeData:", treeData);
+
+  // Transform each node in the treeData array
+  const transformedTreeData = treeData.map(transformNode);
+
+  // Convert the transformedTreeData to a JSON string
+  const jsonValueObject = {
+    jsonValue: JSON.stringify({ sections: transformedTreeData }),
+  };
+
+  console.log(jsonValueObject.jsonValue);
+
+  return jsonValueObject;
+}
 
 export const getNodeKey = ({ treeIndex }: { treeIndex: number }): number =>
   treeIndex;
@@ -700,6 +751,36 @@ export const categoryColumns: CustomGridColDef[] = [
   },
 ];
 
+export const resourceTypes = [
+  {
+    value: "none",
+    label: "none",
+  },
+  {
+    value: "image",
+    label: "image",
+  },
+  {
+    value: "audio",
+    label: "audio",
+  },
+  {
+    value: "video",
+    label: "video",
+  },
+];
+
+export const questionTypes = [
+  {
+    value: "MAIN",
+    label: "MAIN",
+  },
+  {
+    value: "BRANCH",
+    label: "BRANCH",
+  },
+];
+
 export const priorityOptions = [
   {
     value: 0,
@@ -712,5 +793,283 @@ export const priorityOptions = [
   {
     value: 2,
     label: "Student",
+  },
+];
+
+//question
+export const questionColumns: CustomGridColDef[] = [
+  {
+    field: "id",
+    headerName: "ID",
+    width: 80,
+    input: false,
+    editable: false,
+  },
+  {
+    field: "name",
+    headerName: "Name [Unique]",
+    type: "string",
+    width: 350,
+    editable: false,
+    required: true,
+    input: true,
+    unqiue: true,
+    inputHint: "Enter a title",
+  },
+  {
+    field: "description",
+    headerName: "Description",
+    type: "longText",
+    width: 500,
+    editable: false,
+    required: false,
+    input: true,
+    inputHint: "Please enter an description",
+    renderCell: renderCellWithMathJax,
+  },
+  {
+    field: "published",
+    headerName: "Publish",
+    type: "boolean",
+    width: 100,
+    input: false,
+    editable: false,
+    showInForm: false,
+  },
+  {
+    field: "publishedAt",
+    headerName: "Published Date",
+    width: 230,
+    input: false,
+    editable: false,
+    showInForm: false,
+    renderCell: renderCellWithDateTime,
+  },
+  {
+    field: "createdAt",
+    headerName: "Create Time",
+    width: 230,
+    input: false,
+    editable: false,
+    showInForm: false,
+    renderCell: renderCellWithDateTime,
+  },
+  {
+    field: "updatedAt",
+    headerName: "Updated Time",
+    width: 230,
+    input: false,
+    editable: false,
+    showInForm: false,
+    renderCell: renderCellWithDateTime,
+  },
+  {
+    field: "questions",
+    headerName: "Questions",
+    width: 300,
+    input: false,
+    editable: false,
+    showInForm: false,
+    resizable: true,
+  },
+];
+
+export const publishColumns: CustomGridColDef[] = [
+  {
+    field: "published",
+    headerName: "Publish",
+    type: "boolean",
+    width: 100,
+    input: true,
+    editable: false,
+    showInForm: true,
+  },
+];
+
+export const questionDetailColumns: CustomGridColDef[] = [
+  {
+    field: "id",
+    headerName: "ID",
+    width: 80,
+    input: false,
+    editable: false,
+  },
+  {
+    field: "questionSetId",
+    headerName: "Question Set Id",
+    type: "questionSetId",
+    width: 300,
+    editable: false,
+    required: false,
+    input: false,
+  },
+  {
+    field: "description",
+    headerName: "Description",
+    type: "text",
+    width: 500,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter an description",
+    renderCell: renderCellWithMathJax,
+  },
+  {
+    field: "questionType",
+    headerName: "Question Type",
+    type: "questionType",
+    width: 500,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter an question type",
+  },
+  {
+    field: "resourceType",
+    headerName: "Media Type",
+    type: "options",
+    width: 150,
+    editable: false,
+    input: true,
+    required: true,
+    inputOptions: ["none", "image", "audio", "video"],
+    isCondition: true,
+  },
+  {
+    field: "resourceUri",
+    headerName: "Media",
+    type: "file",
+    width: 180,
+    editable: false,
+    input: true,
+    preCondition: true,
+    renderCell: renderCellUrl,
+  },
+  {
+    field: "score",
+    headerName: "Score",
+    type: "number",
+    width: 120,
+    editable: false,
+    required: false,
+    input: true,
+    inputHint: "0",
+  },
+];
+
+export const optionColumns: CustomGridColDef[] = [
+  {
+    field: "keyword",
+    headerName: "Keyword",
+    type: "text",
+    width: 100,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter a keyword",
+  },
+  {
+    field: "description",
+    headerName: "Description",
+    type: "text",
+    width: 100,
+    editable: false,
+    required: true,
+    input: true,
+    inputHint: "Please enter an description",
+  },
+  {
+    field: "questionId",
+    headerName: "Question Id",
+    type: "questionId",
+    width: 100,
+    editable: false,
+    required: false,
+    input: false,
+  },
+  {
+    field: "isCorrect",
+    headerName: "Correct Option?",
+    type: "boolean",
+    width: 300,
+    editable: false,
+    required: true,
+    input: true,
+  },
+  {
+    field: "jumpTo",
+    headerName: "Jump To",
+    type: "options",
+    width: 120,
+    editable: false,
+    required: false,
+    input: false,
+  },
+];
+
+export const quizResultColumns: CustomGridColDef[] = [
+  {
+    field: "userId",
+    headerName: "User Id",
+    type: "number",
+    width: 100,
+    editable: false,
+    required: false,
+    input: false,
+  },
+  {
+    field: "answers",
+    headerName: "Answers",
+    type: "text",
+    width: 100,
+    editable: false,
+    required: false,
+    input: false,
+  },
+  {
+    field: "questionSetId",
+    headerName: "Question Set Id",
+    type: "questionSetId",
+    width: 100,
+    editable: false,
+    required: false,
+    input: false,
+  },
+  {
+    field: "questionSet",
+    headerName: "Question Set",
+    type: "text",
+    width: 300,
+    editable: false,
+    required: false,
+    input: false,
+  },
+  {
+    field: "score",
+    headerName: "Score",
+    type: "number",
+    width: 120,
+    editable: false,
+    required: false,
+    input: true,
+    inputHint: "0",
+  },
+  {
+    field: "createdAt",
+    headerName: "Create Time",
+    width: 230,
+    input: false,
+    editable: false,
+    showInForm: false,
+    renderCell: renderCellWithDateTime,
+  },
+  {
+    field: "completedAt",
+    headerName: "Completed Time",
+    width: 230,
+    input: false,
+    editable: false,
+    showInForm: false,
+    renderCell: renderCellWithDateTime,
   },
 ];
