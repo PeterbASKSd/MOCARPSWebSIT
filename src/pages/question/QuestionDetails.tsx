@@ -24,12 +24,12 @@ const QuestionDetails = () => {
   const [openOptionAdd, setOpenOptionAdd] = useState<boolean>(false);
   const [published, setPublished] = useState<boolean>(false);
   const [editingQuestion, setEditingQuestion] = useState<number>(0);
-  const [editOptionId, setEditOptionId] = useState(null);
+  //   const [editOptionId, setEditOptionId] = useState(null);
   const [editedOption, setEditedOption] = useState({
     keyword: "",
     description: "",
   });
-  const [editStates, setEditStates] = useState({});
+  //   const [editStates, setEditStates] = useState({});
 
   useEffect(() => {
     console.log("Id: ", id);
