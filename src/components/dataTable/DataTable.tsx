@@ -8,6 +8,8 @@ import React from "react";
 import Swal from "sweetalert2";
 import keyIcon from "/src/assets/key.svg";
 import EnableIcon from "/src/assets/enable.svg";
+import PublishIcon from "/src/assets/publish.svg";
+import RecoverIcon from "/src/assets/recover.svg";
 import NavigateIcon from "/src/assets/navigate.svg";
 import ViewIcon from "/src/assets/view.svg";
 import { useNavigate } from "react-router-dom";
@@ -175,11 +177,12 @@ const DataTable = (props: Props) => {
     });
   };
 
-  const handleCategoryClick = (questions: any, id: any) => {
+  const handleCategoryClick = (questions: any, id: any, name: any) => {
     navigate(`/questionset/${id}`, {
       state: {
         questions,
         id,
+        name,
       },
     });
   };
@@ -340,7 +343,7 @@ const DataTable = (props: Props) => {
             <div>
               <img
                 className="delete"
-                src={EnableIcon}
+                src={RecoverIcon}
                 alt=""
                 onClick={() => {
                   handleDisPublished(params.row.id);
@@ -351,7 +354,7 @@ const DataTable = (props: Props) => {
             <div>
               <img
                 className="delete"
-                src={DisableIcon}
+                src={PublishIcon}
                 alt=""
                 onClick={() => {
                   handlePublished(params.row.id);
@@ -398,12 +401,32 @@ const DataTable = (props: Props) => {
                 src={NavigateIcon}
                 alt=""
                 onClick={() => {
-                  handleCategoryClick(params.row.question, params.row.id);
+                  handleCategoryClick(
+                    params.row.question,
+                    params.row.id,
+                    params.row.name
+                  );
                 }}
               />
             </div>
           )}
-
+          {props.slug !== "quiz" ? null : (
+            <div>
+              <img
+                className="view"
+                src={ViewIcon}
+                alt=""
+                onClick={() => {
+                  handleResultClick(
+                    params.row.questionSet,
+                    params.row.answers,
+                    params.row.userId,
+                    params.row.questionSetId
+                  );
+                }}
+              />
+            </div>
+          )}
           {props.slug !== "quiz" ? null : (
             <div>
               <img

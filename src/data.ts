@@ -52,8 +52,14 @@ export const menu = [
         icon: InformationIcon,
       },
       {
+        id: 5,
+        title: "Value Checking",
+        url: "value",
+        icon: ValueIcon,
+      },
+      {
         id: 3,
-        title: "Question Set",
+        title: "Quiz",
         url: "questionset",
         icon: QuestionIcon,
       },
@@ -62,12 +68,6 @@ export const menu = [
         title: "Quiz Result",
         url: "quiz",
         icon: QuizIcon,
-      },
-      {
-        id: 5,
-        title: "Value Checking",
-        url: "value",
-        icon: ValueIcon,
       },
     ],
   },
@@ -78,6 +78,26 @@ export const menu = [
 //   jsonValue: string;
 //   createdAt: string;
 // }
+
+export interface Option {
+  id: number;
+  keyword: string;
+  description: string;
+  isCorrect: boolean;
+  jumpTo: number; // Changed type from string to number
+  questionId: number;
+}
+
+export interface Question {
+  id: number;
+  description: string;
+  resourceUri: string;
+  resourceType: string;
+  questionSetId: number;
+  score: number;
+  questionType: string;
+  options: Option[];
+}
 
 export interface TreeNode {
   id: string;
@@ -961,11 +981,11 @@ export const optionColumns: CustomGridColDef[] = [
   {
     field: "keyword",
     headerName: "Keyword",
-    type: "text",
+    type: "keyword",
     width: 100,
-    editable: false,
-    required: true,
     input: true,
+    required: true,
+    editable: false,
     inputHint: "Please enter a keyword",
   },
   {

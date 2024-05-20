@@ -67,7 +67,7 @@ const Question = () => {
   return (
     <div className="question">
       <div className="info">
-        <h1>Question Set</h1>
+        <h1>Quiz</h1>
         <IconButton onClick={() => setOpenAdd(true)} className="addButton">
           <img src={AddButton} alt="" />
           <h3>New</h3>
