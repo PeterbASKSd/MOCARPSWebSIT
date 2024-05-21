@@ -827,7 +827,7 @@ export const questionColumns: CustomGridColDef[] = [
   },
   {
     field: "name",
-    headerName: "Name [Unique]",
+    headerName: "Name",
     type: "string",
     width: 350,
     editable: false,
@@ -890,7 +890,6 @@ export const questionColumns: CustomGridColDef[] = [
     input: false,
     editable: false,
     showInForm: false,
-    resizable: true,
   },
 ];
 

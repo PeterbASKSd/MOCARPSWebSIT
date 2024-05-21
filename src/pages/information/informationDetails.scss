@@ -1,347 +1,127 @@
 @import "../../styles/color.scss";
 
-.informationDetails{
-    font-family: 'Arial', sans-serif;
-    color: #f4f4f8;
+.informationDetails {
+  font-family: 'Arial', sans-serif;
+  color: #f4f4f8;
 
-    .info{
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
+  .info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 8px 0 28px 0;
+    position: relative;
+    z-index: 12;
+    background-color: $main-bg;
 
-        padding: 8px 0px 28px 0px;
-        position: relative; /* Add relative positioning */
-        z-index: 12; /* Ensure z-index is higher than overlay but equal or lower than edit-container */      
-        background-color: $main-bg;
-
-        button{
-          background-color: unset;
-          padding: unset;
-          margin: unset;
-          gap: 10px;
-        }
-    
-        .addButton{
-          background-color: $main-bg;
-          border: none;
-          color: white;
-          cursor: pointer;
-          width: 35px;
-          height: 35px;
-          cursor: pointer;
-          padding: unset;
-          margin: unset;
-        }
-      }
-
-    .information-container{
-        font-size: 22px;
-        display: flex;
-        flex-direction: row;
-        height: 100vh;
-        color: black;
-        background: $main-bg;
-        border-radius: 5px;
-      }
-  
-    .selection-container{
-      h3{
-        color: white;
-      }
-    }
-  
-    .rst__lineHalfHorizontalRight::before, .rst__lineFullVertical::after, .rst__lineHalfVerticalTop::after, .rst__lineHalfVerticalBottom::after{
-      background-color: #f4f4f8;
-    }
-  
-    .rst__tree{
-      max-height: 90%;
-    }
-  
-    .tree-container {
-      flex: 1.75;
-      border-right: 1px solid #ccc;
-      padding: 1%;
-      z-index: 11;
-      background: $main-bg;
-    }
-  
-    .edit-container {
-        flex: 1.25;
-        padding: 1%;
-        color: white;
-        background-color: #2a3447;
-        position: relative; // This ensures z-index is applied
-        z-index: 13; // Higher than the overlay to stay interactive
-      }
-  
-    .actionSet{
-      display: flex;
-    }
-  
-    .actionSet button {
-      padding: 0.5em 1em; // Smaller padding
-      font-size: 0.8rem; // Smaller font size
-      // Set a max-width and max-height if needed
-      max-width: 100px;
-      max-height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      // Adjusting icon size
-      img {
-        width: 20px; // Adjust as necessary
-        height: auto;
-      }
-      background-color: white;
-    }
-    
-    .actionSet button:hover,
-    .actionSet button:focus {
-      opacity: 0.8;
-    }
-  
-    .footerOfCategory{
-      color: white;
-      padding-bottom: 1%;
-      display: flex;
-      gap: 1%;
-      align-items: center;
-  
-      img{
-        width: 30px;
-        height: 30px;
-      }
-  
-      .footerButtons{
-        background-color: unset;
-        padding: unset;
-        margin: unset;
-      }
-    }
-  
-    .toolBar {
-      display: flex;
-      align-items: center; // This ensures vertical centering
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    
-  
-    .otherButtons{
-      display: flex;
+    button {
+      background-color: unset;
+      padding: unset;
+      margin: unset;
       gap: 10px;
     }
-  
-    .searchBox {
-      display: flex;
-      align-items: center; // Align items on the same line
-    }
-    
-    .searchBox input {
-      margin-right: 5px;
-      padding: 5px;
-      border: 1px solid #ccc;
-      width: 200px;
-      height: 36px; // Match the height with your buttons
-    }
-    
-    .toolsButton {
-      border: 1px solid #ccc;
-      padding: 5px 10px;
+
+    .addButton {
+      background-color: $main-bg;
+      border: none;
+      color: white;
       cursor: pointer;
-      margin-left: 5px;
-      height: 36px; // Ensure the buttons have a specific height
-      font-size: large;
-      img{
-        width: 20px;
-        height: auto;
-      
-      }
-    }
-    
-    .toolsButton:hover,
-    .toolsButton:focus {
-      opacity: 0.8;
-    }
-  
-    .rst__expandButton {
-      position: absolute !important; 
-      top: auto !important;
-      right: auto !important;
-      bottom: 8px;
-    }
-  
-    .rst__collapseButton {
-      position: absolute !important;
-      top: auto !important;
-      right: auto !important;
-      bottom: 8px;
+      width: 35px;
+      height: 35px;
     }
   }
 
-.information-menu-container {
+  .information-container {
+    font-size: 22px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%; // Ensure the container spans the full width
-    padding: 20px; // Padding around the grid container
-    box-sizing: border-box;
+    flex-direction: row;
+    height: 100vh;
+    color: black;
+    background: $main-bg;
+    border-radius: 5px;
+  }
+
   
-    .selection-title {
+
+  .selection-container {
+    h3 {
       color: white;
-      margin-bottom: 20px; // Space between the title and the grid
-      text-align: center;
-    }
-  
-    .selection-container {
-      display: grid;
-      width: calc(100% - 40px); // Adjust width based on the padding of the parent
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); // Adjusts number of columns by available space
-      gap: 20px; // Space between grid items
-      
-      // Adjust the grid item styling as per the design
-      .category-item {
-        background-color: #5F5F5F; // Card background color
-        border: 5px solid #6A8EAE; // Card border color
-        border-radius: 10px; // Rounded corners for cards
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Box shadow for depth
-        padding: 20px; // Padding inside each card
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        position: relative;
-  
-        &:before {
-          content: '';
-          position: absolute;
-          height: 1%; // Height of the line
-          width: 90%; // Width of the line
-          background-color: #fff; // Line color
-          top: 65%;
-        }
-  
-        // Define a fixed size for the buttons to control the grid items size
-        button {
-          width: 100%; // Fixed width
-          text-align: center; // Align text to the left for buttons
-          font-size: 2rem;
-          margin-bottom: 10%;
-        }
-  
-        button:last-child {
-          background-color: transparent;
-          margin-right: 0; // Adjust according to your design
-        }
-    
-        button:first-child {
-          background-color: unset;
-          color: white;
-  
-          &:hover {
-            background-color: #FFFFFF80;
-          }
-        }
-  
-        img {
-          width: 30px;
-          height: 30px;
-          cursor: pointer;
-  
-          &:hover {
-            background-color: #FFFFFF80;
-            border-radius: 25%;
-          }
-        }
-  
-        .categoryTools {
-          display: flex;
-          flex-direction: row;
-          gap: 30px;
-        }
-  
-        &:hover {
-          background-color: #a792bd;
-          border-radius: 25%;
-        }
-      }
     }
   }
-  
-  // Responsive adjustments
-  @media (max-width: 1200px) {
-    .selection-container {
-      grid-template-columns: repeat(4, 1fr); // 4 items per row
-    }
+
+  .rst__lineHalfHorizontalRight::before,
+  .rst__lineFullVertical::after,
+  .rst__lineHalfVerticalTop::after,
+  .rst__lineHalfVerticalBottom::after {
+    background-color: #f4f4f8;
   }
-  
-  @media (max-width: 992px) {
-    .selection-container {
-      grid-template-columns: repeat(3, 1fr); // 3 items per row
-    }
+
+  .rst__tree {
+    max-height: 90%;
   }
-  
-  @media (max-width: 768px) {
-    .selection-container {
-      grid-template-columns: repeat(2, 1fr); // 2 items per row
-    }
+
+  .tree-container {
+    flex: 1.75;
+    border-right: 1px solid #ccc;
+    padding: 1%;
+    z-index: 11;
+    background: $main-bg;
   }
-  
-  @media (max-width: 576px) {
-    .selection-container {
-      grid-template-columns: repeat(1, 1fr); // 1 item per row
-    }
+
+  .edit-container {
+    flex: 1.25;
+    color: white;
+    background-color: #2a3447;
+    z-index: 13;
+    max-height: 100vh; // Ensure it doesn't overflow its parent
+    overflow: auto; // Enable scrolling if content overflows
+    display: flex; // Flexbox to handle content alignment
+    justify-content: center; // Center the form horizontally
+    align-items: flex-start; // Align the form at the top
+    padding-left: 10px;
+    padding-right: 10px;
   }
   
   .edit-form {
-    // ... your existing styles ...
+    display: flex;
+    flex-direction: column; // Ensure items are arranged vertically
+    gap: 5px; // Add gap between items for better spacing
+    max-width: 600px; // Ensure it doesn't overflow the container
+    width: 100%; // Ensure it takes full width
+    box-sizing: border-box; // Include padding in the element's total width and height
+    background-color: #2a3447; // Ensure form background color matches container
+    border-radius: 8px; // Add some rounding to form edges
+    position: relative;
+  
     label {
       display: block;
-      margin-top: 10px;
+
     }
   
     input[type="text"],
-    textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      background-color: #fff;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-  
-    textarea {
-      height: 100px; // Adjust the height of the textarea
-      resize: vertical; // Allow only vertical resizing
-    }
-  
+    textarea,
     select {
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 10px;
       border: 1px solid #ccc;
       background-color: #fff;
       border-radius: 4px;
       box-sizing: border-box;
     }
   
-    // Add this new style for the buttons container
-    .button-group {
-      display: flex;
-      justify-content: center; // Center the buttons
-      gap: 10px; // Adds space between the buttons
-  
-      // You can also use `justify-content: space-around` or `space-between` for different spacing effects
+    textarea {
+      height: 100px;
+      resize: vertical;
     }
   
-    // Button styles
-    .save-button {
-      background-color: #04AA6D; // A shade of slate blue
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+  
+    .save-button,
+    .cancel-button {
       color: white;
       border: none;
       padding: 10px 20px;
@@ -349,62 +129,263 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+    }
+  
+    .save-button {
+      background-color: #04aa6d;
   
       &:hover {
-        background-color: darken(#04AA6D, 10%);
+        background-color: darken(#04aa6d, 10%);
       }
     }
   
     .cancel-button {
-      background-color: red; // A shade of slate blue
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+      background-color: red;
   
       &:hover {
         background-color: darken(red, 10%);
       }
     }
   
-    // Additional styles to make sure buttons don't wrap on small screens
+    .edit-form-fileSelection {
+      background-color: #fff;
+      color: black;
+      display: center;
+    }
+  
     button {
       white-space: nowrap;
     }
+  
+    .media-preview-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
   }
   
-  .save-button:hover{
-    background-color: darken(#04AA6D, 10%); /* Darker shade of slate blue */
-  }
-  
-  .cancel-button:hover {
-    background-color: darken(red, 10%);; /* Darker shade of slate blue */
-  }
-  
-  .edit-form-fileSelection{
-    background-color: #fff;
-    color: black;
-  }
-  
-  .nodeOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5); // Semi-transparent black background
-    z-index: 12; // Make sure it's above other content but below your editor panel
+
+  .actionSet {
+    display: flex;
   }
 
+  .actionSet button {
+    padding: 0.5em 1em;
+    font-size: 0.8rem;
+    max-width: 100px;
+    max-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 20px;
+      height: auto;
+    }
+
+    background-color: white;
+
+    &:hover,
+    &:focus {
+      opacity: 0.8;
+    }
+  }
+
+  .footerOfCategory {
+    color: white;
+    padding-bottom: 1%;
+    display: flex;
+    gap: 1%;
+    align-items: center;
+
+    img {
+      width: 30px;
+      height: 30px;
+    }
+
+    .footerButtons {
+      background-color: unset;
+      padding: unset;
+      margin: unset;
+    }
+  }
+
+  .toolBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .otherButtons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .searchBox {
+    display: flex;
+    align-items: center;
+
+    input {
+      margin-right: 5px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      width: 200px;
+      height: 36px;
+    }
+  }
+
+  .toolsButton {
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-left: 5px;
+    height: 36px;
+    font-size: large;
+
+    img {
+      width: 20px;
+      height: auto;
+    }
+
+    &:hover,
+    &:focus {
+      opacity: 0.8;
+    }
+  }
+
+  .rst__expandButton,
+  .rst__collapseButton {
+    position: absolute !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: 8px;
+  } 
+
+  .nodeOverlay,
   .treeOverlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5); // Semi-transparent black background
-    z-index: 10; // Make sure it's above other content but below your editor panel
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10; // Adjusted z-index for treeOverlay
   }
+
+  .nodeOverlay {
+    z-index: 12;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .selection-container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .selection-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .selection-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .selection-container {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+.information-menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+
+  .selection-title {
+    color: white;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .selection-container {
+    display: grid;
+    width: calc(100% - 40px);
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+
+    .category-item {
+      background-color: #5f5f5f;
+      border: 5px solid #6a8eae;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+
+      &:before {
+        content: '';
+        position: absolute;
+        height: 1%;
+        width: 90%;
+        background-color: #fff;
+        top: 65%;
+      }
+
+      button {
+        width: 100%;
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 10%;
+
+        &:last-child {
+          background-color: transparent;
+          margin-right: 0;
+        }
+
+        &:first-child {
+          background-color: unset;
+          color: white;
+
+          &:hover {
+            background-color: #ffffff80;
+          }
+        }
+      }
+
+      img {
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #ffffff80;
+          border-radius: 25%;
+        }
+      }
+
+      .categoryTools {
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+      }
+
+      &:hover {
+        background-color: #a792bd;
+        border-radius: 25%;
+      }
+    }
+  }
+}
