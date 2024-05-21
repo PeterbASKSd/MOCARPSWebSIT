@@ -1,29 +1,74 @@
 .quiz {
-    .quiz-Info {
-      margin-bottom: 20px;
-      h1 {
-        font-size: 24px;
-        margin-bottom: 10px;
+  .quiz-Info {
+    margin-bottom: 20px;
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    select, input {
+      margin-right: 10px;
+    }
+  }
+
+  .quiz-Content {
+    .section {
+      margin-bottom: 20px; // Add space between sections
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
       }
-      select, input {
-        margin-right: 10px;
+      th {
+        background-color: #f4f4f4;
+        color: black;
       }
     }
-  
-    .quiz-Content {
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        th, td {
-          border: 1px solid #ccc;
-          padding: 8px;
-          text-align: left;
-        }
-        th {
-          background-color: #f4f4f4;
-          color: black
-        }
+
+    .loading {
+      text-align: center;
+      font-size: 18px;
+      padding: 20px;
+    }
+
+    .collapsed {
+      display: none; // Hide the table when collapsed
+    }
+
+    .toggle-button {
+      margin-bottom: 10px; // Space below the toggle button
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .toggle-button:hover {
+      background-color: #0056b3;
+    }
+
+    .summary {
+      margin-top: 20px; // Space above the summary
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      p {
+        margin: 0 0 10px 0;
       }
     }
   }
-  
+
+  .view-icon {
+    width: 24px; // Adjust the size as needed
+    height: 24px; // Adjust the size as needed
+    cursor: pointer;
+  }
+}

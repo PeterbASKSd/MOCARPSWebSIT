@@ -833,7 +833,6 @@ export const questionColumns: CustomGridColDef[] = [
     editable: false,
     required: true,
     input: true,
-    unqiue: true,
     inputHint: "Enter a title",
   },
   {
@@ -858,7 +857,7 @@ export const questionColumns: CustomGridColDef[] = [
   },
   {
     field: "publishedAt",
-    headerName: "Published Date",
+    headerName: "Last Published Date",
     width: 230,
     input: false,
     editable: false,

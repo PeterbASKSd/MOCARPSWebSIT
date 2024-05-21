@@ -119,7 +119,7 @@ const DataTable = (props: Props) => {
 
   const handleDisPublished = (id: number) => {
     Swal.fire({
-      title: "Are you sure you want to disable this publish?",
+      title: "Are you sure you want to disable this quiz?",
       showDenyButton: false,
       showCancelButton: true,
       confirmButtonText: "Disable",
@@ -149,10 +149,10 @@ const DataTable = (props: Props) => {
 
   const handlePublished = (id: number) => {
     Swal.fire({
-      title: "Are you sure you want to enable this publish?",
+      title: "Are you sure you want to publish this quiz?",
       showDenyButton: false,
       showCancelButton: true,
-      confirmButtonText: "Enable",
+      confirmButtonText: "Publish",
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire("The publish is ready now!");
@@ -207,11 +207,14 @@ const DataTable = (props: Props) => {
   const actionColumn: GridColDef = {
     field: "actions",
     headerName: "Actions",
-    width: 200,
+    width: 250,
     renderCell: (params) => {
       return (
         <div className="actionSet">
-          {props.slug !== "user" && props.slug !== "quiz" ? (
+          {props.slug !== "user" &&
+          props.slug !== "quiz" &&
+          (typeof params.row.published === "undefined" ||
+            params.row.published === false) ? (
             <div className="edit">
               <img
                 src={EditIcon}
@@ -348,7 +351,8 @@ const DataTable = (props: Props) => {
                 onClick={() => {
                   handleDisPublished(params.row.id);
                 }}
-              />
+              />{" "}
+              disable
             </div>
           ) : params.row.published === false ? (
             <div>
@@ -359,7 +363,8 @@ const DataTable = (props: Props) => {
                 onClick={() => {
                   handlePublished(params.row.id);
                 }}
-              />
+              />{" "}
+              publish
             </div>
           ) : null}
 
@@ -393,8 +398,8 @@ const DataTable = (props: Props) => {
               />
             </div>
           ) : null}
-
-          {props.slug !== "questionSet" ? null : (
+          {props.slug !== "questionSet" ? null : params.row.published ===
+            true ? null : (
             <div>
               <img
                 className="navigate"

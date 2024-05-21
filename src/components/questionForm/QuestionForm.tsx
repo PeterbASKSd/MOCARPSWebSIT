@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Select from "react-select";
 import Swal from "sweetalert2";
 import "./questionForm.scss";
@@ -31,6 +31,8 @@ const QuestionForm = (props: Props) => {
   const [filePreview, setFilePreview] = useState<string | undefined>(undefined);
   const [conditionValue, setConditionValue] = useState<string>("none");
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (
       props.editingQuestionId !== null &&
@@ -45,12 +47,17 @@ const QuestionForm = (props: Props) => {
           questionSetId: props.questionID || question.questionSetId,
         });
         setConditionValue(question.resourceType);
+        if (question.resourceUri) {
+          setFilePreview(question.resourceUri);
+        }
       }
     }
   }, [props.editingQuestionId, props.rows, props.questionID]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    let updatedFormData = { ...formData };
 
     if (conditionValue !== "none" && file) {
       try {
@@ -66,15 +73,18 @@ const QuestionForm = (props: Props) => {
           }
         );
         const blobUrl = response.data.blobUrl;
-        setFormData((prevData) => ({
-          ...prevData,
+        updatedFormData = {
+          ...updatedFormData,
           resourceUri: blobUrl,
-        }));
+        };
       } catch (error) {
         console.error("Error uploading file", error);
         return;
       }
     }
+
+    // Ensure the score is a number
+    updatedFormData.score = Number(updatedFormData.score);
 
     const method = props.editingQuestionId ? "put" : "post";
     const url = props.editingQuestionId
@@ -82,7 +92,8 @@ const QuestionForm = (props: Props) => {
       : "https://mocarps.azurewebsites.net/questionSet/question/add";
 
     try {
-      const response = await axios[method](url, formData);
+      console.log("Submitting data:", updatedFormData);
+      const response = await axios[method](url, updatedFormData);
       if (response.status === 200) {
         Swal.fire({
           title: "Successfully added",
@@ -110,18 +121,19 @@ const QuestionForm = (props: Props) => {
     });
   };
 
-  const handleSelectChange = (selectedOption: any, actionMeta: any) => {
-    setFormData({
-      ...formData,
-      [actionMeta.name]: selectedOption.value,
-    });
-    if (actionMeta.name === "resourceType") {
-      setConditionValue(selectedOption.value);
-      if (selectedOption.value === "none") {
-        setFormData({
-          ...formData,
-          resourceUri: "",
-        });
+  const handleSelectChange = (selectedOption: any) => {
+    const newResourceType = selectedOption.value;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      resourceType: newResourceType,
+      resourceUri: newResourceType === "none" ? "" : prevFormData.resourceUri,
+    }));
+    setConditionValue(newResourceType);
+    if (newResourceType === "none") {
+      setFile(undefined);
+      setFilePreview(undefined);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -136,6 +148,9 @@ const QuestionForm = (props: Props) => {
         } else {
           setFile(undefined);
           setFilePreview(undefined);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
         }
       });
     }
@@ -240,41 +255,17 @@ const QuestionForm = (props: Props) => {
                 Resource URI <span className="redStar">*</span>
               </label>
               <input
+                ref={fileInputRef}
                 type="file"
                 name="resourceUri"
                 accept={fileAcceptance[conditionValue]}
                 onChange={handleFileChange}
-                required={conditionValue !== "none"}
               />
               <p className="file-acceptance" style={{ color: "red" }}>
                 Acceptable file types: {fileAcceptance[conditionValue]}. Max
                 size: 480p and below,{" "}
                 {fileSizeLimit[conditionValue] / (1024 * 1024)}MB.
               </p>
-              {props.editingQuestionId && formData.resourceUri && (
-                <div className="file-preview" style={{ maxWidth: "100%" }}>
-                  <label>Existing File:</label>
-                  {conditionValue === "image" && (
-                    <img
-                      src={formData.resourceUri}
-                      alt="Existing"
-                      style={{ width: "100%" }}
-                    />
-                  )}
-                  {conditionValue === "audio" && (
-                    <audio controls style={{ width: "100%" }}>
-                      <source src={formData.resourceUri} />
-                      Your browser does not support the audio element.
-                    </audio>
-                  )}
-                  {conditionValue === "video" && (
-                    <video controls style={{ width: "100%" }}>
-                      <source src={formData.resourceUri} />
-                      Your browser does not support the video element.
-                    </video>
-                  )}
-                </div>
-              )}
               {filePreview && (
                 <div className="file-preview" style={{ maxWidth: "100%" }}>
                   <label>Selected File:</label>
@@ -299,6 +290,32 @@ const QuestionForm = (props: Props) => {
                   )}
                 </div>
               )}
+              {!filePreview &&
+                props.editingQuestionId &&
+                formData.resourceUri && (
+                  <div className="file-preview" style={{ maxWidth: "100%" }}>
+                    <label>Existing File:</label>
+                    {conditionValue === "image" && (
+                      <img
+                        src={formData.resourceUri}
+                        alt="Existing"
+                        style={{ width: "100%" }}
+                      />
+                    )}
+                    {conditionValue === "audio" && (
+                      <audio controls style={{ width: "100%" }}>
+                        <source src={formData.resourceUri} />
+                        Your browser does not support the audio element.
+                      </audio>
+                    )}
+                    {conditionValue === "video" && (
+                      <video controls style={{ width: "100%" }}>
+                        <source src={formData.resourceUri} />
+                        Your browser does not support the video element.
+                      </video>
+                    )}
+                  </div>
+                )}
             </div>
           )}
           <div className="item">
@@ -315,12 +332,16 @@ const QuestionForm = (props: Props) => {
             />
           </div>
           <div className="item">
-            <label>Score</label>
+            <label>
+              Score <span className="redStar">*</span>
+            </label>
             <input
               type="number"
               name="score"
               value={formData.score}
               onChange={handleInputChange}
+              min={0}
+              required
             />
           </div>
           <div className="item">

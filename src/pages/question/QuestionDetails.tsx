@@ -290,8 +290,16 @@ const QuestionDetails = () => {
     await fetchRowsFromAPI(); // Refetch data after form submission
   };
 
+  // Determine if there are incomplete options
+  const hasIncompleteOptions = rows.some((question) => {
+    return question.options.some(
+      (option: any) => !option.description.trim() || !option.isCorrect
+    );
+  });
+
   return (
     <div className="questionDetails">
+      {hasIncompleteOptions && <div className="questionAddOverlay"></div>}
       <div className="info">
         <h1>{name}</h1>
         <button
@@ -406,7 +414,8 @@ const QuestionDetails = () => {
                                     </option>
                                     {rows.map((q, idx) => (
                                       <option key={q.id} value={q.id}>
-                                        Jump to Q{idx + 1} - {q.description}
+                                        Jump to Q{idx + 1} - {q.description} (
+                                        {q.questionType}, Score: {q.score})
                                       </option>
                                     ))}
                                   </select>

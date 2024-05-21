@@ -27,7 +27,7 @@
     "src/components/.editForm",
     "src/pages/.dictionaryEdit",
     "public/dependencies"
-, "src/pages/information/Information.tsx", "src/components/questionForm/QuestionForm.tsx", "src/pages/quiz/.Quiz.tsx"  ],
+, "src/pages/information/Information.tsx", "src/components/questionForm/QuestionForm.tsx", "src/pages/quiz/.Quiz.tsx", "src/components/questionForm/.QuestionEditForm.tsx"  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
