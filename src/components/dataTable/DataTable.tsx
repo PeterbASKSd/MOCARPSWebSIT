@@ -119,13 +119,13 @@ const DataTable = (props: Props) => {
 
   const handleDisPublished = (id: number) => {
     Swal.fire({
-      title: "Are you sure you want to hide this quiz?",
+      title: "Are you sure you want to unpublish this quiz?",
       showDenyButton: false,
       showCancelButton: true,
-      confirmButtonText: "Hide",
+      confirmButtonText: "Unpublish",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire("The publish has been hide now!");
+        Swal.fire("The publish has been unpublish now!");
         axios
           .put(`https://mocarps.azurewebsites.net/questionSet/publish/${id}`, {
             publish: false, // Sending JSON data
