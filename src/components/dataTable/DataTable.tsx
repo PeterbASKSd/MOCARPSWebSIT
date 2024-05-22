@@ -3,13 +3,13 @@ import "./dataTable.scss";
 import EditIcon from "/src/assets/edit.svg";
 import DeleteIcon from "/src/assets/delete.svg";
 import DisableIcon from "/src/assets/disable.svg";
+import HideIcon from "/src/assets/hide.svg";
 import axios from "axios";
 import React from "react";
 import Swal from "sweetalert2";
 import keyIcon from "/src/assets/key.svg";
 import EnableIcon from "/src/assets/enable.svg";
 import PublishIcon from "/src/assets/publish.svg";
-import RecoverIcon from "/src/assets/recover.svg";
 import NavigateIcon from "/src/assets/navigate.svg";
 import ViewIcon from "/src/assets/view.svg";
 import { useNavigate } from "react-router-dom";
@@ -119,13 +119,13 @@ const DataTable = (props: Props) => {
 
   const handleDisPublished = (id: number) => {
     Swal.fire({
-      title: "Are you sure you want to disable this quiz?",
+      title: "Are you sure you want to hide this quiz?",
       showDenyButton: false,
       showCancelButton: true,
-      confirmButtonText: "Disable",
+      confirmButtonText: "Hide",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire("The publish has been disabled now!");
+        Swal.fire("The publish has been hide now!");
         axios
           .put(`https://mocarps.azurewebsites.net/questionSet/publish/${id}`, {
             publish: false, // Sending JSON data
@@ -211,10 +211,7 @@ const DataTable = (props: Props) => {
     renderCell: (params) => {
       return (
         <div className="actionSet">
-          {props.slug !== "user" &&
-          props.slug !== "quiz" &&
-          (typeof params.row.published === "undefined" ||
-            params.row.published === false) ? (
+          {props.slug !== "user" && props.slug !== "quiz" ? (
             <div className="edit">
               <img
                 src={EditIcon}
@@ -299,7 +296,22 @@ const DataTable = (props: Props) => {
               />
             </div>
           ) : null} */}
-
+          {props.slug !== "questionSet" ? null : (
+            <div>
+              <img
+                className="navigate"
+                src={NavigateIcon}
+                alt=""
+                onClick={() => {
+                  handleCategoryClick(
+                    params.row.question,
+                    params.row.id,
+                    params.row.name
+                  );
+                }}
+              />
+            </div>
+          )}
           {props.slug !== "user" &&
           props.slug !== "questionSet" &&
           props.slug !== "quiz" ? (
@@ -346,13 +358,13 @@ const DataTable = (props: Props) => {
             <div>
               <img
                 className="delete"
-                src={RecoverIcon}
+                src={HideIcon}
                 alt=""
                 onClick={() => {
                   handleDisPublished(params.row.id);
                 }}
               />{" "}
-              disable
+              Unpublish
             </div>
           ) : params.row.published === false ? (
             <div>
@@ -364,7 +376,7 @@ const DataTable = (props: Props) => {
                   handlePublished(params.row.id);
                 }}
               />{" "}
-              publish
+              Publish
             </div>
           ) : null}
 
@@ -398,23 +410,6 @@ const DataTable = (props: Props) => {
               />
             </div>
           ) : null}
-          {props.slug !== "questionSet" ? null : params.row.published ===
-            true ? null : (
-            <div>
-              <img
-                className="navigate"
-                src={NavigateIcon}
-                alt=""
-                onClick={() => {
-                  handleCategoryClick(
-                    params.row.question,
-                    params.row.id,
-                    params.row.name
-                  );
-                }}
-              />
-            </div>
-          )}
           {props.slug !== "quiz" ? null : (
             <div>
               <img

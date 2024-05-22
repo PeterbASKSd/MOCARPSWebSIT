@@ -5,6 +5,16 @@
   color: #f4f4f8;
   position: relative;
   z-index: 2; // Ensure content is above the overlay
+  
+  .invalid {
+    border: 1px solid red;
+    background-color: #ffe6e6;
+  }
+  
+  .invalid input,
+  .invalid select {
+    border-color: red;
+  }
 
   .info {
     display: flex;

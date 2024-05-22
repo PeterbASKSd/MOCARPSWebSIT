@@ -101,6 +101,7 @@ const Question = () => {
           handleAfterAddRow={handleAfterAddRow}
           rows={rows.find((row) => row.id === targetId)}
           targetId={targetId}
+          published={rows.find((row) => row.id === targetId)?.published} // Pass the published status of the selected row
         />
       ) : null}
       {openControlChange ? (

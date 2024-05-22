@@ -841,7 +841,7 @@ export const questionColumns: CustomGridColDef[] = [
     type: "longText",
     width: 500,
     editable: false,
-    required: false,
+    required: true,
     input: true,
     inputHint: "Please enter an description",
     renderCell: renderCellWithMathJax,

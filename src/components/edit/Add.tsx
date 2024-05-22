@@ -34,6 +34,7 @@ type Props = {
   targetId: number;
   treeData?: any[];
   setTreeData?: React.Dispatch<React.SetStateAction<any[]>>;
+  published?: boolean;
 };
 
 const Add = (props: Props) => {
@@ -754,6 +755,7 @@ const Add = (props: Props) => {
                       handleLongInputChangeForLong(column.field, value)
                     }
                     value={formData[column.field]?.toString() ?? ""}
+                    disabled={props.published === true}
                   />
                 </>
               ) : column.type === "file" ? (
@@ -1023,7 +1025,11 @@ const Add = (props: Props) => {
                         formData[column.field] ||
                         ""
                   }
-                  disabled={column.input === false || column.unqiue === true}
+                  disabled={
+                    column.input === false ||
+                    column.unqiue === true ||
+                    props.published
+                  }
                   className={
                     column.input === false
                       ? "disabled"

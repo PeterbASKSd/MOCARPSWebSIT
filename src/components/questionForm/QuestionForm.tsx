@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import Select from "react-select";
 import Swal from "sweetalert2";
+import ClipLoader from "react-spinners/ClipLoader";
 import "./questionForm.scss";
 import { CustomGridColDef } from "../../data";
 
@@ -15,6 +16,7 @@ type Props = {
   questionID?: number;
   editingQuestionId?: number | null;
   onSubmit: () => void;
+  published: boolean;
 };
 
 const QuestionForm = (props: Props) => {
@@ -30,6 +32,8 @@ const QuestionForm = (props: Props) => {
   const [file, setFile] = useState<File | undefined>(undefined);
   const [filePreview, setFilePreview] = useState<string | undefined>(undefined);
   const [conditionValue, setConditionValue] = useState<string>("none");
+  const [loading, setLoading] = useState<boolean>(false); // New loading state
+  const [isResourceValid, setIsResourceValid] = useState<boolean>(true); // New resource validation state
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -57,6 +61,22 @@ const QuestionForm = (props: Props) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Check resource validity before submission
+    if (
+      conditionValue !== "none" &&
+      !file &&
+      !validateUri(formData.resourceUri, conditionValue)
+    ) {
+      Swal.fire({
+        title: "Invalid Resource",
+        text: `Please select a valid file for the selected resource type (${conditionValue}).`,
+        icon: "warning",
+      });
+      return;
+    }
+
+    setLoading(true); // Set loading to true
+
     let updatedFormData = { ...formData };
 
     if (conditionValue !== "none" && file) {
@@ -79,6 +99,7 @@ const QuestionForm = (props: Props) => {
         };
       } catch (error) {
         console.error("Error uploading file", error);
+        setLoading(false); // Set loading to false
         return;
       }
     }
@@ -109,6 +130,8 @@ const QuestionForm = (props: Props) => {
         text: "Something went wrong",
         icon: "error",
       });
+    } finally {
+      setLoading(false); // Set loading to false
     }
   };
 
@@ -121,21 +144,41 @@ const QuestionForm = (props: Props) => {
     });
   };
 
-  const handleSelectChange = (selectedOption: any) => {
-    const newResourceType = selectedOption.value;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      resourceType: newResourceType,
-      resourceUri: newResourceType === "none" ? "" : prevFormData.resourceUri,
-    }));
-    setConditionValue(newResourceType);
-    if (newResourceType === "none") {
+  const handleSelectChange = (selectedOption: any, action: any) => {
+    const value = selectedOption.value;
+    const name = action.name;
+
+    if (name === "resourceType") {
+      setConditionValue(value);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        resourceType: value,
+        resourceUri: "", // Clear the resourceUri
+      }));
       setFile(undefined);
       setFilePreview(undefined);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+      setIsResourceValid(true); // Reset validation state
     }
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const validateUri = (uri: string, type: string): boolean => {
+    const fileTypeMap: Record<string, RegExp> = {
+      image: /\.(jpeg|jpg|png)$/,
+      audio: /\.(mp3|mp4|aac)$/,
+      video: /\.(mp4)$/,
+    };
+
+    if (!uri) return false;
+
+    return fileTypeMap[type].test(uri);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,9 +188,11 @@ const QuestionForm = (props: Props) => {
         if (isValid) {
           setFile(selectedFile);
           setFilePreview(URL.createObjectURL(selectedFile));
+          setIsResourceValid(true); // Set valid if file is valid
         } else {
           setFile(undefined);
           setFilePreview(undefined);
+          setIsResourceValid(false); // Set invalid if file is not valid
           if (fileInputRef.current) {
             fileInputRef.current.value = "";
           }
@@ -234,6 +279,7 @@ const QuestionForm = (props: Props) => {
               value={formData.description}
               onChange={handleInputChange}
               required
+              disabled={props.published}
             />
           </div>
           <div className="item">
@@ -247,6 +293,7 @@ const QuestionForm = (props: Props) => {
               )}
               onChange={handleSelectChange}
               options={resourceTypeOptions}
+              isDisabled={props.published}
             />
           </div>
           {conditionValue !== "none" && (
@@ -260,6 +307,7 @@ const QuestionForm = (props: Props) => {
                 name="resourceUri"
                 accept={fileAcceptance[conditionValue]}
                 onChange={handleFileChange}
+                disabled={props.published}
               />
               <p className="file-acceptance" style={{ color: "red" }}>
                 Acceptable file types: {fileAcceptance[conditionValue]}. Max
@@ -329,6 +377,7 @@ const QuestionForm = (props: Props) => {
               )}
               onChange={handleSelectChange}
               options={questionTypeOptions}
+              isDisabled={props.published}
             />
           </div>
           <div className="item">
@@ -342,14 +391,21 @@ const QuestionForm = (props: Props) => {
               onChange={handleInputChange}
               min={0}
               required
+              disabled={props.published}
             />
           </div>
           <div className="item">
             <label className="postScript">Please enter all * fields</label>
             <div className="button-group">
-              <button className="save-button" type="submit">
-                <span>Submit</span>
-              </button>
+              {!props.published && (
+                <button
+                  className="save-button"
+                  type="submit"
+                  disabled={props.published || !isResourceValid} // Disable if not valid
+                >
+                  <span>Submit</span>
+                </button>
+              )}
               <button
                 className="cancel-button"
                 type="button"
@@ -360,6 +416,11 @@ const QuestionForm = (props: Props) => {
             </div>
           </div>
         </form>
+        {loading && (
+          <div className="loading-overlay">
+            <ClipLoader color={"#123abc"} loading={loading} size={50} />
+          </div>
+        )}
       </div>
     </div>
   );
