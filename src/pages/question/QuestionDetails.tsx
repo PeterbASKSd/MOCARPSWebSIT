@@ -50,7 +50,7 @@ const QuestionDetails = () => {
       const data = await response.json();
       console.log("Fetched data:", data);
       setRows(data.questions || []);
-      setPublished(data.published);
+      setPublished(data.publishedAt !== null); // Set published based on publishedAt
     } catch (error) {
       console.error("Error fetching rows:", error);
     } finally {
