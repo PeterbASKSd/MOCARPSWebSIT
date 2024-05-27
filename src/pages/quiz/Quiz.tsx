@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Select from "react-select";
 import ViewIcon from "/src/assets/view.svg";
+import ExpandIcon from "/src/assets/expand.svg";
+import CollapseIcon from "/src/assets/collapse.svg";
+import AscendingIcon from "/src/assets/ascending.svg";
+import DescendingIcon from "/src/assets/descending.svg";
 import "./quiz.scss";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type User = {
   id: string;
@@ -20,6 +24,8 @@ type Answer = {
   question: {
     id: number;
     description: string;
+    score: number;
+    questionType: string;
   };
   option: {
     id: number;
@@ -40,14 +46,6 @@ type UserResult = {
   score: number;
 };
 
-type QuestionSetResult = {
-  userId: string;
-  score: number;
-  completedAt: string;
-  createdAt: string;
-  user: User;
-};
-
 type QuestionSetData = {
   id: string;
   name: string;
@@ -55,89 +53,60 @@ type QuestionSetData = {
   publishedAt: string;
 };
 
-type QuestionSetResults = {
-  questionSet: QuestionSetData;
-  averageScore: number;
-  results: QuestionSetResult[];
-};
-
-const customStyles = {
-  control: (provided: any) => ({
-    ...provided,
-    color: "black",
-    backgroundColor: "white",
-  }),
-  singleValue: (provided: any) => ({
-    ...provided,
-    color: "black",
-  }),
-  input: (provided: any) => ({
-    ...provided,
-    color: "black",
-    padding: "0px", // Remove padding to ensure text is not cut off
-    margin: "0px", // Remove margin to ensure text is not cut off
-  }),
-  valueContainer: (provided: any) => ({
-    ...provided,
-    padding: "0px 8px", // Adjust padding for the value container
-  }),
-  menu: (provided: any) => ({
-    ...provided,
-    color: "black",
-    backgroundColor: "white",
-  }),
-  placeholder: (provided: any) => ({
-    ...provided,
-    color: "black",
-  }),
-  option: (provided: any, state: any) => ({
-    ...provided,
-    color: "black",
-    backgroundColor: state.isSelected
-      ? "#ddd"
-      : state.isFocused
-      ? "#f4f4f4"
-      : "white",
-  }),
+type SortConfig = {
+  key: keyof UserResult | "user.name" | "questionSet.name" | null;
+  direction: "ascending" | "descending";
 };
 
 const Quiz = () => {
-  const [results, setResults] = useState<
-    UserResult[] | QuestionSetResults | null
-  >(null);
-  const [viewBy, setViewBy] = useState<"userId" | "questionId">("userId");
+  const [results, setResults] = useState<UserResult[] | null>(null);
+  const [filteredResults, setFilteredResults] = useState<UserResult[] | null>(
+    null
+  );
   const [users, setUsers] = useState<User[]>([]);
   const [questionSets, setQuestionSets] = useState<QuestionSetData[]>([]);
-  const [selectedUser, setSelectedUser] = useState<{
-    label: string;
-    value: string;
-  } | null>(null);
-  const [selectedQuestionSet, setSelectedQuestionSet] = useState<{
-    label: string;
-    value: string;
-  } | null>(null);
-  const [filterQuestionSetId, setFilterQuestionSetId] = useState<{
-    label: string;
-    value: string;
-  } | null>(null);
-  const [selectedResultDetails, setSelectedResultDetails] =
-    useState<UserResult | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedQuestionSets, setSelectedQuestionSets] = useState<string[]>(
+    []
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [isTableCollapsed, setIsTableCollapsed] = useState<boolean>(false);
+  const [isUserFilterCollapsed, setIsUserFilterCollapsed] =
+    useState<boolean>(false);
+  const [isQuizFilterCollapsed, setIsQuizFilterCollapsed] =
+    useState<boolean>(false);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: "completedAt",
+    direction: "ascending",
+  });
+  const [activeTab, setActiveTab] = useState<"user" | "quiz">("user");
+  const [groupedResultsExpanded, setGroupedResultsExpanded] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [resultsPerPage, setResultsPerPage] = useState(10);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     fetchUsers();
     fetchQuestionSets();
+    loadSavedSelections();
   }, []);
 
   useEffect(() => {
-    if (viewBy === "userId" && selectedUser) {
-      setSelectedResultDetails(null); // Clear user details when changing user
-      fetchResultsByUserId(selectedUser.value);
-    } else if (viewBy === "questionId" && selectedQuestionSet) {
-      fetchResultsByQuestionSetId(selectedQuestionSet.value);
+    if (selectedUsers.length > 0) {
+      fetchResultsByUserIds(selectedUsers);
     }
-  }, [viewBy, selectedUser, selectedQuestionSet]);
+  }, [selectedUsers]);
+
+  useEffect(() => {
+    if (selectedQuestionSets.length > 0) {
+      filterResultsByQuestionSet(selectedQuestionSets);
+    } else {
+      setFilteredResults(results);
+    }
+  }, [selectedQuestionSets, results]);
 
   const fetchUsers = async () => {
     try {
@@ -145,6 +114,9 @@ const Quiz = () => {
         "https://mocarps.azurewebsites.net/user"
       );
       setUsers(response.data);
+      if (!location.state) {
+        setSelectedUsers(response.data.map((user: User) => user.id)); // Select all users by default
+      }
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -156,71 +128,31 @@ const Quiz = () => {
         "https://mocarps.azurewebsites.net/questionSet"
       );
       setQuestionSets(response.data);
+      if (!location.state) {
+        setSelectedQuestionSets(response.data.map((qs: any) => qs.id)); // Select all question sets by default
+      }
     } catch (error) {
       console.error("Error fetching question sets:", error);
     }
   };
 
-  const fetchResultsByUserId = async (userId: string) => {
+  const fetchResultsByUserIds = async (userIds: string[]) => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `https://mocarps.azurewebsites.net/quizResult/user/${userId}`
-      );
-      console.log("Response data by userId:", response.data);
-      if (response.data && Array.isArray(response.data.quizResult)) {
-        const data = await mapUserResults(response.data);
-        setResults(data);
-      } else {
-        console.error(
-          "Expected an object with quizResult array, but got:",
-          response.data
+      const results: UserResult[] = [];
+      for (const userId of userIds) {
+        const response = await axios.get(
+          `https://mocarps.azurewebsites.net/quizResult/user/${userId}`
         );
+        if (response.data && Array.isArray(response.data.quizResult)) {
+          const userResults = await mapUserResults(response.data);
+          results.push(...userResults);
+        }
       }
+      setResults(results);
+      setFilteredResults(results);
     } catch (error) {
-      console.error("Error fetching results by userId:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchResultsByQuestionSetId = async (questionSetId: string) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `https://mocarps.azurewebsites.net/quizResult/questionSet/${questionSetId}`
-      );
-      console.log("Response data by questionSetId:", response.data);
-      if (response.data && Array.isArray(response.data.quizResult)) {
-        const data = await mapQuestionSetResults(
-          response.data,
-          response.data.questionSet
-        );
-        setResults(data);
-      } else {
-        console.error(
-          "Expected an object with quizResult array, but got:",
-          response.data
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching results by questionSetId:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchResultDetails = async (resultId: number) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `https://mocarps.azurewebsites.net/quizResult/detail/${resultId}`
-      );
-      console.log("Response data for result details:", response.data);
-      setSelectedResultDetails(response.data);
-      setIsTableCollapsed(true);
-    } catch (error) {
-      console.error("Error fetching result details:", error);
+      console.error("Error fetching results by userIds:", error);
     } finally {
       setLoading(false);
     }
@@ -238,67 +170,6 @@ const Quiz = () => {
     return userResponses;
   };
 
-  const mapQuestionSetResults = async (
-    data: { quizResult: any[]; questionSet: QuestionSetData },
-    questionSet: QuestionSetData
-  ) => {
-    const userResponses = await Promise.all(
-      data.quizResult.map(async (result, index) => {
-        const userResponse = await axios.get(
-          `https://mocarps.azurewebsites.net/user/${result.userId}`
-        );
-        return {
-          ...result,
-          user: userResponse.data,
-          key: `${result.userId}-${index}`,
-        };
-      })
-    );
-    const averageScore = calculateAverageScore(userResponses);
-    return { questionSet, averageScore, results: userResponses };
-  };
-
-  const calculateAverageScore = (results: QuestionSetResult[]) => {
-    const highestScoresByUser = calculateHighestScoreByUser(results);
-    const highestScores = Object.values(highestScoresByUser);
-    return (
-      highestScores.reduce((acc, score) => acc + score, 0) /
-      highestScores.length
-    );
-  };
-
-  const calculateScores = (results: QuestionSetResult[]) => {
-    const highestScoresByUser = calculateHighestScoreByUser(results);
-    const highestScores = Object.values(highestScoresByUser);
-    const highestScore = Math.max(...highestScores);
-    const lowestScore = Math.min(...highestScores);
-    const averageScore = calculateAverageScore(results);
-    return { highestScore, lowestScore, averageScore };
-  };
-
-  const calculateHighestScoreByUser = (results: QuestionSetResult[]) => {
-    const highestScores: { [key: string]: number } = {};
-    results.forEach((result) => {
-      if (
-        !highestScores[result.userId] ||
-        highestScores[result.userId] < result.score
-      ) {
-        highestScores[result.userId] = result.score;
-      }
-    });
-    return highestScores;
-  };
-
-  const userOptions = users.map((user) => ({
-    label: `${user.name} (${user.id})`,
-    value: user.id,
-  }));
-
-  const questionSetOptions = questionSets.map((questionSet) => ({
-    label: `${questionSet.name} - ${questionSet.description} (${questionSet.id})`,
-    value: questionSet.id,
-  }));
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
@@ -308,99 +179,289 @@ const Quiz = () => {
     });
   };
 
-  const calculateCorrectAnswers = (answers: Answer[]) => {
-    return answers.filter((answer) => answer.option.isCorrect).length;
+  const handleUserSelection = (userId: string) => {
+    setSelectedUsers((prevSelectedUsers) =>
+      prevSelectedUsers.includes(userId)
+        ? prevSelectedUsers.filter((id) => id !== userId)
+        : [...prevSelectedUsers, userId]
+    );
   };
+
+  const handleSelectAllUsers = () => {
+    if (selectedUsers.length === users.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(users.map((user) => user.id));
+    }
+  };
+
+  const handleQuizSelection = (questionSetId: string) => {
+    setSelectedQuestionSets((prevSelectedQuestionSets) =>
+      prevSelectedQuestionSets.includes(questionSetId)
+        ? prevSelectedQuestionSets.filter((id) => id !== questionSetId)
+        : [...prevSelectedQuestionSets, questionSetId]
+    );
+  };
+
+  const handleSelectAllQuizzes = () => {
+    if (selectedQuestionSets.length === questionSets.length) {
+      setSelectedQuestionSets([]);
+    } else {
+      setSelectedQuestionSets(questionSets.map((qs) => qs.id));
+    }
+  };
+
+  const sortData = (
+    key: keyof UserResult | "user.name" | "questionSet.name"
+  ) => {
+    let direction: "ascending" | "descending" = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const filterResultsByQuestionSet = (selectedQuestionSets: string[]) => {
+    if (results) {
+      const filteredResults = results.filter((result) =>
+        selectedQuestionSets.includes(result.questionSetId)
+      );
+      setFilteredResults(filteredResults);
+    }
+  };
+
+  let sortableResults = Array.isArray(filteredResults)
+    ? [...filteredResults]
+    : [];
+
+  if (sortConfig.key) {
+    sortableResults.sort((a, b) => {
+      const getNestedValue = (obj: any, key: string) => {
+        return key.split(".").reduce((o, k) => (o ? o[k] : null), obj);
+      };
+
+      const aValue =
+        sortConfig.key && sortConfig.key.includes(".")
+          ? getNestedValue(a, sortConfig.key)
+          : a[sortConfig.key as keyof UserResult];
+      const bValue =
+        sortConfig.key && sortConfig.key.includes(".")
+          ? getNestedValue(b, sortConfig.key)
+          : b[sortConfig.key as keyof UserResult];
+
+      if (sortConfig.key === "completedAt") {
+        return sortConfig.direction === "ascending"
+          ? new Date(aValue).getTime() - new Date(bValue).getTime()
+          : new Date(bValue).getTime() - new Date(aValue).getTime();
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  // Calculate statistics for summary box
+  const calculateStatistics = (results: UserResult[]) => {
+    const scores = results.map((result) => result.score);
+    const count = scores.length;
+    const average = scores.reduce((acc, score) => acc + score, 0) / count || 0;
+    const median = (() => {
+      const sorted = [...scores].sort((a, b) => a - b);
+      const middle = Math.floor(sorted.length / 2);
+      if (sorted.length % 2 === 0) {
+        return (sorted[middle - 1] + sorted[middle]) / 2;
+      }
+      return sorted[middle];
+    })();
+    const stdDev = Math.sqrt(
+      scores.reduce((acc, score) => acc + Math.pow(score - average, 2), 0) /
+        count
+    );
+    const highestScore = Math.max(...scores);
+    const lowestScore = Math.min(...scores);
+    const highestScoreByUser = calculateHighestScoreByUser(results);
+
+    return {
+      count,
+      average,
+      median,
+      stdDev,
+      highestScore,
+      lowestScore,
+      highestScoreByUser,
+    };
+  };
+
+  const calculateHighestScoreByUser = (results: UserResult[]) => {
+    const highestScores: { [key: string]: number } = {};
+    results.forEach((result) => {
+      if (
+        !highestScores[result.userId] ||
+        highestScores[result.userId] < result.score
+      ) {
+        highestScores[result.userId] = result.score;
+      }
+    });
+    const highestScoresArray = Object.values(highestScores);
+    const highestScoreAverage =
+      highestScoresArray.reduce((acc, score) => acc + score, 0) /
+        highestScoresArray.length || 0;
+    return highestScoreAverage;
+  };
+
+  const groupedResults = sortableResults.reduce((acc, result) => {
+    if (!acc[result.questionSetName]) {
+      acc[result.questionSetName] = [];
+    }
+    acc[result.questionSetName].push(result);
+    return acc;
+  }, {} as Record<string, UserResult[]>);
+
+  const saveSelections = () => {
+    sessionStorage.setItem("selectedUsers", JSON.stringify(selectedUsers));
+    sessionStorage.setItem(
+      "selectedQuestionSets",
+      JSON.stringify(selectedQuestionSets)
+    );
+  };
+
+  const loadSavedSelections = () => {
+    const savedSelectedUsers = sessionStorage.getItem("selectedUsers");
+    const savedSelectedQuestionSets = sessionStorage.getItem(
+      "selectedQuestionSets"
+    );
+
+    if (savedSelectedUsers) {
+      setSelectedUsers(JSON.parse(savedSelectedUsers));
+    }
+
+    if (savedSelectedQuestionSets) {
+      setSelectedQuestionSets(JSON.parse(savedSelectedQuestionSets));
+    }
+  };
+
+  const handleResultsPerPageChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setResultsPerPage(parseInt(event.target.value));
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const indexOfLastResult = currentPage * resultsPerPage;
+  const indexOfFirstResult = indexOfLastResult - resultsPerPage;
+  const currentResults = sortableResults.slice(
+    indexOfFirstResult,
+    indexOfLastResult
+  );
 
   return (
     <div className="quiz">
       <div className="quiz-Info">
         <h1>Quiz Result</h1>
-        <div>
-          <label>
-            View by:
-            <select
-              value={viewBy}
-              onChange={(e) =>
-                setViewBy(e.target.value as "userId" | "questionId")
-              }
-            >
-              <option value="userId">User</option>
-              <option value="questionId">Quiz</option>
-            </select>
-          </label>
-          {viewBy === "userId" ? (
-            <Select
-              styles={customStyles}
-              options={userOptions}
-              value={selectedUser}
-              onChange={(selectedOption) => setSelectedUser(selectedOption)}
-              placeholder="Select User"
-              isClearable
-            />
-          ) : (
-            <Select
-              styles={customStyles}
-              options={questionSetOptions}
-              value={selectedQuestionSet}
-              onChange={(selectedOption) =>
-                setSelectedQuestionSet(selectedOption)
-              }
-              placeholder="Select Quiz"
-              isClearable
-            />
-          )}
-          {viewBy === "userId" && (
-            <Select
-              styles={customStyles}
-              options={questionSetOptions}
-              value={filterQuestionSetId}
-              onChange={(selectedOption) =>
-                setFilterQuestionSetId(selectedOption)
-              }
-              placeholder="Filter by Quiz"
-              isClearable
-            />
-          )}
-        </div>
       </div>
       <div className="quiz-Content">
-        {loading ? (
-          <div className="loading">Loading...</div>
-        ) : viewBy === "userId" && results && Array.isArray(results) ? (
-          <>
-            <div className="section">
+        <div className="quiz-List">
+          <div className="header">
+            <div className="header-name">
+              <h2>User List</h2>
+            </div>
+            <div className="header-action">
               <button
                 className="toggle-button"
                 onClick={() => setIsTableCollapsed(!isTableCollapsed)}
               >
-                {isTableCollapsed ? "Expand Table" : "Collapse Table"}
+                <img
+                  src={isTableCollapsed ? ExpandIcon : CollapseIcon}
+                  alt="Toggle"
+                />
               </button>
-              {!isTableCollapsed && (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>User ID</th>
-                      <th>User Name</th>
-                      <th>Quiz ID</th>
-                      <th>Quiz Name</th>
-                      <th>Completed At</th>
-                      <th>Score</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {results
-                      .filter(
-                        (result) =>
-                          !filterQuestionSetId ||
-                          result.questionSetId === filterQuestionSetId.value
-                      )
-                      .map((result: UserResult) => (
+            </div>
+          </div>
+          {loading ? (
+            <div className="loading">Loading...</div>
+          ) : filteredResults ? (
+            <>
+              <div className="section">
+                {!isTableCollapsed && (
+                  <table>
+                    <thead>
+                      <tr>
+                        <th onClick={() => sortData("user.name")}>
+                          User Name{" "}
+                          {sortConfig.key === "user.name" && (
+                            <div className="sort-icon">
+                              <img
+                                src={
+                                  sortConfig.direction === "ascending"
+                                    ? AscendingIcon
+                                    : DescendingIcon
+                                }
+                                alt="Sort"
+                              />
+                            </div>
+                          )}
+                        </th>
+                        <th onClick={() => sortData("questionSet.name")}>
+                          Quiz Name{" "}
+                          {sortConfig.key === "questionSet.name" && (
+                            <div className="sort-icon">
+                              <img
+                                src={
+                                  sortConfig.direction === "ascending"
+                                    ? AscendingIcon
+                                    : DescendingIcon
+                                }
+                                alt="Sort"
+                              />
+                            </div>
+                          )}
+                        </th>
+                        <th onClick={() => sortData("completedAt")}>
+                          Completed Date{" "}
+                          {sortConfig.key === "completedAt" && (
+                            <div className="sort-icon">
+                              <img
+                                src={
+                                  sortConfig.direction === "ascending"
+                                    ? AscendingIcon
+                                    : DescendingIcon
+                                }
+                                alt="Sort"
+                              />
+                            </div>
+                          )}
+                        </th>
+                        <th onClick={() => sortData("score")}>
+                          Score{" "}
+                          {sortConfig.key === "score" && (
+                            <div className="sort-icon">
+                              <img
+                                src={
+                                  sortConfig.direction === "ascending"
+                                    ? AscendingIcon
+                                    : DescendingIcon
+                                }
+                                alt="Sort"
+                              />
+                            </div>
+                          )}
+                        </th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentResults.map((result: UserResult) => (
                         <tr key={`user-${result.id}`}>
-                          <td>{result.user.id}</td>
                           <td>{result.user.name}</td>
-                          <td>{result.questionSetId}</td>
                           <td>{result.questionSetName}</td>
                           <td>{formatDate(result.completedAt)}</td>
                           <td>{result.score}</td>
@@ -410,143 +471,215 @@ const Quiz = () => {
                               src={ViewIcon}
                               alt="View"
                               onClick={() => {
-                                fetchResultDetails(result.id);
+                                saveSelections(); // Save selections before navigating
+                                navigate(`/quiz/${result.id}`, {
+                                  state: {
+                                    selectedUsers,
+                                    selectedQuestionSets,
+                                  },
+                                });
                               }}
                             />
                           </td>
                         </tr>
                       ))}
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                )}
+                {!isTableCollapsed && (
+                  <div className="pagination">
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                    >
+                      Previous
+                    </button>
+                    <span>
+                      Page {currentPage} of{" "}
+                      {Math.ceil(sortableResults.length / resultsPerPage)}
+                    </span>
+                    <button
+                      disabled={
+                        currentPage ===
+                        Math.ceil(sortableResults.length / resultsPerPage)
+                      }
+                      onClick={() => handlePageChange(currentPage + 1)}
+                    >
+                      Next
+                    </button>
+                    <select
+                      value={resultsPerPage}
+                      onChange={handleResultsPerPageChange}
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+              <div className="summary-boxes">
+                {Object.entries(groupedResults).map(
+                  ([questionSetName, results]) => {
+                    const stats = calculateStatistics(results);
+                    const isExpanded = groupedResultsExpanded[questionSetName];
+                    return (
+                      <div className="summary-box" key={questionSetName}>
+                        <div
+                          className="summary-box-header"
+                          onClick={() =>
+                            setGroupedResultsExpanded({
+                              ...groupedResultsExpanded,
+                              [questionSetName]: !isExpanded,
+                            })
+                          }
+                        >
+                          <h3>{questionSetName}</h3>
+                          <img
+                            src={isExpanded ? CollapseIcon : ExpandIcon}
+                            alt="Toggle"
+                          />
+                        </div>
+                        {isExpanded && (
+                          <div className="summary-box-content">
+                            <div className="summary-item">
+                              <span>Number of Attempts:</span>
+                              <span>{stats.count}</span>
+                            </div>
+                            <div className="summary-item">
+                              <span>Average:</span>
+                              <span>{stats.average.toFixed(2)}</span>
+                            </div>
+                            <div className="summary-item">
+                              <span>Median:</span>
+                              <span>{stats.median.toFixed(2)}</span>
+                            </div>
+                            <div className="summary-item">
+                              <span>Standard Deviation:</span>
+                              <span>{stats.stdDev.toFixed(2)}</span>
+                            </div>
+                            <div className="summary-item">
+                              <span>Highest Score:</span>
+                              <span>{stats.highestScore}</span>
+                            </div>
+                            <div className="summary-item">
+                              <span>Lowest Score:</span>
+                              <span>{stats.lowestScore}</span>
+                            </div>
+                            <div className="summary-item">
+                              <span>User's Top Scores Average:</span>
+                              <span>{stats.highestScoreByUser.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </>
+          ) : null}
+        </div>
+        <div className="quiz-Filter">
+          <div className="filter-tabs">
+            <button
+              className={`tab-button ${activeTab === "user" ? "active" : ""}`}
+              onClick={() => setActiveTab("user")}
+            >
+              User Filter
+            </button>
+            <button
+              className={`tab-button ${activeTab === "quiz" ? "active" : ""}`}
+              onClick={() => setActiveTab("quiz")}
+            >
+              Quiz Filter
+            </button>
+          </div>
+          {activeTab === "user" ? (
+            <div className="user-Filter">
+              <div
+                className="filter-header"
+                onClick={() => setIsUserFilterCollapsed(!isUserFilterCollapsed)}
+              >
+                <h3>Username</h3>
+                <img
+                  src={isUserFilterCollapsed ? ExpandIcon : CollapseIcon}
+                  alt="Toggle"
+                />
+              </div>
+              {!isUserFilterCollapsed && (
+                <div className="filter-content">
+                  <label>
+                    <span>Select All Users</span>
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.length === users.length}
+                      onChange={handleSelectAllUsers}
+                    />
+                  </label>
+                  {users.map((user, index) => (
+                    <label key={user.id}>
+                      <span>
+                        {String(index + 1).padStart(3, "0")}: {user.name}
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleUserSelection(user.id)}
+                      />
+                    </label>
+                  ))}
+                </div>
               )}
             </div>
-
-            {selectedResultDetails && (
-              <>
-                <div className="section">
-                  <h2>User Details</h2>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>User ID</th>
-                        <th>User Name</th>
-                        <th>User Email</th>
-                        <th>Card Number</th>
-                        <th>Verified</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>{selectedResultDetails.user.id}</td>
-                        <td>{selectedResultDetails.user.name}</td>
-                        <td>{selectedResultDetails.user.email}</td>
-                        <td>{selectedResultDetails.user.cardNumber}</td>
-                        <td>
-                          {selectedResultDetails.user.verified ? "Yes" : "No"}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="section">
-                  <h2>Answers Details</h2>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Question Description</th>
-                        <th>Option Keyword</th>
-                        <th>Option Description</th>
-                        <th>Is Correct</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedResultDetails.answers.map((answer) => (
-                        <tr key={`answer-${answer.id}`}>
-                          <td>{answer.question.description}</td>
-                          <td>{answer.option.keyword}</td>
-                          <td>{answer.option.description}</td>
-                          <td>{answer.option.isCorrect ? "Yes" : "No"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="summary">
-                  <p>
-                    Correct Answers:{" "}
-                    {calculateCorrectAnswers(selectedResultDetails.answers)}
-                  </p>
-                  <p>Total Score: {selectedResultDetails.score}</p>
-                </div>
-              </>
-            )}
-          </>
-        ) : viewBy === "questionId" && results && !Array.isArray(results) ? (
-          <>
-            <div className="section">
-              <h2>Quiz Details</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Quiz ID</th>
-                    <th>Quiz Name</th>
-                    <th>Description</th>
-                    <th>Published At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{results.questionSet.id}</td>
-                    <td>{results.questionSet.name}</td>
-                    <td>{results.questionSet.description}</td>
-                    <td>{formatDate(results.questionSet.publishedAt)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div className="section">
-              <h2>User Answer Details</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>User ID</th>
-                    <th>User Name</th>
-                    <th>Score</th>
-                    <th>Completed At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.results.map((result, index) => (
-                    <tr key={`question-${result.userId}-${index}`}>
-                      <td>{result.user.id}</td>
-                      <td>{result.user.name}</td>
-                      <td>{result.score}</td>
-                      <td>{formatDate(result.completedAt)}</td>
-                    </tr>
+          ) : (
+            <div className="quiz-Filter">
+              <div
+                className="filter-header"
+                onClick={() => setIsQuizFilterCollapsed(!isQuizFilterCollapsed)}
+              >
+                <h3>Quiz</h3>
+                <img
+                  src={isQuizFilterCollapsed ? ExpandIcon : CollapseIcon}
+                  alt="Toggle"
+                />
+              </div>
+              {!isQuizFilterCollapsed && (
+                <div className="filter-content">
+                  <label>
+                    <span>Select All Quizzes</span>
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedQuestionSets.length === questionSets.length
+                      }
+                      onChange={handleSelectAllQuizzes}
+                    />
+                  </label>
+                  {questionSets.map((questionSet, index) => (
+                    <label key={questionSet.id}>
+                      <span>
+                        {String(index + 1).padStart(3, "0")}: {questionSet.name}{" "}
+                        (
+                        {
+                          results?.filter(
+                            (result) => result.questionSetId === questionSet.id
+                          ).length
+                        }
+                        )
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={selectedQuestionSets.includes(questionSet.id)}
+                        onChange={() => handleQuizSelection(questionSet.id)}
+                      />
+                    </label>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              )}
             </div>
-
-            <div className="summary">
-              <h2>Summary</h2>
-              {(() => {
-                const { highestScore, lowestScore, averageScore } =
-                  calculateScores(results.results);
-                return (
-                  <>
-                    <p>Average Score: {averageScore}</p>
-                    <p>Lowest Score: {lowestScore}</p>
-                    <p>Highest Score: {highestScore}</p>
-                  </>
-                );
-              })()}
-            </div>
-          </>
-        ) : null}
+          )}
+        </div>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import InformationDetails from "./pages/information/InformationDetails";
 import Question from "./pages/question/Question";
 import QuestionDetails from "./pages/question/QuestionDetails";
 import Quiz from "./pages/quiz/Quiz";
+import QuizDetails from "./pages/quiz/QuizDetails";
 import Value from "./pages/value/Value";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
@@ -108,6 +109,10 @@ function App() {
         {
           path: "/quiz",
           element: <Quiz />,
+        },
+        {
+          path: "/quiz/:quizresultId",
+          element: <QuizDetails />,
         },
         {
           path: "/value",
