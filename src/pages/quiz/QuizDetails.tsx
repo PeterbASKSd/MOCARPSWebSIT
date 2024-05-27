@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import "./QuizDetails.scss";
+import "../quiz/quizDetails.scss";
 import {
   PieChart,
   Pie,
