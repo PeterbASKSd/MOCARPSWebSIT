@@ -165,24 +165,46 @@
         align-items: center;
         margin-top: 20px;
 
-        button {
-          background-color: #007bff;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          cursor: pointer;
-          &:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+        .records-count {
+          flex: 1;
+          text-align: left;
+        }
+
+        .pagination-controls {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex: 1;
+
+          .page-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            width: 100px;
+            cursor: pointer;
+            &:disabled {
+              background-color: #ccc;
+              cursor: not-allowed;
+            }
+          }
+
+          span {
+            margin: 0 10px;
           }
         }
 
-        select {
-          background-color: #343a40;
-          color: white;
-          border: 1px solid #ccc;
-          padding: 5px;
-          cursor: pointer;
+        .pagination-page-showing {
+          text-align: right;
+          flex: 1;
+
+          .page-select {
+            background-color: #343a40;
+            color: white;
+            border: 1px solid #ccc;
+            padding: 5px;
+            cursor: pointer;
+          }
         }
       }
     }

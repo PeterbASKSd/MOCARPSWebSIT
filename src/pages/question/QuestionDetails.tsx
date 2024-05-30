@@ -198,7 +198,10 @@ const QuestionDetails = () => {
           invalidQuestionsSet.add(question.id);
         }
 
-        if (!question.options.some((option: any) => option.isCorrect)) {
+        if (
+          question.questionType !== "BRANCH" &&
+          !question.options.some((option: any) => option.isCorrect)
+        ) {
           valid = false;
           errorMsg = "Each question must have at least one correct answer.";
           invalidQuestionsSet.add(question.id);
@@ -313,15 +316,22 @@ const QuestionDetails = () => {
 
   const hasIncompleteOptions =
     !published &&
-    rows.some((question) => {
-      return question.options.some(
-        (option: any) => !option.description.trim() || !option.isCorrect
-      );
-    });
+    (rows.length === 0 ||
+      rows.some((question) => {
+        return question.options.some(
+          (option: any) =>
+            !option.description.trim() ||
+            (!option.isCorrect && question.questionType !== "BRANCH")
+        );
+      }));
+
+  console.log("Published:", published);
+  console.log("Has Incomplete Options:", hasIncompleteOptions);
+  console.log("Rows:", rows);
 
   return (
     <div className="questionDetails">
-      {hasIncompleteOptions && <div className="questionAddOverlay"></div>}
+      {!published && <div className="questionAddOverlay"></div>}
       <div className="info">
         <h1>{name}</h1>
         <button
@@ -351,7 +361,7 @@ const QuestionDetails = () => {
           <div className="question-container">
             <div className="list-container">
               {rows.length === 0 ? (
-                <p>This is an empty Question Set.</p>
+                <p className="empty">This is an empty Question Set.</p>
               ) : (
                 rows.map((question, questionIndex) => (
                   <div
@@ -462,22 +472,24 @@ const QuestionDetails = () => {
                                       </option>
                                     ))}
                                   </select>
-                                  <label>
-                                    <Toggle
-                                      checked={option.isCorrect}
-                                      icons={false}
-                                      onChange={(e) =>
-                                        handleOptionChange(
-                                          question.id,
-                                          option.id,
-                                          "isCorrect",
-                                          e.target.checked
-                                        )
-                                      }
-                                      disabled={published}
-                                    />
-                                    Correct Answer
-                                  </label>
+                                  {question.questionType !== "BRANCH" && (
+                                    <label>
+                                      <Toggle
+                                        checked={option.isCorrect}
+                                        icons={false}
+                                        onChange={(e) =>
+                                          handleOptionChange(
+                                            question.id,
+                                            option.id,
+                                            "isCorrect",
+                                            e.target.checked
+                                          )
+                                        }
+                                        disabled={published}
+                                      />
+                                      Correct Answer
+                                    </label>
+                                  )}
                                 </span>
                                 <div className="option-actions">
                                   {!published && (

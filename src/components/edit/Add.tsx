@@ -755,7 +755,7 @@ const Add = (props: Props) => {
                       handleLongInputChangeForLong(column.field, value)
                     }
                     value={formData[column.field]?.toString() ?? ""}
-                    disabled={props.published === true}
+                    disabled={props.published}
                   />
                 </>
               ) : column.type === "file" ? (

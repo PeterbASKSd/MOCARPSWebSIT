@@ -10,6 +10,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import correctIcon from "/src/assets/correct.svg";
+import incorrectIcon from "/src/assets/incorrect.svg";
 
 type User = {
   id: string;
@@ -19,22 +21,32 @@ type User = {
   verified: boolean;
 };
 
+type Question = {
+  id: number;
+  description: string;
+  score: number;
+  questionType: string;
+  options: {
+    id: number;
+    keyword: string;
+    description: string;
+    isCorrect: boolean;
+    jumpTo: number;
+  }[];
+};
+
 type Answer = {
   id: number;
-  questionId: string;
+  questionId: number; // Ensure this is a number
   resultId: string;
-  optionId: string;
-  question: {
-    id: number;
-    description: string;
-    score: number;
-    questionType: string;
-  };
+  optionId: number; // Ensure this is a number
+  question: Question;
   option: {
     id: number;
     keyword: string;
     description: string;
     isCorrect: boolean;
+    jumpTo: number;
   };
 };
 
@@ -50,11 +62,11 @@ type UserResult = {
 };
 
 const COLORS_ANSWERS = ["#28a745", "#dc3545"]; // Green for correct, red for incorrect
-const COLORS_SCORES = ["#007bff", "#ffc107"]; // Blue for scored, yellow for remaining
 
 const QuizDetail = () => {
   const { quizresultId } = useParams<{ quizresultId: string }>();
   const [resultDetails, setResultDetails] = useState<UserResult | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,6 +76,12 @@ const QuizDetail = () => {
       fetchResultDetails(quizresultId);
     }
   }, [quizresultId]);
+
+  useEffect(() => {
+    if (resultDetails?.questionSetId) {
+      fetchQuestions(resultDetails.questionSetId);
+    }
+  }, [resultDetails]);
 
   const fetchResultDetails = async (id: string) => {
     setLoading(true);
@@ -79,6 +97,17 @@ const QuizDetail = () => {
     }
   };
 
+  const fetchQuestions = async (id: string) => {
+    try {
+      const response = await axios.get(
+        `https://mocarps.azurewebsites.net/questionSet/${id}`
+      );
+      setQuestions(response.data.questions);
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -90,21 +119,30 @@ const QuizDetail = () => {
   }
 
   const correctAnswersCount = calculateCorrectAnswers(resultDetails.answers);
-  const totalQuestions = resultDetails.answers.length;
-  const totalScore = resultDetails.answers.reduce(
-    (sum, answer) => sum + answer.question.score,
-    0
-  );
+  const totalQuestions = questions.length;
+  const totalScore = resultDetails.answers
+    .filter((answer) => answer.question.questionType !== "BRANCH")
+    .reduce((sum, answer) => sum + answer.question.score, 0);
 
   const pieData = [
     { name: "Correct", value: correctAnswersCount },
     { name: "Incorrect", value: totalQuestions - correctAnswersCount },
   ];
 
-  const scorePieData = [
-    { name: "Scored", value: resultDetails.score },
-    { name: "Remaining", value: totalScore - resultDetails.score },
-  ];
+  const getJumpToText = (jumpTo: number) => {
+    if (jumpTo === 0) return "Next question";
+    if (jumpTo === -1) return "The end";
+    const jumpToQuestionIndex = questions.findIndex(
+      (question) => question.id === jumpTo
+    );
+    return `Jump to Q# ${jumpToQuestionIndex + 1}`;
+  };
+
+  const findAnswerForQuestion = (questionId: number) => {
+    return resultDetails.answers.find(
+      (answer) => answer.questionId === questionId
+    );
+  };
 
   return (
     <div className="quiz-detail">
@@ -156,21 +194,55 @@ const QuizDetail = () => {
               <th>Question Score</th>
               <th>Selected Option</th>
               <th>Option Description</th>
-              <th>Is Correct</th>
+              <th>Is Answer Correct</th>
             </tr>
           </thead>
           <tbody>
-            {resultDetails.answers.map((answer, index) => (
-              <tr key={`answer-${answer.id}`}>
-                <td>{index + 1}</td>
-                <td>{answer.question.description}</td>
-                <td>{answer.question.questionType}</td>
-                <td>{answer.question.score}</td>
-                <td>{answer.option.keyword}</td>
-                <td>{answer.option.description}</td>
-                <td>{answer.option.isCorrect ? "Yes" : "No"}</td>
-              </tr>
-            ))}
+            {questions.map((question, index) => {
+              const answer = findAnswerForQuestion(question.id);
+              return (
+                <tr key={`question-${question.id}`}>
+                  <td>{index + 1}</td>
+                  <td>{question.description}</td>
+                  <td>{question.questionType}</td>
+                  <td>
+                    {question.questionType !== "BRANCH" ? question.score : "-"}
+                  </td>
+                  <td>
+                    {answer ? (
+                      <>
+                        {answer.option.keyword}
+                        {answer.option.jumpTo !== 0 &&
+                          answer.option.jumpTo !== -1 &&
+                          ` (${getJumpToText(answer.option.jumpTo)})`}
+                      </>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td>{answer ? answer.option.description : "-"}</td>
+                  <td>
+                    {answer ? (
+                      answer.option.isCorrect ? (
+                        <img
+                          src={correctIcon}
+                          alt="Correct"
+                          className="correct-icon"
+                        />
+                      ) : (
+                        <img
+                          src={incorrectIcon}
+                          alt="Incorrect"
+                          className="incorrect-icon"
+                        />
+                      )
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -179,9 +251,15 @@ const QuizDetail = () => {
         <h2>Summary</h2>
         <div className="summary-boxes">
           <div className="summary-box">
-            <p>
-              Correct Answers: {correctAnswersCount}/{totalQuestions}
-            </p>
+            <div className="summary-description">
+              <p>
+                Correct Answers: {correctAnswersCount}/{totalQuestions}
+              </p>
+              <p>
+                Quiz Score: {resultDetails.score}/{totalScore}
+              </p>
+            </div>
+
             <div className="recharts-wrapper">
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -201,38 +279,6 @@ const QuizDetail = () => {
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS_ANSWERS[index % COLORS_ANSWERS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          <div className="summary-box">
-            <p>
-              Quiz Score: {resultDetails.score}/{totalScore}
-            </p>
-            <div className="recharts-wrapper">
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={scorePieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) =>
-                      `${name}: ${(percent * 100).toFixed(0)}%`
-                    }
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {scorePieData.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS_SCORES[index % COLORS_SCORES.length]}
                       />
                     ))}
                   </Pie>

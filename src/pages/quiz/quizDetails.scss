@@ -40,14 +40,18 @@
             margin-right: 0;
           }
   
-          p {
-            margin: 0 0 10px 0;
+          .summary-description{
+            display:flex;
+            justify-content:space-around;
+            p {
+                margin: 0 0 10px 0;
+              }
+      
           }
-  
+
           .recharts-wrapper {
-            display: flex;
             justify-content: center;
-            width: 600px; /* Adjusted width */
+            width: 100%; /* Adjusted width */
           }
         }
       }
@@ -65,6 +69,12 @@
       &:hover {
         background-color: #0056b3;
       }
+    }
+  
+    .correct-icon,
+    .incorrect-icon {
+      width: 20px; /* Set the desired width */
+      height: 20px; /* Set the desired height */
     }
   }
   

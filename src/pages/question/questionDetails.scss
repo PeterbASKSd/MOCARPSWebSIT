@@ -4,8 +4,8 @@
   font-family: 'Arial', sans-serif;
   color: #f4f4f8;
   position: relative;
-  z-index: 2; // Ensure content is above the overlay
-  
+  z-index: 2;
+
   .invalid {
     border: 1px solid red;
     background-color: #ffe6e6;
@@ -23,7 +23,7 @@
     gap: 20px;
     padding: 8px 0px 28px 0px;
     position: relative;
-    z-index: 3; // Ensure info is above the overlay
+    z-index: 3;
     background-color: $main-bg;
 
     button {
@@ -51,7 +51,7 @@
     justify-content: flex-start;
     background-color: $main-bg;
     padding: 10px;
-    z-index: 3; // Ensure toolsbar is above the overlay
+    z-index: 3;
 
     .addButton {
       background-color: #4caf50;
@@ -91,7 +91,7 @@
     color: black;
     background: $main-bg;
     border-radius: 5px;
-    z-index: 3; // Ensure question-container is above the overlay
+    z-index: 3;
   }
 
   .list-container {
@@ -99,7 +99,9 @@
     padding: 1%;
     background: $main-bg;
     overflow: auto;
-    z-index: 3; // Ensure list-container is above the overlay
+    z-index: 3;
+
+    .empty{color: white;}
 
     .question-item {
       background: #2c3e50;
@@ -161,7 +163,7 @@
               gap: 10px;
 
               span {
-                color: #333; // Make keyword not white
+                color: #333;
                 font-weight: bold;
               }
 
@@ -172,7 +174,7 @@
                 border: 1px solid #ccc;
                 border-radius: 4px;
                 max-width: 200px;
-                background-color: white; // Ensure background of input is white
+                background-color: white;
 
                 &:focus {
                   border-color: #0056b3;
@@ -218,7 +220,7 @@
     color: white;
     background-color: #2a3447;
     position: relative;
-    z-index: 3; // Ensure edit-container is above the overlay
+    z-index: 3;
 
     .button-group {
       display: flex;
@@ -264,6 +266,6 @@
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: -1; // Adjusted z-index for questionAddOverlay
+    z-index: -1;
   }
 }

@@ -113,9 +113,12 @@ const Quiz = () => {
       const response = await axios.get(
         "https://mocarps.azurewebsites.net/user"
       );
-      setUsers(response.data);
+      const sortedUsers = response.data.sort((a: User, b: User) =>
+        a.name.localeCompare(b.name)
+      );
+      setUsers(sortedUsers);
       if (!location.state) {
-        setSelectedUsers(response.data.map((user: User) => user.id)); // Select all users by default
+        setSelectedUsers(sortedUsers.map((user: User) => user.id)); // Select all users by default
       }
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -127,9 +130,12 @@ const Quiz = () => {
       const response = await axios.get(
         "https://mocarps.azurewebsites.net/questionSet"
       );
-      setQuestionSets(response.data);
+      const sortedQuestionSets = response.data.sort(
+        (a: QuestionSetData, b: QuestionSetData) => a.name.localeCompare(b.name)
+      );
+      setQuestionSets(sortedQuestionSets);
       if (!location.state) {
-        setSelectedQuestionSets(response.data.map((qs: any) => qs.id)); // Select all question sets by default
+        setSelectedQuestionSets(sortedQuestionSets.map((qs: any) => qs.id)); // Select all question sets by default
       }
     } catch (error) {
       console.error("Error fetching question sets:", error);
@@ -356,6 +362,13 @@ const Quiz = () => {
     setCurrentPage(page);
   };
 
+  const padWithLeadingZeros = (num: number | string, totalLength: number) => {
+    return String(num).padStart(totalLength, "0");
+  };
+
+  const totalUsers = users.length;
+  const totalQuestionSets = questionSets.length;
+
   const indexOfLastResult = currentPage * resultsPerPage;
   const indexOfFirstResult = indexOfLastResult - resultsPerPage;
   const currentResults = sortableResults.slice(
@@ -395,6 +408,7 @@ const Quiz = () => {
                   <table>
                     <thead>
                       <tr>
+                        <th>User ID</th>
                         <th onClick={() => sortData("user.name")}>
                           User Name{" "}
                           {sortConfig.key === "user.name" && (
@@ -410,6 +424,7 @@ const Quiz = () => {
                             </div>
                           )}
                         </th>
+                        <th>Quiz ID</th>
                         <th onClick={() => sortData("questionSet.name")}>
                           Quiz Name{" "}
                           {sortConfig.key === "questionSet.name" && (
@@ -461,7 +476,19 @@ const Quiz = () => {
                     <tbody>
                       {currentResults.map((result: UserResult) => (
                         <tr key={`user-${result.id}`}>
+                          <td>
+                            {padWithLeadingZeros(
+                              result.user.id,
+                              totalUsers.toString().length
+                            )}
+                          </td>
                           <td>{result.user.name}</td>
+                          <td>
+                            {padWithLeadingZeros(
+                              result.questionSetId,
+                              totalQuestionSets.toString().length
+                            )}
+                          </td>
                           <td>{result.questionSetName}</td>
                           <td>{formatDate(result.completedAt)}</td>
                           <td>{result.score}</td>
@@ -488,33 +515,43 @@ const Quiz = () => {
                 )}
                 {!isTableCollapsed && (
                   <div className="pagination">
-                    <button
-                      disabled={currentPage === 1}
-                      onClick={() => handlePageChange(currentPage - 1)}
-                    >
-                      Previous
-                    </button>
-                    <span>
-                      Page {currentPage} of{" "}
-                      {Math.ceil(sortableResults.length / resultsPerPage)}
+                    <span className="records-count">
+                      # of filtering record(s): {sortableResults.length}
                     </span>
-                    <button
-                      disabled={
-                        currentPage ===
-                        Math.ceil(sortableResults.length / resultsPerPage)
-                      }
-                      onClick={() => handlePageChange(currentPage + 1)}
-                    >
-                      Next
-                    </button>
-                    <select
-                      value={resultsPerPage}
-                      onChange={handleResultsPerPageChange}
-                    >
-                      <option value={10}>10</option>
-                      <option value={20}>20</option>
-                      <option value={50}>50</option>
-                    </select>
+                    <div className="pagination-controls">
+                      <button
+                        disabled={currentPage === 1}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className="page-button"
+                      >
+                        Previous
+                      </button>
+                      <span>
+                        Page {currentPage} of{" "}
+                        {Math.ceil(sortableResults.length / resultsPerPage)}
+                      </span>
+                      <button
+                        disabled={
+                          currentPage ===
+                          Math.ceil(sortableResults.length / resultsPerPage)
+                        }
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className="page-button"
+                      >
+                        Next
+                      </button>
+                    </div>
+                    <div className="pagination-page-showing">
+                      <select
+                        value={resultsPerPage}
+                        onChange={handleResultsPerPageChange}
+                        className="page-select"
+                      >
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                      </select>
+                    </div>
                   </div>
                 )}
               </div>
@@ -617,10 +654,14 @@ const Quiz = () => {
                       onChange={handleSelectAllUsers}
                     />
                   </label>
-                  {users.map((user, index) => (
+                  {users.map((user, _) => (
                     <label key={user.id}>
                       <span>
-                        {String(index + 1).padStart(3, "0")}: {user.name}
+                        {padWithLeadingZeros(
+                          user.id,
+                          totalUsers.toString().length
+                        )}
+                        : {user.name}
                       </span>
                       <input
                         type="checkbox"
@@ -656,11 +697,14 @@ const Quiz = () => {
                       onChange={handleSelectAllQuizzes}
                     />
                   </label>
-                  {questionSets.map((questionSet, index) => (
+                  {questionSets.map((questionSet, _) => (
                     <label key={questionSet.id}>
                       <span>
-                        {String(index + 1).padStart(3, "0")}: {questionSet.name}{" "}
-                        (
+                        {padWithLeadingZeros(
+                          questionSet.id,
+                          totalQuestionSets.toString().length
+                        )}
+                        : {questionSet.name} (
                         {
                           results?.filter(
                             (result) => result.questionSetId === questionSet.id
