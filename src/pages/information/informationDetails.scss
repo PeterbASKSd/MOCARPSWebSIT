@@ -41,8 +41,6 @@
     border-radius: 5px;
   }
 
-  
-
   .selection-container {
     h3 {
       color: white;
@@ -78,10 +76,9 @@
     display: flex; // Flexbox to handle content alignment
     justify-content: center; // Center the form horizontally
     align-items: flex-start; // Align the form at the top
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 10px;
   }
-  
+
   .edit-form {
     display: flex;
     flex-direction: column; // Ensure items are arranged vertically
@@ -92,12 +89,11 @@
     background-color: #2a3447; // Ensure form background color matches container
     border-radius: 8px; // Add some rounding to form edges
     position: relative;
-  
+
     label {
       display: block;
-
     }
-  
+
     input[type="text"],
     textarea,
     select {
@@ -108,18 +104,18 @@
       border-radius: 4px;
       box-sizing: border-box;
     }
-  
+
     textarea {
       height: 100px;
       resize: vertical;
     }
-  
+
     .button-group {
       display: flex;
       justify-content: center;
       gap: 10px;
     }
-  
+
     .save-button,
     .cancel-button {
       color: white;
@@ -130,40 +126,75 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-  
+
     .save-button {
       background-color: #04aa6d;
-  
+
       &:hover {
         background-color: darken(#04aa6d, 10%);
       }
     }
-  
+
     .cancel-button {
       background-color: red;
-  
+
       &:hover {
         background-color: darken(red, 10%);
       }
     }
-  
+
     .edit-form-fileSelection {
       background-color: #fff;
       color: black;
       display: center;
     }
-  
+
     button {
       white-space: nowrap;
     }
-  
+
     .media-preview-container {
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
+
+    .description-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    
+      .description-content {
+        flex-grow: 1; /* This will make the label take the available space */
+      }
+    
+      .html-view-button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        &:hover {
+          background-color: darken(#4CAF50, 10%);
+        }
+      }
+    }
+
+
+    .html-preview {
+      background-color: #fff;
+      color: black;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      white-space: pre-wrap; // Ensure white space is preserved
+      max-height: 300px; // Limit the height of the preview
+      overflow: auto; // Enable scrolling if content overflows
+    }
   }
-  
 
   .actionSet {
     display: flex;
@@ -220,6 +251,9 @@
   .otherButtons {
     display: flex;
     gap: 10px;
+    background-color: #2a3447; // Updated background color
+    padding: 10px;
+    border-radius: 5px;
   }
 
   .searchBox {
@@ -236,12 +270,15 @@
   }
 
   .toolsButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 1px solid #ccc;
-    padding: 5px 10px;
+    padding: 10px 20px;
     cursor: pointer;
-    margin-left: 5px;
     height: 36px;
     font-size: large;
+    gap: 5px;
 
     img {
       width: 20px;
@@ -254,13 +291,51 @@
     }
   }
 
+  .toolsButton.addNewItem {
+    background-color: #4CAF50; // Green
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    min-width: 100px; // Adjust the min-width to fit the text properly
+
+    span {
+      display: inline-block;
+      vertical-align: middle;
+      font-size: 0.9rem; // Adjust font size to fit text properly
+    }
+
+    img {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 5px;
+    }
+  }
+
+  .toolsButton.expandAll {
+    background-color: #008CBA; // Blue
+  }
+
+  .toolsButton.collapseAll {
+    background-color: #f44336; // Red
+  }
+
+  .toolsButton.save {
+    background-color: #e7e7e7; // Gray
+    color: black;
+  }
+
+  .toolsButton.reset {
+    background-color: #555555; // Dark Gray
+  }
+
   .rst__expandButton,
   .rst__collapseButton {
     position: absolute !important;
     top: auto !important;
     right: auto !important;
     bottom: 8px;
-  } 
+  }
 
   .nodeOverlay,
   .treeOverlay {
@@ -275,6 +350,46 @@
 
   .nodeOverlay {
     z-index: 12;
+  }
+
+  .rst__rowContents {
+    display: flex;
+    align-items: center;
+    max-width: 500px;
+    overflow: hidden;
+  }
+
+  .rst__rowLabel {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .rst__rowTitle {
+      font-weight: bold;
+      font-size: 1rem; // Adjusted font size for title
+    }
+
+    .rst__rowSubtitle {
+      color: #666;
+      font-size: 0.875rem;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .rst__rowToolbar {
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+
+  .rst__rowWrapper {
+    max-width: 80%;
   }
 }
 
@@ -388,4 +503,5 @@
       }
     }
   }
+
 }

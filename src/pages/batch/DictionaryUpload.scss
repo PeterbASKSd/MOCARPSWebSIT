@@ -1,0 +1,97 @@
+@import "../../styles/color.scss";
+
+#upload-container {
+  text-align: center;
+  padding: 20px;
+  border: 2px dashed #3498db;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: inherit;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto; // Center the container
+}
+
+#template-container {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto; // Center the container
+}
+
+#template-container-message {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+#data-table {
+  border-collapse: collapse;
+  margin: 10px auto; // Center the table
+}
+
+#data-table th,
+#data-table td {
+  border: 1px solid black;
+  padding: 10px;
+}
+
+#upload-icon {
+  font-size: 50px;
+  color: #3498db;
+  margin-bottom: 10px;
+}
+
+#file-input {
+  display: none;
+}
+
+#upload-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 20px;
+}
+
+#upload-success-icon {
+  font-size: 50px;
+  color: #2ecc71;
+  margin-bottom: 10px;
+}
+
+#upload-message {
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+
+#upload-error-icon {
+  font-size: 50px;
+  color: #e74c3c;
+  margin-bottom: 10px;
+}
+
+#spinner {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #3498db;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  margin: auto; // Center the spinner
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

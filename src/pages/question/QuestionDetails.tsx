@@ -16,13 +16,37 @@ import "./questionDetails.scss";
 import QuestionForm from "../../components/questionForm/QuestionForm";
 import { questionDetailColumns } from "../../data";
 
+interface Option {
+  id: number;
+  keyword: string;
+  description: string;
+  isCorrect: boolean;
+  jumpTo: number;
+  questionId: number;
+}
+
+interface Question {
+  id: number;
+  description: string;
+  options: Option[];
+  questionType: string;
+  score: number;
+}
+
+interface QuestionSet {
+  id: number;
+  name: string;
+  publishedAt: string | null;
+  questions: Question[];
+}
+
 const QuestionDetails = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const { id, name } = location.state || {};
   const navigate = useNavigate();
   const [change, setChange] = useState(false);
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<Question[]>([]);
   const [openQuestionAdd, setOpenQuestionAdd] = useState<
     number | boolean | null
   >(null);
@@ -47,7 +71,7 @@ const QuestionDetails = () => {
       if (!response.ok) {
         throw new Error("Failed to fetch rows from API");
       }
-      const data = await response.json();
+      const data: QuestionSet = await response.json();
       console.log("Fetched data:", data);
       setRows(data.questions || []);
       setPublished(data.publishedAt !== null); // Set published based on publishedAt
@@ -58,11 +82,11 @@ const QuestionDetails = () => {
     }
   };
 
-  const handleEditQuestion = (questionId: any) => {
+  const handleEditQuestion = (questionId: number) => {
     setOpenQuestionAdd(questionId);
   };
 
-  const handleDeleteQuestion = (questionId: any) => {
+  const handleDeleteQuestion = (questionId: number) => {
     if (!published) {
       Swal.fire({
         title: "Are you sure?",
@@ -86,7 +110,7 @@ const QuestionDetails = () => {
     }
   };
 
-  const handleDeleteOption = async (questionId: any, optionID: any) => {
+  const handleDeleteOption = async (questionId: number, optionID: number) => {
     if (!published) {
       Swal.fire({
         title: "Are you sure?",
@@ -101,8 +125,8 @@ const QuestionDetails = () => {
           const updatedRows = rows.map((question) => {
             if (question.id === questionId) {
               question.options = question.options
-                .filter((option: any) => option.id !== optionID)
-                .map((option: any, index: number) => ({
+                .filter((option) => option.id !== optionID)
+                .map((option, index) => ({
                   ...option,
                   keyword: String.fromCharCode(65 + index),
                 }));
@@ -131,9 +155,9 @@ const QuestionDetails = () => {
     }
   };
 
-  const getNextKeyword = (options: any[]) => {
+  const getNextKeyword = (options: Option[]) => {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const usedKeywords = options.map((option: any) => option.keyword);
+    const usedKeywords = options.map((option) => option.keyword);
     for (let i = 0; i < alphabet.length; i++) {
       if (!usedKeywords.includes(alphabet[i])) {
         return alphabet[i];
@@ -142,11 +166,11 @@ const QuestionDetails = () => {
     return "";
   };
 
-  const handleAddOption = async (questionId: any) => {
+  const handleAddOption = async (questionId: number) => {
     if (!published) {
-      let updatedRows = rows.map((question) => {
+      const updatedRows = rows.map((question) => {
         if (question.id === questionId) {
-          const newOption = {
+          const newOption: Option = {
             id: Date.now(),
             keyword: getNextKeyword(question.options),
             description: "",
@@ -200,14 +224,14 @@ const QuestionDetails = () => {
 
         if (
           question.questionType !== "BRANCH" &&
-          !question.options.some((option: any) => option.isCorrect)
+          !question.options.some((option) => option.isCorrect)
         ) {
           valid = false;
           errorMsg = "Each question must have at least one correct answer.";
           invalidQuestionsSet.add(question.id);
         }
 
-        question.options.forEach((option: any) => {
+        question.options.forEach((option) => {
           if (option.description.trim() === "") {
             valid = false;
             errorMsg = "Each option must have a description.";
@@ -269,18 +293,18 @@ const QuestionDetails = () => {
   const handleOptionChange = async (
     questionId: number,
     optionId: number,
-    field: keyof any,
+    field: keyof Option,
     value: any
   ) => {
     if (!published) {
-      let updatedRows = rows.map((question) => {
+      const updatedRows = rows.map((question) => {
         if (question.id === questionId) {
-          question.options = question.options.map((option: any) =>
+          question.options = question.options.map((option) =>
             option.id === optionId ? { ...option, [field]: value } : option
           );
 
           if (field === "isCorrect" && value) {
-            question.options = question.options.map((option: any) =>
+            question.options = question.options.map((option) =>
               option.id === optionId
                 ? { ...option, isCorrect: true }
                 : { ...option, isCorrect: false }
@@ -319,7 +343,7 @@ const QuestionDetails = () => {
     (rows.length === 0 ||
       rows.some((question) => {
         return question.options.some(
-          (option: any) =>
+          (option) =>
             !option.description.trim() ||
             (!option.isCorrect && question.questionType !== "BRANCH")
         );
@@ -429,100 +453,104 @@ const QuestionDetails = () => {
                     </div>
                     {expandedQuestions.has(question.id) && (
                       <div className="options-container">
-                        {question.options?.map(
-                          (option: any, optionIndex: number) => (
-                            <div key={option.id} className="option-item">
-                              <div className="option-content">
-                                <span>
-                                  <span>{option.keyword}</span>
-                                  <input
-                                    type="text"
-                                    value={option.description}
-                                    placeholder="Please enter the option title"
-                                    onChange={(e) =>
-                                      handleOptionChange(
-                                        question.id,
-                                        option.id,
-                                        "description",
-                                        e.target.value
-                                      )
-                                    }
-                                    disabled={published}
-                                  />
-                                  <select
-                                    value={option.jumpTo}
-                                    onChange={(e) =>
-                                      handleOptionChange(
-                                        question.id,
-                                        option.id,
-                                        "jumpTo",
-                                        parseInt(e.target.value, 10)
-                                      )
-                                    }
-                                    disabled={published}
-                                  >
+                        {question.options?.map((option, optionIndex) => (
+                          <div key={option.id} className="option-item">
+                            <div className="option-content">
+                              <span>
+                                <span>{option.keyword}</span>
+                                <input
+                                  type="text"
+                                  value={option.description}
+                                  placeholder="Please enter the option title"
+                                  onChange={(e) =>
+                                    handleOptionChange(
+                                      question.id,
+                                      option.id,
+                                      "description",
+                                      e.target.value
+                                    )
+                                  }
+                                  disabled={published}
+                                />
+                                <select
+                                  value={option.jumpTo}
+                                  onChange={(e) =>
+                                    handleOptionChange(
+                                      question.id,
+                                      option.id,
+                                      "jumpTo",
+                                      parseInt(e.target.value, 10)
+                                    )
+                                  }
+                                  disabled={published}
+                                >
+                                  {questionIndex !== rows.length - 1 && (
                                     <option value={0}>Next Question (0)</option>
-                                    <option value={-1}>
-                                      End of The Quiz (-1)
-                                    </option>
-                                    {rows.map((q, idx) => (
-                                      <option key={q.id} value={q.id}>
-                                        Jump to Q{idx + 1} - {q.description} (
-                                        {q.questionType}, Score: {q.score})
-                                      </option>
-                                    ))}
-                                  </select>
-                                  {question.questionType !== "BRANCH" && (
-                                    <label>
-                                      <Toggle
-                                        checked={option.isCorrect}
-                                        icons={false}
-                                        onChange={(e) =>
-                                          handleOptionChange(
-                                            question.id,
-                                            option.id,
-                                            "isCorrect",
-                                            e.target.checked
-                                          )
-                                        }
-                                        disabled={published}
-                                      />
-                                      Correct Answer
-                                    </label>
                                   )}
-                                </span>
-                                <div className="option-actions">
-                                  {!published && (
-                                    <>
+                                  <option value={-1}>
+                                    End of The Quiz (-1)
+                                  </option>
+                                  {questionIndex !== rows.length - 1 &&
+                                    rows
+                                      .filter((_, idx) => idx > questionIndex)
+                                      .map((q, idx) => (
+                                        <option key={q.id} value={q.id}>
+                                          Jump to Q{questionIndex + idx + 2} -{" "}
+                                          {q.description} ({q.questionType},
+                                          Score: {q.score})
+                                        </option>
+                                      ))}
+                                </select>
+                                {question.questionType !== "BRANCH" && (
+                                  <label>
+                                    <Toggle
+                                      checked={option.isCorrect}
+                                      icons={false}
+                                      onChange={(e) =>
+                                        handleOptionChange(
+                                          question.id,
+                                          option.id,
+                                          "isCorrect",
+                                          e.target.checked
+                                        )
+                                      }
+                                      disabled={published}
+                                    />
+                                    Correct Answer
+                                  </label>
+                                )}
+                              </span>
+                              <div className="option-actions">
+                                {!published && (
+                                  <>
+                                    <button
+                                      className="actionButton"
+                                      onClick={() =>
+                                        handleDeleteOption(
+                                          question.id,
+                                          option.id
+                                        )
+                                      }
+                                    >
+                                      <img src={DeleteIcon} alt="Delete" />
+                                    </button>
+                                    {optionIndex ===
+                                      question.options.length - 1 && (
                                       <button
                                         className="actionButton"
                                         onClick={() =>
-                                          handleDeleteOption(
-                                            question.id,
-                                            option.id
-                                          )
+                                          handleAddOption(question.id)
                                         }
                                       >
-                                        <img src={DeleteIcon} alt="Delete" />
+                                        <img src={Add2Icon} alt="Add" />
                                       </button>
-                                      {optionIndex ===
-                                        question.options.length - 1 && (
-                                        <button
-                                          className="actionButton"
-                                          onClick={() =>
-                                            handleAddOption(question.id)
-                                          }
-                                        >
-                                          <img src={Add2Icon} alt="Add" />
-                                        </button>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
+                                    )}
+                                  </>
+                                )}
                               </div>
                             </div>
-                          )
-                        )}
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>

@@ -17,6 +17,8 @@ import { Navigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import DictionaryBatch from "./pages/batch/upload_dictionary";
+import ValueBatch from "./pages/batch/upload_value_checking";
 
 import "./styles/global.scss";
 
@@ -87,6 +89,10 @@ function App() {
           element: <Dictionary />,
         },
         {
+          path: "/dictionary/batch",
+          element: <DictionaryBatch />,
+        },
+        {
           path: "/user",
           element: <User priority={userPriority} />,
         },
@@ -117,6 +123,10 @@ function App() {
         {
           path: "/value",
           element: <Value />,
+        },
+        {
+          path: "/value/batch",
+          element: <ValueBatch />,
         },
       ],
     },

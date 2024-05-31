@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import Add from "../../components/add/Add";
 import { dictionaryColumns } from "../../data";
 import Edit from "../../components/edit/Add";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const url = "https://mocarps.azurewebsites.net/dictionary/";
 
@@ -15,6 +16,7 @@ const Dictionary = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [targetId, setTargetId] = useState<number>(0);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const fetchRowsFromAPI = async () => {
     try {
@@ -66,6 +68,13 @@ const Dictionary = () => {
     <div className="dictionary">
       <div className="info">
         <h1>Dictionary</h1>
+        <IconButton
+          onClick={() => navigate("/dictionary/batch")}
+          className="addButton"
+        >
+          <img src={AddButton} alt="" />
+          <h3>Batch Upload</h3>
+        </IconButton>
         <IconButton onClick={() => setOpenAdd(true)} className="addButton">
           <img src={AddButton} alt="" />
           <h3>New</h3>

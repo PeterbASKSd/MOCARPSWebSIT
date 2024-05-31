@@ -42,6 +42,7 @@ const InformationDetails: React.FC = () => {
   const [newFileUrl, setNewFileUrl] = useState<string | null>(null);
   const [isEditingNodeDetail, setIsEditingNodeDetail] = useState(false);
   const [isEditingNode, setIsEditingNode] = useState(true);
+  const [htmlView, setHtmlView] = useState<boolean>(false);
 
   useEffect(() => {
     if (!change) {
@@ -399,6 +400,12 @@ const InformationDetails: React.FC = () => {
     }
   };
 
+  const stripHtml = (html: string) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return div.textContent || div.innerText || "";
+  };
+
   return (
     <div className="informationDetails">
       <div className="info">
@@ -413,28 +420,27 @@ const InformationDetails: React.FC = () => {
           <div className="toolBar">
             <div className="otherButtons">
               <button
-                className="toolsButton"
+                className="toolsButton addNewItem"
                 onClick={() => {
                   setOpenAddNewNode(true);
                   setNodeInfo(null);
                 }}
               >
-                Add New Item &nbsp;
-                <img src={AddNodeIcon} alt="Add Icon" />
+                <span>Add New Item</span>
               </button>
-              <button className="toolsButton" onClick={expandAll}>
+              <button className="toolsButton expandAll" onClick={expandAll}>
                 Expand All
               </button>
-              <button className="toolsButton" onClick={collapseAll}>
+              <button className="toolsButton collapseAll" onClick={collapseAll}>
                 Collapse All
               </button>
               <button
-                className="toolsButton"
+                className="toolsButton save"
                 onClick={handleSaveAndBackToCategory}
               >
                 Save
               </button>
-              <button className="toolsButton" onClick={handleReset}>
+              <button className="toolsButton reset" onClick={handleReset}>
                 Reset
               </button>
             </div>
@@ -479,6 +485,11 @@ const InformationDetails: React.FC = () => {
                   ) : null}
                 </div>,
               ],
+              subtitle: (
+                <div className="rst__rowSubtitle">
+                  {stripHtml(rowInfo.node.subtitle)}
+                </div>
+              ),
             })}
             maxDepth={3}
           />
@@ -495,13 +506,34 @@ const InformationDetails: React.FC = () => {
                 onChange={(e) => setTitle(e.target.value)}
               />
 
-              <label htmlFor="description">Description</label>
-              <textarea
-                id="description"
-                value={subtitle}
-                placeholder="Enter description"
-                onChange={(e) => setSubtitle(e.target.value)}
-              />
+              <div className="description-container">
+                <div className="description-content">
+                  {" "}
+                  <label htmlFor="description">Description</label>
+                </div>
+                <div className="description-button">
+                  {" "}
+                  <button
+                    className="html-view-button"
+                    onClick={() => setHtmlView(!htmlView)}
+                  >
+                    {htmlView ? "Edit HTML" : "HTML View"}
+                  </button>
+                </div>
+              </div>
+
+              {htmlView ? (
+                <div className="html-preview">
+                  <div dangerouslySetInnerHTML={{ __html: subtitle }}></div>
+                </div>
+              ) : (
+                <textarea
+                  id="description"
+                  value={subtitle}
+                  placeholder="Enter description"
+                  onChange={(e) => setSubtitle(e.target.value)}
+                />
+              )}
 
               <label htmlFor="resourceType">Media Type</label>
               <select

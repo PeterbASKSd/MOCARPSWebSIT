@@ -516,7 +516,7 @@ const Quiz = () => {
                 {!isTableCollapsed && (
                   <div className="pagination">
                     <span className="records-count">
-                      # of filtering record(s): {sortableResults.length}
+                      number of filtering record(s): {sortableResults.length}
                     </span>
                     <div className="pagination-controls">
                       <button
@@ -604,7 +604,9 @@ const Quiz = () => {
                               <span>{stats.lowestScore}</span>
                             </div>
                             <div className="summary-item">
-                              <span>User's Top Scores Average:</span>
+                              <span>
+                                Average Of Selected Uers' Highest Score
+                              </span>
                               <span>{stats.highestScoreByUser.toFixed(2)}</span>
                             </div>
                           </div>
